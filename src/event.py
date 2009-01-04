@@ -241,9 +241,10 @@ def HandleEvent(event):
     elif event.type == USEREVENT_POLL_FILE:
         dirty = False
         for f in FileProps:
-            if my_stat(f) != GetFileProp(f, 'stat'):
+            s = my_stat(f)
+            if s != GetFileProp(f, 'stat'):
                 dirty = True
-                break
+                SetFileProp(f, 'stat', s)
         if dirty:
             # first, check if the new file is valid
             if not os.path.isfile(GetPageProp(Pcurrent, '_file')):

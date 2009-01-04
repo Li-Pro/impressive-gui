@@ -3,6 +3,8 @@
 - loading image data earlier so that no unhandled exceptions will be thrown
   when a file is broken
 - fixed typo in --aspect parameter
+- using -u doesn't periodically re-load the input file any longer if it changed
+  only once
 
 0.10.2 [2008-02-03]
 - --listtrans now shows which transitions are enabled by default
