@@ -2,6 +2,7 @@
 - fixed display problems when using odd window sizes
 - loading image data earlier so that no unhandled exceptions will be thrown
   when a file is broken
+- fixed typo in --aspect parameter
 
 0.10.2 [2008-02-03]
 - --listtrans now shows which transitions are enabled by default

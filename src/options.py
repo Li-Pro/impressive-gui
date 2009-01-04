@@ -207,7 +207,7 @@ def ParseOptions(argv):
            ["help", "fullscreen", "geometry=", "scale", "supersample", \
             "nocache", "initialpage=", "wrap", "auto", "listtrans", "output=", \
             "rotate=", "transition=", "transtime=", "mousedelay=", "boxfade=", \
-            "zoom=", "gspath=", "meshres=", "noext", "aspect", "memcache", \
+            "zoom=", "gspath=", "meshres=", "noext", "aspect=", "memcache", \
             "noback", "pages=", "poll=", "font=", "fontsize=", "gamma=",
             "duration=", "cursor=", "minutes", "layout=", "script=", "cache=",
             "cachefile=", "autooverview="])
