@@ -76,6 +76,9 @@ def RenderPDF(page, MayAdjustResolution, ZoomMode):
     # open the page image file with PIL
     try:
         img = Image.open(imgfile)
+        img.load()
+    except (KeyboardInterrupt, SystemExit):
+        raise
     except:
         print >>sys.stderr, "Error: %s produced an unreadable file (page %d)" % (renderer, page)
         return DummyPage()
@@ -125,6 +128,9 @@ def LoadImage(page, ZoomMode):
     # open the image file with PIL
     try:
         img = Image.open(GetPageProp(page, '_file'))
+        img.load()
+    except (KeyboardInterrupt, SystemExit):
+        raise
     except:
         print >>sys.stderr, "Image file `%s' is broken." % (FileList[page - 1])
         return DummyPage()
