@@ -123,15 +123,15 @@ def main():
     if AllowExtensions and ("texture_non_power_of_two" in Extensions):
         print >>sys.stderr, "Using GL_ARB_texture_non_power_of_two."
         TextureTarget = GL_TEXTURE_2D
-        TexWidth  = ScreenWidth
-        TexHeight = ScreenHeight
-        TexMaxS = 1.0
-        TexMaxT = 1.0
+        TexWidth  = (ScreenWidth + 3) & (-4)
+        TexHeight = (ScreenHeight + 3) & (-4)
+        TexMaxS = float(ScreenWidth) / TexWidth
+        TexMaxT = float(ScreenHeight) / TexHeight
     elif AllowExtensions and ("texture_rectangle" in Extensions):
         print >>sys.stderr, "Using GL_ARB_texture_rectangle."
         TextureTarget = 0x84F5  # GL_TEXTURE_RECTANGLE_ARB
-        TexWidth  = ScreenWidth
-        TexHeight = ScreenHeight
+        TexWidth  = (ScreenWidth + 3) & (-4)
+        TexHeight = (ScreenHeight + 3) & (-4)
         TexMaxS = ScreenWidth
         TexMaxT = ScreenHeight
     else:
