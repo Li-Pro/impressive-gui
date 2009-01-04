@@ -1,0 +1,21 @@
+# -*- coding: iso8859-1 -*-
+DocumentTitle = "Präsentationen mit KeyJnote"
+AvailableTransitions.remove(PagePeel)
+PageProps = {
+    1: { 'title': "Titelseite", 'transition': PagePeel },
+    2: { 'title': "Präsentationen erstellen" },
+    3: { 'title': "Einschränkungen herkömmlicher Tools", 'transition': PagePeel },
+    4: { 'title': "Was ist KeyJnote?" },
+    5: { 'title': "Software-Anforderungen" },
+    6: { 'title': "Hardware-Anforderungen" },
+    7: { 'title': "Wie funktioniert's?", 'transition': PagePeel },
+    8: { 'title': "Hervorhebungen" },
+    9: { 'title': "Hervorhebungsrahmen und Zoom" },
+   10: { 'title': "Übersichtsseite" },
+   11: { 'title': "Customization" },
+   12: { 'title': "Beispiel für ein Info Script", 'transition': PagePeel },
+   13: { 'title': "Sonstige Features" },
+   14: { 'title': "Exotische Features" },
+   15: { 'title': "Fehlende Features", 'transition': PagePeel },
+   16: { 'title': "Kontakt" },
+}

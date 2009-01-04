@@ -1,0 +1,225 @@
+\documentclass[bigger,hyperref={colorlinks=true,linkcolor=white,urlcolor=blue}]{beamer}
+\usepackage[latin1]{inputenc}
+\usepackage[english]{babel}
+\usepackage{helvet,listings}
+
+\title{Introducing Impressive}
+\author{Martin J. Fiedler}
+%\institute{Silicon Image}
+\date{version 0.10.2}
+\subject{Impressive}
+\titlegraphic{\href{http://impressive.sourceforge.net/}{http://impressive.sourceforge.net/}}
+
+\usetheme{Warsaw}
+\setbeamertemplate{navigation symbols}{}
+
+\begin{document}
+
+\maketitle
+
+
+\section{Overview}
+
+\subsection{What is Impressive?}
+\begin{frame}{What is Impressive?}
+    \large
+    \textbf{Impressive is a PDF and image viewer optimized for presentations}
+    \normalsize
+    \begin{itemize}
+        \item ... with some eye candy ;)
+        \item uses OpenGL for display
+        \item uses Xpdf or GhostScript to render PDF files
+        \item written in Python
+        \item available for Unix-like and Windows operating systems
+        \item Open Source (GPLv2)
+    \end{itemize}
+\end{frame}
+
+\subsection{Software Requirements}
+\begin{frame}{Software Requirements}
+    Impressive requires a few libraries and helper applications:
+    \begin{itemize}
+        \item Python 2.3 or newer
+        \item PyGame (SDL port for Python)
+        \item PyOpenGL
+        \item Python Imaging Library (PIL)
+        \item Xpdf or GhostScript
+        \item pdftk \emph{(optional, but recommended)}
+    \end{itemize}
+    Packages for these dependencies should be available for almost every
+    operating system. \\
+    For Windows, there's a convenient self-contained archive with
+    everything needed.
+\end{frame}
+
+\subsection{Hardware Requirements}
+\begin{frame}{Hardware Requirements}
+    \begin{itemize}
+        \item hardware accelerated OpenGL
+            \begin{itemize}
+                \item every post-2000 graphics chip should do
+                \item Linux/BSD users need a driver that actually implements
+                      hardware acceleration!
+            \end{itemize}
+        \item a fast CPU
+            \begin{itemize}
+                \item some transitions are quite CPU-intensive
+                \item rule of thumb: the faster the better!
+                \item absolute minimum is at about 700 MHz
+            \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\subsection{How does it work?}
+\begin{frame}{How does it work?}
+    \begin{enumerate}
+        \item create slides with the presentation software of your choice
+        \item export them to a PDF file
+        \item \texttt{impressive MySlides.pdf}
+            \begin{itemize}
+                \item left mouse button, [PageDown] or [Space]: \\
+                      next slide
+                \item right mouse button, [PageUp] or [Backspace]: \\
+                      previous slide
+                \item {}[Q] or [Esc]: quit
+            \end{itemize}
+    \end{enumerate}
+\end{frame}
+
+
+\section{Features}
+
+\subsection{Emphasis}
+\begin{frame}{Emphasis}
+    Impressive offers multiple ways of emphasizing parts of a page.
+    \vspace{0.5cm} \\
+    \textbf{Option 1:} {\glqq}Spotlight{\grqq}
+    \begin{itemize}
+        \item toggle with [Enter]
+        \item a bright circular spot follows the mouse cursor
+        \item everything else gets dark and blurry
+        \item spot size adjustable with [+]/[-] or the mouse wheel
+    \end{itemize}
+\end{frame}
+\begin{frame}{Highlight Boxes and Zoom}
+    \textbf{Option 2:} Highlight Boxes
+    \begin{itemize}
+        \item drag a box with the left mouse button
+        \item any number of boxes per page
+        \item delete a box by clicking it with the right mouse button
+        \item boxes stay even after leaving and re-entering the page
+    \end{itemize}
+    
+    \textbf{Option 3:} Zoom
+    \begin{itemize}
+        \item {}[Z] key toggles 2x zoom
+        \item visible image can be moved around with the right mouse button
+    \end{itemize}
+\end{frame}
+
+\subsection{Overview Page}
+\begin{frame}{Overview Page}
+    \begin{itemize}
+        \item press the [Tab] key
+        \item Impressive zooms back to an overview screen showing all pages
+              of the presentation
+        \item new page can be selected with mouse or keyboard
+        \item left mouse button or [Enter] zooms into selected page
+        \item right mouse button or [Tab] cancels and returns to the previously
+              shown page
+    \end{itemize}
+\end{frame}
+
+\subsection{Customization}
+\begin{frame}{Customization}
+    \begin{itemize}
+        \item command line parameters (lots of them!)
+        \item {\glqq}Info Scripts{\grqq}
+        \begin{itemize}
+            \item same name as the input file, but suffix \texttt{.info}, e.g. \\
+                  \texttt{slides.pdf} $\rightarrow$ \texttt{slides.pdf.info}
+            \item real Python scripts, executed before the presentation starts
+            \item can be used to set the document title or other settings
+            \item can be used to set up per-page settings: {\glqq}Page
+                  Properties{\grqq}
+                \begin{itemize}
+                    \item title
+                    \item transition effect
+                    \item ...
+                \end{itemize}
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+\begin{frame}[fragile]
+\frametitle{Info Script Example}
+\begin{verbatim}
+# -*- coding: iso8859-1 -*-
+
+DocumentTitle = "Example Presentation"
+
+PageProps = {
+    1: { 'title': 'Title Page',
+         'transition': PagePeel },
+    2: { 'title': 'Introduction' },
+    5: { 'timeout': 3500 },
+    8: { 'overview': False }
+}
+\end{verbatim}
+\end{frame}
+
+\subsection{Other Features}
+\begin{frame}{Other Features}
+    \begin{itemize}
+        \item support for PDF hyperlinks inside the document
+        \item page cache in RAM or on disk, temporary (default) or persistent
+        \item background rendering
+        \item fade to black or white
+        \item hide specific pages from the overview page
+        \item page bookmarks (keyboard shortcuts)
+        \item only show a subset of the presentation
+        \item rotation in 90-degree steps
+        \item time display and measurement
+    \end{itemize}
+\end{frame}
+\begin{frame}{Rarely Used Features}
+    \begin{itemize}
+        \item automatic, timed presentations
+        \item customization of almost every timing or OSD parameter
+        \item automatic reloading of the input file(s) on change
+        \item permanent storage of the highlight boxes
+        \item playing sounds or videos or executing arbitrary Python code
+              when entering a page
+        \item {\glqq}Render Mode{\grqq}: doesn't show the presentation, but
+              renders the input PDF file into a directory with one PNG file
+              per page
+    \end{itemize}
+\end{frame}
+
+
+\section{Future}
+\subsection{Missing Features}
+\begin{frame}{Missing Features}
+    \begin{itemize}
+        \item painting and annotations
+        \item multi-monitor support
+        \item support for embedded videos
+        \item integration into (or cooperation with) latex-beamer
+              and OpenOffice.org Impress
+        \item \alert{\emph{your feature here}}
+    \end{itemize}
+\end{frame}
+
+\subsection{Get in touch}
+\begin{frame}{Get in touch}
+\begin{center}
+    \textbf{Questions, Suggestions, Comments?} \\
+    just write to \\
+    \href{mailto:martin.fiedler@gmx.net}{martin.fiedler@gmx.net}
+    \vspace{1.5cm} \\
+    \textbf{Try Impressive!} \\
+    packages are available at \\
+    \href{http://impressive.sourceforge.net/}{http://impressive.sourceforge.net/}
+\end{center}
+\end{frame}
+
+\end{document}

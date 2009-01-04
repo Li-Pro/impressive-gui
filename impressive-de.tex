@@ -1,0 +1,294 @@
+\documentclass[bigger,hyperref={colorlinks=true,linkcolor=white,urlcolor=blue}]{beamer}
+\usepackage[latin1]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage{helvet,listings}
+
+\title{Präsentationen mit Impressive}
+\author{Martin J. Fiedler}
+\institute{Silicon Image Germany}
+\date{Chemnitzer Linux-Tage 2007}
+\subject{Impressive}
+\titlegraphic{\href{http://impressive.sourceforge.net/}{http://impressive.sourceforge.net/}}
+
+\usetheme{Warsaw}
+\setbeamertemplate{navigation symbols}{}
+
+\begin{document}
+
+\maketitle
+
+
+\section{Motivation}
+
+\subsection{Präsentationen erstellen}
+\begin{frame}{Präsentationen erstellen}
+    Das Erstellen und Anzeigen von Präsentationen ist unter Linux längst
+    kein Problem mehr.
+    \begin{itemize}
+        \item mit LaTeX:
+            \begin{itemize}
+                \item foiltex
+                \item Prosper
+                \item latex-beamer
+            \end{itemize}
+        \item mit der Maus:
+            \begin{itemize}
+                \item OpenOffice.org Impress
+                \item KPresenter
+            \end{itemize}
+        \item im Browser:
+            \begin{itemize}
+                \item \texttt{@media projection} / Opera Show
+                \item S5
+            \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\subsection{Einschränkungen herkömmlicher Tools}
+\begin{frame}{Einschränkungen herkömmlicher Tools}
+    \begin{itemize}
+        \item Präsentationen sehen recht bieder aus
+            \begin{itemize}
+                \item entweder gar keine Seitenübergänge ...
+                \item ... oder ziemlich hässliche, wie in Powerpoint oder
+                      Acrobat Reader
+            \end{itemize}
+        \item fehlende Features
+            \begin{itemize}
+                \item Sprung zurück zu bestimmter älterer Folie aufwändig
+                      oder unschön
+                    \begin{itemize}
+                        \item wildes Hin- und Herspringen
+                        \item Verlassen des Vollbildmodus
+                    \end{itemize}
+                \item keine Tools, um die Aufmerksamkeit des Publikums auf
+                      bestimmte Teile der Folie zu richten
+            \end{itemize}
+    \end{itemize}
+\end{frame}
+
+
+\section{Impressive-Übersicht}
+
+\subsection{Was ist Impressive?}
+\begin{frame}{Was ist Impressive?}
+    \large
+    \textbf{Impressive ist ein auf Präsentationen zugeschnittener
+            PDF- und Bildbetrachter.}
+    \normalsize
+    \begin{itemize}
+        \item ... mit ein bisschen "`Eye Candy"' ;)
+        \item verwendet OpenGL zur Darstellung
+        \item verwendet GhostScript zum Rendern der PDFs
+        \item in Python geschrieben
+        \item verfügbar für Linux und andere Unixoide sowie Windows
+        \item Open Source, unter GPL lizenziert
+    \end{itemize}
+\end{frame}
+
+\subsection{Software-Anforderungen}
+\begin{frame}{Software-Anforderungen}
+    Impressive benötigt einige Bibliotheken und Hilfsprogramme:
+    \begin{itemize}
+        \item Python ab 2.3
+        \item PyGame (SDL-Port für Python)
+        \item PyOpenGL
+        \item Python Imaging Library (PIL)
+        \item GhostScript
+        \item pdftk \emph{(optional)}
+    \end{itemize}
+    Pakete für diese Abhängigkeiten sollten in jeder Linux-Distribution
+    verfügbar sein. \\
+    Für Debian und Gentoo existieren fertige, aber leicht veraltete
+    Impressive-Pakete.
+\end{frame}
+
+\subsection{Hardware-Anforderungen}
+\begin{frame}{Hardware-Anforderungen}
+    \begin{itemize}
+        \item OpenGL-Hardwarebeschleunigung
+            \begin{itemize}
+                \item nVidia ab GeForce 2 MX (\texttt{nvidia})
+                \item ATI ab Radeon 7000 (\texttt{ati} oder \texttt{fglrx})
+                \item Intel ab GMA 900 (\texttt{i915})
+            \end{itemize}
+        \item schnelle CPU
+            \begin{itemize}
+                \item einige Überblendungen sind ziemlich rechenaufwändig
+                \item Faustregel: je schneller, desto besser!
+                \item absolutes Minimum ca. 500 MHz
+            \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\subsection{Wie funktioniert's?}
+\begin{frame}{Wie funktioniert's?}
+    \begin{enumerate}
+        \item Folien erstellen
+        \item Folien als PDF exportieren
+        \item \texttt{impressive MeineFolien.pdf}
+            \begin{itemize}
+                \item linke Maustaste, [BildAb] oder [Space]: \\
+                      eine Folie weiter
+                \item rechte Maustaste, [BildAuf] oder [Rück]: \\
+                      eine Folie zurück
+                \item {}[Q] oder [Esc]: Beenden
+            \end{itemize}
+    \end{enumerate}
+\end{frame}
+
+
+\section{Features}
+
+\subsection{Hervorhebungen}
+\begin{frame}{Hervorhebungen}
+    Impressive bietet mehrere Möglichkeiten, Teile einer Seite hervorzuheben.
+    \vspace{0.5cm} \\
+    \textbf{Möglichkeit 1:} "`Spotlight"'
+    \begin{itemize}
+        \item Ein-/Ausschalten mit [Enter]
+        \item Rest der Seite wird dunkler und verschwimmt leicht
+        \item kreisförmige Hervorhebung, folgt dem Mauscursor
+        \item Größe mit [+] und [-] einstellbar
+    \end{itemize}
+\end{frame}
+\begin{frame}{Hervorhebungsrahmen und Zoom}
+    \textbf{Möglichkeit 2:} Rahmen
+    \begin{itemize}
+        \item Rahmen mit der linken Maustaste aufziehen
+        \item pro Seite können beliebig viele Rahmen angelegt werden
+        \item Löschen eines Rahmens durch Anklicken mit der rechten Maustaste
+        \item Rahmen bleiben auch nach dem Verlassen der Seite bestehen
+    \end{itemize}
+    
+    \textbf{Möglichkeit 3:} Zoom
+    \begin{itemize}
+        \item Taste [Z] aktiviert/deaktiviert 2x-Zoom
+        \item Verschieben des Bildausschnitts mit gedrückter rechter Maustaste
+    \end{itemize}
+\end{frame}
+
+\subsection{Übersichtsseite}
+\begin{frame}{Übersichtsseite}
+    \begin{itemize}
+        \item mit der Taste [Tab] zoomt man zurück auf eine Übersicht über alle
+              Seiten der Präsentation
+        \item Seite kann mit Maus oder Tastatur ausgewählt werden
+        \item linke Maustaste oder [Enter] zoomt zur Zielseite
+        \item rechte Maustaste oder [Tab] bricht die Auswahl ab und kehrt zur
+              Ursprungsseite zurück
+    \end{itemize}
+\end{frame}
+
+\subsection{Customization}
+\begin{frame}{Customization}
+    \begin{itemize}
+        \item Kommandozeilenparameter
+        \item "`Info Scripts"'
+        \begin{itemize}
+            \item zusätzliches Suffix \texttt{.info}, z.B. \\
+                  \texttt{folien.pdf} $\rightarrow$ \texttt{folien.pdf.info}
+            \item echte Python-Scripte, werden vor dem Start der Präsentation
+                  ausgeführt
+            \item Einstellen von Dokumenttitel oder verfügbaren
+                  Überblendeffekten, Implementieren neuer Effekte, ...
+            \item Einstellen von seitenspezifischen Eigenschaften: "`Page
+                  Properties"'
+                \begin{itemize}
+                    \item Titel
+                    \item Überblendeffekt
+                    \item ...
+                \end{itemize}
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+\begin{frame}[fragile]
+\frametitle{Beispiel für ein Info Script}
+\begin{verbatim}
+# -*- coding: iso8859-1 -*-
+
+DocumentTitle = "Beispielpräsentation"
+
+AvailableTransitions.remove(PagePeel)
+
+PageProps = {
+    1: { 'title': 'Titelseite',
+         'transition': PagePeel },
+    2: { 'title': 'Einführung' },
+    5: { 'timeout': 3500 },
+    8: { 'overview': False }
+}
+\end{verbatim}
+\end{frame}
+
+\subsection{Sonstige Features}
+\begin{frame}{Sonstige Features}
+    \begin{itemize}
+        \item anstatt einer PDF-Datei kann auch ein Verzeichnis mit Bilddateien
+              (JPEG, PNG) als Eingabe verwendet werden
+        \item Seitencache im RAM oder auf Festplatte
+        \item Background-Rendering
+        \item Abblenden nach Weiß oder Schwarz
+        \item Ausblenden einzelner Seiten von der Übersichtsseite oder aus der
+              normalen Rotation
+        \item Einschränkung auf einen Teil der Seiten
+        \item Drehen der Präsentation in 90-Grad-Schritten
+        \item Zeitanzeige und -Messung
+    \end{itemize}
+\end{frame}
+\begin{frame}{Exotische Features}
+    \begin{itemize}
+        \item selbstablaufende Präsentationen
+        \item nahezu alle Timing-Parameter einstellbar
+        \item periodisches Überprüfen der Eingabedatei und automatisches
+              Neuladen
+        \item permanentes Speichern der Hervorhebungsrahmen
+        \item Abspielen eines Sounds beim Betreten einer Seite
+        \item "`Render Mode"': zeigt die Präsentation nicht an, sondern rendert
+              das Eingabe-PDF in ein Verzeichnis als eine PDF-Datei pro Seite
+    \end{itemize}
+\end{frame}
+
+
+\section{Ausblick}
+\subsection{Fehlende Features}
+\begin{frame}{Fehlende Features}
+    \begin{itemize}
+        \item Unterstützung von Hyperlinks innerhalb des Dokuments
+            \begin{itemize}
+                \item latex-beamer verwendet sie zur Navigation: \\
+                      \insertslidenavigationsymbol
+                      \insertframenavigationsymbol
+                      \insertsubsectionnavigationsymbol
+                      \insertsectionnavigationsymbol
+                      \insertdocnavigationsymbol
+                      \insertbackfindforwardnavigationsymbol
+                \item Problem: keine praktikable Möglichkeit, die Hyperlinks
+                      zu extrahieren
+            \end{itemize}
+        \item "`Malen"' im Dokument, Hinzufügen von Notizen
+        \item Unterstützung mehrerer Monitore
+        \item Unterstützung von Videos auf der Seite
+        \item bessere Integration oder Kooperation mit latex-beamer
+        \item \alert{\emph{Hier könnte Ihr Wunschfeature stehen!}}
+    \end{itemize}
+\end{frame}
+
+\subsection{Kontakt}
+\begin{frame}{Kontakt}
+\begin{center}
+    \textbf{Fragen? Wünsche? Kommentare?} \\
+    Bitte jetzt stellen oder an \\
+    \href{mailto:martin.fiedler@gmx.net}{martin.fiedler@gmx.net} \\
+    schicken.
+    \vspace{0.5cm} \\
+    Ansonsten: \\
+    \textbf{Impressive ausprobieren!} \\
+    Pakete gibt es auf \\
+    \href{http://impressive.sourceforge.net/}{http://impressive.sourceforge.net/}
+    \vspace{0.5cm} \\
+    \textbf{Vielen Dank für Ihr Interesse!}    
+\end{center}
+\end{frame}
+
+\end{document}
