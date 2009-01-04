@@ -5,6 +5,7 @@
 - fixed typo in --aspect parameter
 - using -u doesn't periodically re-load the input file any longer if it changed
   only once
+- fixed a bunch of problems related to non-standard aspect ratios
 
 0.10.2 [2008-02-03]
 - --listtrans now shows which transitions are enabled by default

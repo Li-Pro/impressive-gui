@@ -12,29 +12,43 @@ def RenderPDF(page, MayAdjustResolution, ZoomMode):
     global UseGhostScript
     UseGhostScriptOnce = False
 
+    # load props
     SourceFile = GetPageProp(page, '_file')
-    Resolution = GetFileProp(SourceFile, 'res', 96)
     RealPage = GetPageProp(page, '_page')
+    OutputSizes = GetFileProp(SourceFile, 'out', [(ScreenWidth, ScreenHeight), (ScreenWidth, ScreenHeight)])
+    Resolutions = GetFileProp(SourceFile, 'res', [(72.0, 72.0), (72.0, 72.0)])
+    rot = GetPageProp(page, 'rotate')
+    if rot is None: rot = Rotation
+    out = OutputSizes[rot & 1]
+    res = Resolutions[rot & 1]
 
+    # handle supersample and zoom mode
     if Supersample and not(ZoomMode):
-        UseRes = int(0.5 + Resolution) * Supersample
         AlphaBits = 1
     else:
-        UseRes = int(0.5 + Resolution)
         AlphaBits = 4
     if ZoomMode:
-        UseRes = 2 * UseRes
+        res = (2 * res[0], 2 * res[1])
+        out = (2 * out[0], 2 * out[1])
+    elif Supersample:
+        res = (Supersample * res[0], Supersample * res[1])
+        out = (Supersample * out[0], Supersample * out[1])
+    parscale = False
 
     # call pdftoppm to generate the page image
     if not UseGhostScript:
         renderer = "pdftoppm"
         try:
+            useres = max(res[0], res[1])
             assert 0 == spawn(os.P_WAIT, \
                 pdftoppmPath, ["pdftoppm", "-q"] + [ \
                 "-f", str(RealPage), "-l", str(RealPage),
-                "-r", str(int(UseRes)),
+                "-r", str(int(useres + 0.5)),
                 FileNameEscape + SourceFile + FileNameEscape,
                 TempFileName])
+            if abs(1.0 - PAR) > 0.01:
+                parscale = True
+            res = (useres, useres)
             # determine output filename
             digits = GetFileProp(SourceFile, 'digits', 6)
             imgfile = TempFileName + ("-%%0%dd.ppm" % digits) % RealPage
@@ -62,7 +76,7 @@ def RenderPDF(page, MayAdjustResolution, ZoomMode):
                 "-dBATCH", "-dNOPAUSE", "-sDEVICE=tiff24nc", "-dUseCropBox",
                 "-sOutputFile=" + imgfile, \
                 "-dFirstPage=%d" % RealPage, "-dLastPage=%d" % RealPage,
-                "-r%dx%d" % (UseRes, int(UseRes * PAR)), \
+                "-r%dx%d" % (int(res[0] + 0.5), int(res[1] + 0.5)), \
                 "-dTextAlphaBits=%d" % AlphaBits, \
                 "-dGraphicsAlphaBits=%s" % AlphaBits, \
                 FileNameEscape + SourceFile + FileNameEscape])
@@ -90,35 +104,48 @@ def RenderPDF(page, MayAdjustResolution, ZoomMode):
         pass
 
     # apply rotation
-    rot = GetPageProp(page, 'rotate')
-    if rot is None:
-        rot = Rotation
-    if rot:
-        img = img.rotate(90 * (4 - rot))
+    if rot: img = img.rotate(90 * (4 - rot))
 
-    # determine real display size (don't care for ZoomMode, DisplayWidth and
-    # DisplayHeight are only used for Supersample and AdjustResolution anyway)
-    if Supersample:
-        DisplayWidth  = img.size[0] / Supersample
-        DisplayHeight = img.size[1] / Supersample
+    # compute final output image size based on PAR
+    if not parscale:
+        got = img.size
+    elif PAR > 1.0:
+        got = (int(img.size[0] / PAR + 0.5), img.size[1])
     else:
-        DisplayWidth  = img.size[0]
-        DisplayHeight = img.size[1]
+        got = (img.size[0], int(img.size[1] * PAR + 0.5))
 
     # if the image size is strange, re-adjust the rendering resolution
-    if MayAdjustResolution \
-    and ((abs(ScreenWidth  - DisplayWidth)  > 4) \
-    or   (abs(ScreenHeight - DisplayHeight) > 4)):
-        newsize = ZoomToFit((DisplayWidth,DisplayHeight))
-        NewResolution = newsize[0] * Resolution/DisplayWidth
-        if abs(1.0 - NewResolution / Resolution) > 0.05:
+    if MayAdjustResolution and (max(abs(got[0] - out[0]), abs(got[1] - out[1])) >= 4):
+        newout = ZoomToFit((img.size[0], img.size[1] * PAR))
+        rscale = (float(newout[0]) / img.size[0], float(newout[1]) / img.size[1])
+        if rot & 1:
+            newres = (res[0] * rscale[1], res[1] * rscale[0])
+        else:
+            newres = (res[0] * rscale[0], res[1] * rscale[1])
+        if max(abs(1.0 - newres[0] / res[0]), abs(1.0 - newres[1] / res[1])) > 0.05:
             # only modify anything if the resolution deviation is large enough
-            SetFileProp(SourceFile, 'res', NewResolution)
+            OutputSizes[rot & 1] = newout
+            Resolutions[rot & 1] = newres
+            SetFileProp(SourceFile, 'out', OutputSizes)
+            SetFileProp(SourceFile, 'res', Resolutions)
             return RenderPDF(page, False, ZoomMode)
 
     # downsample a supersampled image
     if Supersample and not(ZoomMode):
-        return img.resize((DisplayWidth, DisplayHeight), Image.ANTIALIAS)
+        if Supersample and not(ZoomMode):
+            w = out[0] / Supersample
+            h = out[1] / Supersample
+        else:
+            w, h = out
+        return img.resize((int(w + 0.5), int(h + 0.5)), Image.ANTIALIAS)
+
+    # perform PAR scaling (required for pdftoppm which doesn't support different
+    # dpi for horizontal and vertical)
+    if parscale:
+        if PAR > 1.0:
+            return img.resize((int(img.size[0] / PAR + 0.5), img.size[1]), Image.ANTIALIAS)
+        else:
+            return img.resize((img.size[0], int(img.size[1] * PAR + 0.5)), Image.ANTIALIAS)
 
     return img
 
@@ -143,13 +170,13 @@ def LoadImage(page, ZoomMode):
         img = img.rotate(90 * (4 - rot))
 
     # determine destination size
-    newsize = ZoomToFit(img.size)
+    newsize = ZoomToFit((img.size[0], int(img.size[1] * PAR + 0.5)))
     # don't scale if the source size is too close to the destination size
     if abs(newsize[0] - img.size[0]) < 2: newsize = img.size
     # don't scale if the source is smaller than the destination
     if not(Scaling) and (newsize > img.size): newsize = img.size
     # zoom up (if wanted)
-    if ZoomMode: newsize=(2 * newsize[0], 2 * newsize[1])
+    if ZoomMode: newsize = (2 * newsize[0], 2 * newsize[1])
     # skip processing if there was no change
     if newsize == img.size: return img
 

@@ -23,6 +23,17 @@ def main():
     if not(FileName) and (len(FileList) == 1):
         FileName = FileList[0]
 
+    # detect screen size and compute aspect ratio
+    if Fullscreen and UseAutoScreenSize:
+        size = GetScreenSize()
+        if size:
+            ScreenWidth, ScreenHeight = size
+            print >>sys.stderr, "Detected screen size: %dx%d pixels" % (ScreenWidth, ScreenHeight)
+    if DAR is None:
+        PAR = 1
+    else:
+        PAR = DAR / float(ScreenWidth) * float(ScreenHeight)
+
     # fill the page list
     PageCount = 0
     for name in FileList:
@@ -30,15 +41,20 @@ def main():
         if ispdf:
             # PDF input -> try to pre-parse the PDF file
             pages = 0
+            out = [(ScreenWidth, ScreenHeight), (ScreenWidth, ScreenHeight)]
+            res = [(72.0, 72.0), (72.0, 72.0)]
+
             # phase 1: internal PDF parser
             try:
                 pages, pdf_width, pdf_height = analyze_pdf(name)
-                if Rotation & 1:
-                    pdf_width, pdf_height = (pdf_height, pdf_width)
-                res = min(ScreenWidth  * 72.0 / pdf_width, \
-                          ScreenHeight * 72.0 / pdf_height)
+                out = [ZoomToFit((pdf_width, pdf_height * PAR)),
+                       ZoomToFit((pdf_height, pdf_width * PAR))]
+                res = [(out[0][0] * 72.0 / pdf_width, out[0][1] * 72.0 / pdf_height),
+                       (out[1][1] * 72.0 / pdf_width, out[1][0] * 72.0 / pdf_height)]
+            except KeyboardInterrupt:
+                raise
             except:
-                res = 72.0
+                pass
 
             # phase 2: use pdftk
             try:
@@ -47,6 +63,8 @@ def main():
                      "dump_data", "output", TempFileName + ".txt"])
                 title, pages = pdftkParse(TempFileName + ".txt", PageCount)
                 if DocumentTitle and title: DocumentTitle = title
+            except KeyboardInterrupt:
+                raise
             except:
                 pass
         else:
@@ -69,7 +87,9 @@ def main():
         SetFileProp(name, 'pages', GetFileProp(name, 'pages', []) + pagerange)
         SetFileProp(name, 'offsets', GetFileProp(name, 'offsets', []) + [PageCount])
         if not GetFileProp(name, 'stat'): SetFileProp(name, 'stat', my_stat(name))
-        if ispdf: SetFileProp(name, 'res', res)
+        if ispdf:
+            SetFileProp(name, 'out', out)
+            SetFileProp(name, 'res', res)
         PageCount += pages
 
     # no pages? strange ...
@@ -88,11 +108,6 @@ def main():
 
     # initialize graphics
     pygame.init()
-    if Fullscreen and UseAutoScreenSize:
-        size = GetScreenSize()
-        if size:
-            ScreenWidth, ScreenHeight = size
-            print >>sys.stderr, "Detected screen size: %dx%d pixels" % (ScreenWidth, ScreenHeight)
     flags = OPENGL|DOUBLEBUF
     if Fullscreen:
         flags |= FULLSCREEN
@@ -144,8 +159,6 @@ def main():
     TexSize = TexWidth * TexHeight * 3
 
     # set up some variables
-    if DAR is not None:
-        PAR = DAR / float(ScreenWidth) * float(ScreenHeight)
     MeshStepX = 1.0 / MeshResX
     MeshStepY = 1.0 / MeshResY
     PixelX = 1.0 / ScreenWidth
