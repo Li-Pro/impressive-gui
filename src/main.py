@@ -335,7 +335,24 @@ def main():
 def run_main():
     global CacheFile
     try:
-        main()
+        try:
+            main()
+        except SystemExit:
+            raise
+        except KeyboardInterrupt:
+            pass
+        except:
+            print >>sys.stderr
+            print >>sys.stderr, 79 * "="
+            print >>sys.stderr, "OOPS! Impressive crashed!"
+            print >>sys.stderr, "This shouldn't happen. Please report this incident to the author, including the"
+            print >>sys.stderr, "full output of the program, particularly the following lines."
+            print >>sys.stderr
+            print >>sys.stderr, "Python version:", sys.version
+            print >>sys.stderr, "PyGame version:", pygame.__version__
+            print >>sys.stderr, "PIL version:", Image.VERSION
+            print >>sys.stderr, "PyOpenGL version:", OpenGL.__version__
+            raise
     finally:
         StopMPlayer()
         # ensure that background rendering is halted

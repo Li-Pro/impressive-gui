@@ -10,6 +10,8 @@
 - black-out and white-out are now assigned to keys [.] and [,]
 - PDF hyperlinks are now also available if the cache is disabled
 - releasing all locks at the end of run_main()
+- included some library version numbers in crash messages
+
 
 0.10.2 [2008-02-03]
 - --listtrans now shows which transitions are enabled by default

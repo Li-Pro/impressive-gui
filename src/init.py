@@ -66,7 +66,7 @@ else:
 
 # import special modules
 try:
-    from OpenGL.GL  import *
+    from OpenGL.GL import *
     import pygame
     from pygame.locals import *
     import Image, ImageDraw, ImageFont, ImageFilter
