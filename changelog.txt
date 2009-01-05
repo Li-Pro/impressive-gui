@@ -8,6 +8,7 @@
 - fixed a bunch of problems related to non-standard aspect ratios
 - adjustable zoom factor
 - black-out and white-out are now assigned to keys [.] and [,]
+- PDF hyperlinks are now also available if the cache is disabled
 
 0.10.2 [2008-02-03]
 - --listtrans now shows which transitions are enabled by default

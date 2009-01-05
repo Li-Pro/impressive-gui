@@ -314,6 +314,12 @@ def main():
         RTrunning = True
         thread.start_new_thread(RenderThread, (Pcurrent, Pnext))
 
+    # parse PDF file if caching is disabled
+    if not CacheMode:
+        for pdf in FileProps:
+            if pdf.lower().endswith(".pdf"):
+                ParsePDF(pdf)
+
     # start output and enter main loop
     StartTime = pygame.time.get_ticks()
     pygame.time.set_timer(USEREVENT_TIMER_UPDATE, 100)
