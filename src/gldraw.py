@@ -202,7 +202,7 @@ def DrawFadeMode(intensity, alpha):
     glEnable(TextureTarget)
     pygame.display.flip()
 
-def FadeMode(intensity):
+def EnterFadeMode(intensity=0.0):
     t0 = pygame.time.get_ticks()
     while True:
         if pygame.event.get([KEYDOWN,MOUSEBUTTONUP]): break
@@ -211,6 +211,17 @@ def FadeMode(intensity):
         DrawFadeMode(intensity, t)
     DrawFadeMode(intensity, 1.0)
 
+def LeaveFadeMode(intensity=0.0):
+    t0 = pygame.time.get_ticks()
+    while True:
+        if pygame.event.get([KEYDOWN,MOUSEBUTTONUP]): break
+        t = (pygame.time.get_ticks() - t0) * 1.0 / BlankFadeDuration
+        if t >= 1.0: break
+        DrawFadeMode(intensity, 1.0 - t)
+    DrawCurrentPage()
+
+def FadeMode(intensity):
+    EnterFadeMode(intensity)
     while True:
         event = pygame.event.wait()
         if event.type == QUIT:
@@ -225,14 +236,7 @@ def FadeMode(intensity):
                 pygame.event.post(pygame.event.Event(QUIT))
             else:
                 break
-
-    t0 = pygame.time.get_ticks()
-    while True:
-        if pygame.event.get([KEYDOWN,MOUSEBUTTONUP]): break
-        t = (pygame.time.get_ticks() - t0) * 1.0 / BlankFadeDuration
-        if t >= 1.0: break
-        DrawFadeMode(intensity, 1.0 - t)
-    DrawCurrentPage()
+    LeaveFadeMode(intensity)
 
 # gamma control
 def SetGamma(new_gamma=None, new_black=None, force=False):

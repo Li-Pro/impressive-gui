@@ -11,6 +11,7 @@
 - PDF hyperlinks are now also available if the cache is disabled
 - releasing all locks at the end of run_main()
 - included some library version numbers in crash messages
+- added option to fade in at program start and fade out at program end
 
 
 0.10.2 [2008-02-03]

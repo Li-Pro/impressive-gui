@@ -48,6 +48,7 @@ Display options:
   -C,  --cursor <F[:X,Y]> use a .png image as the mouse cursor
   -L,  --layout <spec>    set the OSD layout (please read the documentation)
   -z,  --zoom <factor>    set zoom factor (integer number, default: 2)
+  -x,  --fade             fade in at start and fade out at end
 
 Timing options:
   -M,  --minutes          display time in minutes, not seconds
@@ -200,18 +201,18 @@ def ParseOptions(argv):
     global PageRangeStart, PageRangeEnd, FontList, FontSize, Gamma, BlackLevel
     global EstimatedDuration, CursorImage, CursorHotspot, MinutesOnly
     global GhostScriptPath, pdftoppmPath, UseGhostScript, InfoScriptPath
-    global AutoOverview, ZoomFactor
+    global AutoOverview, ZoomFactor, FadeInOut
 
-    try:  # unused short options: jknqvxyEHJKNQUVWXY
+    try:  # unused short options: jknqvyEHJKNQUVWXY
         opts, args = getopt.getopt(argv, \
-            "hfg:sc:i:wa:t:lo:r:T:D:B:Z:P:R:eA:mbp:u:F:S:G:d:C:ML:I:O:z:", \
+            "hfg:sc:i:wa:t:lo:r:T:D:B:Z:P:R:eA:mbp:u:F:S:G:d:C:ML:I:O:z:x", \
            ["help", "fullscreen", "geometry=", "scale", "supersample", \
             "nocache", "initialpage=", "wrap", "auto", "listtrans", "output=", \
             "rotate=", "transition=", "transtime=", "mousedelay=", "boxfade=", \
             "zoom=", "gspath=", "meshres=", "noext", "aspect=", "memcache", \
             "noback", "pages=", "poll=", "font=", "fontsize=", "gamma=",
             "duration=", "cursor=", "minutes", "layout=", "script=", "cache=",
-            "cachefile=", "autooverview=", "zoomtime="])
+            "cachefile=", "autooverview=", "zoomtime=", "fade"])
     except getopt.GetoptError, message:
         opterr(message)
 
@@ -230,6 +231,8 @@ def ParseOptions(argv):
             Supersample = 2
         if opt in ("-w", "--wrap"):
             Wrap = not(Wrap)
+        if opt in ("-x", "--fade"):
+            FadeInOut = not(FadeInOut)
         if opt in ("-O", "--autooverview"):
             AutoOverview = ParseAutoOverview(arg)
         if opt in ("-c", "--cache"):

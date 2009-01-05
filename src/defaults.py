@@ -57,3 +57,4 @@ OSDTitlePos = BottomLeft
 OSDPagePos = BottomRight
 OSDStatusPos = TopLeft
 ZoomFactor = 2
+FadeInOut = False

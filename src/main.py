@@ -325,7 +325,10 @@ def main():
     pygame.time.set_timer(USEREVENT_TIMER_UPDATE, 100)
     if not(Fullscreen) and CursorImage:
         pygame.mouse.set_visible(False)
-    DrawCurrentPage()
+    if FadeInOut:
+        LeaveFadeMode()
+    else:
+        DrawCurrentPage()
     UpdateCaption(Pcurrent)
     while True:
         HandleEvent(pygame.event.wait())

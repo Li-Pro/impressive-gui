@@ -36,6 +36,8 @@ def HandleEvent(event):
     global CurrentTime, TimeDisplay, TimeTracking, ProgressBarPos
 
     if event.type == QUIT:
+        if FadeInOut:
+            EnterFadeMode()
         PageLeft()
         Quit()
     elif event.type == VIDEOEXPOSE:
