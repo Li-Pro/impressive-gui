@@ -60,9 +60,9 @@ def HandleEvent(event):
                 tx, ty = MouseToScreen(pygame.mouse.get_pos())
                 EnterZoomMode((1.0 - 1.0 / ZoomFactor) * tx, \
                               (1.0 - 1.0 / ZoomFactor) * ty)
-        elif event.unicode == u'b':
+        elif event.unicode in (u'b', u'.'):
             FadeMode(0.0)
-        elif event.unicode == u'w':
+        elif event.unicode in (u'w', u','):
             FadeMode(1.0)
         elif event.unicode == u't':
             TimeDisplay = not(TimeDisplay)
