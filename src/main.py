@@ -350,3 +350,20 @@ def run_main():
             except OSError:
                 pass
         pygame.quit()
+
+    # release all locks
+    try:
+        if Lrender.locked():
+            Lrender.release()
+    except:
+        pass
+    try:
+        if Lcache.locked():
+            Lcache.release()
+    except:
+        pass
+    try:
+        if Loverview.locked():
+            Loverview.release()
+    except:
+        pass
