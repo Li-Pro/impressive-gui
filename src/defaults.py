@@ -56,3 +56,4 @@ OSDTimePos = TopRight
 OSDTitlePos = BottomLeft
 OSDPagePos = BottomRight
 OSDStatusPos = TopLeft
+ZoomFactor = 2

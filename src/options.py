@@ -47,6 +47,7 @@ Display options:
   -S,  --fontsize <px>    specify the OSD font size in pixels
   -C,  --cursor <F[:X,Y]> use a .png image as the mouse cursor
   -L,  --layout <spec>    set the OSD layout (please read the documentation)
+  -z,  --zoom <factor>    set zoom factor (integer number, default: 2)
 
 Timing options:
   -M,  --minutes          display time in minutes, not seconds
@@ -55,7 +56,7 @@ Timing options:
   -T,  --transtime <ms>   set transition duration in milliseconds
   -D,  --mousedelay <ms>  set mouse hide delay for fullscreen mode (in ms)
   -B,  --boxfade <ms>     set highlight box fade duration in milliseconds
-  -Z,  --zoom <ms>        set zoom duration in milliseconds
+  -Z,  --zoomtime <ms>    set zoom animation duration in milliseconds
 
 Advanced options:
   -c,  --cache <mode>     set page cache mode:
@@ -199,18 +200,18 @@ def ParseOptions(argv):
     global PageRangeStart, PageRangeEnd, FontList, FontSize, Gamma, BlackLevel
     global EstimatedDuration, CursorImage, CursorHotspot, MinutesOnly
     global GhostScriptPath, pdftoppmPath, UseGhostScript, InfoScriptPath
-    global AutoOverview
+    global AutoOverview, ZoomFactor
 
-    try:  # unused short options: jknqvxyzEHJKNQUVWXY
+    try:  # unused short options: jknqvxyEHJKNQUVWXY
         opts, args = getopt.getopt(argv, \
-            "hfg:sc:i:wa:t:lo:r:T:D:B:Z:P:R:eA:mbp:u:F:S:G:d:C:ML:I:O:", \
+            "hfg:sc:i:wa:t:lo:r:T:D:B:Z:P:R:eA:mbp:u:F:S:G:d:C:ML:I:O:z:", \
            ["help", "fullscreen", "geometry=", "scale", "supersample", \
             "nocache", "initialpage=", "wrap", "auto", "listtrans", "output=", \
             "rotate=", "transition=", "transtime=", "mousedelay=", "boxfade=", \
             "zoom=", "gspath=", "meshres=", "noext", "aspect=", "memcache", \
             "noback", "pages=", "poll=", "font=", "fontsize=", "gamma=",
             "duration=", "cursor=", "minutes", "layout=", "script=", "cache=",
-            "cachefile=", "autooverview="])
+            "cachefile=", "autooverview=", "zoomtime="])
     except getopt.GetoptError, message:
         opterr(message)
 
@@ -304,12 +305,12 @@ def ParseOptions(argv):
                 assert (BoxFadeDuration >= 0) and (BoxFadeDuration < 32768)
             except:
                 opterr("invalid parameter for --boxfade")
-        if opt in ("-Z", "--zoom"):
+        if opt in ("-Z", "--zoomtime"):
             try:
                 ZoomDuration = int(arg)
                 assert (ZoomDuration >= 0) and (ZoomDuration < 32768)
             except:
-                opterr("invalid parameter for --zoom")
+                opterr("invalid parameter for --zoomtime")
         if opt in ("-r", "--rotate"):
             try:
                 Rotation = int(arg)
@@ -378,6 +379,12 @@ def ParseOptions(argv):
                 assert (BlackLevel >= 0) and (BlackLevel < 255)
             except:
                 opterr("invalid parameter for --cursor")
+        if opt in ("-z", "--zoom"):
+            try:
+                ZoomFactor = int(arg)
+                assert ZoomFactor > 1
+            except:
+                opterr("invalid parameter for --zoom")
 
     for arg in args:
         AddFile(arg)

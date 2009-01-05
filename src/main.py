@@ -3,7 +3,7 @@
 def main():
     global ScreenWidth, ScreenHeight, TexWidth, TexHeight, TexSize, LogoImage
     global TexMaxS, TexMaxT, MeshStepX, MeshStepY, EdgeX, EdgeY, PixelX, PixelY
-    global OverviewGridSize, OverviewCellX, OverviewCellY
+    global OverviewGridSize, OverviewCellX, OverviewCellY, HaveNPOT
     global OverviewOfsX, OverviewOfsY, OverviewImage, OverviewPageCount
     global OverviewPageMap, OverviewPageMapInv, FileName, FileList, PageCount
     global DocumentTitle, PageProps, LogoTexture, OSDFont
@@ -137,6 +137,7 @@ def main():
                  glGetString(GL_EXTENSIONS).split()])
     if AllowExtensions and ("texture_non_power_of_two" in Extensions):
         print >>sys.stderr, "Using GL_ARB_texture_non_power_of_two."
+        HaveNPOT = True
         TextureTarget = GL_TEXTURE_2D
         TexWidth  = (ScreenWidth + 3) & (-4)
         TexHeight = (ScreenHeight + 3) & (-4)
@@ -144,6 +145,7 @@ def main():
         TexMaxT = float(ScreenHeight) / TexHeight
     elif AllowExtensions and ("texture_rectangle" in Extensions):
         print >>sys.stderr, "Using GL_ARB_texture_rectangle."
+        HaveNPOT = True
         TextureTarget = 0x84F5  # GL_TEXTURE_RECTANGLE_ARB
         TexWidth  = (ScreenWidth + 3) & (-4)
         TexHeight = (ScreenHeight + 3) & (-4)
@@ -151,6 +153,7 @@ def main():
         TexMaxT = ScreenHeight
     else:
         print >>sys.stderr, "Using conventional power-of-two textures with padding."
+        HaveNPOT = False
         TextureTarget = GL_TEXTURE_2D
         TexWidth  = npot(ScreenWidth)
         TexHeight = npot(ScreenHeight)

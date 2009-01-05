@@ -58,7 +58,8 @@ def HandleEvent(event):
                 LeaveZoomMode()
             else:
                 tx, ty = MouseToScreen(pygame.mouse.get_pos())
-                EnterZoomMode(0.5 * tx, 0.5 * ty)
+                EnterZoomMode((1.0 - 1.0 / ZoomFactor) * tx, \
+                              (1.0 - 1.0 / ZoomFactor) * ty)
         elif event.unicode == u'b':
             FadeMode(0.0)
         elif event.unicode == u'w':

@@ -28,8 +28,8 @@ def RenderPDF(page, MayAdjustResolution, ZoomMode):
     else:
         AlphaBits = 4
     if ZoomMode:
-        res = (2 * res[0], 2 * res[1])
-        out = (2 * out[0], 2 * out[1])
+        res = (ZoomFactor * res[0], ZoomFactor * res[1])
+        out = (ZoomFactor * out[0], ZoomFactor * out[1])
     elif Supersample:
         res = (Supersample * res[0], Supersample * res[1])
         out = (Supersample * out[0], Supersample * out[1])
@@ -218,9 +218,9 @@ def PageImage(page, ZoomMode=False, RenderMode=False):
 
         # create black background image to paste real image onto
         if ZoomMode:
-            TextureImage = Image.new('RGB', (2 * TexWidth, 2 * TexHeight))
-            TextureImage.paste(img, ((2 * ScreenWidth  - img.size[0]) / 2, \
-                                     (2 * ScreenHeight - img.size[1]) / 2))
+            TextureImage = Image.new('RGB', (ZoomFactor * TexWidth, ZoomFactor * TexHeight))
+            TextureImage.paste(img, ((ZoomFactor * ScreenWidth  - img.size[0]) / 2, \
+                                     (ZoomFactor * ScreenHeight - img.size[1]) / 2))
         else:
             TextureImage = Image.new('RGB', (TexWidth, TexHeight))
             x0 = (ScreenWidth  - img.size[0]) / 2
@@ -271,7 +271,7 @@ def PageImage(page, ZoomMode=False, RenderMode=False):
 
 # render a page to an OpenGL texture
 def RenderPage(page, target):
-    glBindTexture(TextureTarget ,target)
+    glBindTexture(TextureTarget, target)
     try:
         glTexImage2D(TextureTarget, 0, 3, TexWidth, TexHeight, 0,\
                      GL_RGB, GL_UNSIGNED_BYTE, PageImage(page))

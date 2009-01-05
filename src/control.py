@@ -239,18 +239,18 @@ def ZoomAnimation(targetx, targety, func):
     t0 = pygame.time.get_ticks()
     while True:
         if pygame.event.get([KEYDOWN,MOUSEBUTTONUP]): break
-        t = (pygame.time.get_ticks() - t0)* 1.0 / ZoomDuration
+        t = (pygame.time.get_ticks() - t0) * 1.0 / ZoomDuration
         if t >= 1.0: break
         t = func(t)
         t = (2.0 - t) * t
         ZoomX0 = targetx * t
         ZoomY0 = targety * t
-        ZoomArea = 1.0 - 0.5 * t
+        ZoomArea = 1.0 - (1.0 - 1.0 / ZoomFactor) * t
         DrawCurrentPage()
     t = func(1.0)
     ZoomX0 = targetx * t
     ZoomY0 = targety * t
-    ZoomArea = 1.0 - 0.5 * t
+    ZoomArea = 1.0 - (1.0 - 1.0 / ZoomFactor) * t
     GenerateSpotMesh()
     DrawCurrentPage()
 
@@ -267,22 +267,32 @@ def EnterZoomMode(targetx, targety):
             print >>sys.stderr, "update may also fix the problem."
             ZoomWarningIssued = True
         return
-    if not IsZoomed:
-        glBindTexture(TextureTarget, Tcurrent)
-        try:
-            glTexImage2D(TextureTarget, 0, 3, TexWidth * 2, TexHeight * 2, 0, \
-                         GL_RGB, GL_UNSIGNED_BYTE, PageImage(Pcurrent, True))
-        except GLerror:
-            if not ZoomWarningIssued:
-                print >>sys.stderr, "Sorry, but I can't increase the detail level in zoom mode any further, because"
-                print >>sys.stderr, "your OpenGL implementation does not support that. Either the texture memory is"
-                print >>sys.stderr, "exhausted, or there is no support for large textures (%dx%d). If you really" % (TexWidth * 2, TexHeight * 2)
-                print >>sys.stderr, "need high-res zooming, please try to run Impressive in a smaller resolution"
-                print >>sys.stderr, "using the -g command-line option."
-                ZoomWarningIssued = True
-            return
-        DrawCurrentPage()
-        IsZoomed = True
+    if not(HaveNPOT) and (npot(ZoomFactor) != ZoomFactor):
+        if not ZoomWarningIssued:
+            print >>sys.stderr, "Sorry, but I can't increase the detail level in zoom mode any further when"
+            print >>sys.stderr, "conventional power-of-two textures are used and the zoom factor is not a"
+            print >>sys.stderr, "power of two. Please use another zoom factor or a current graphics card"
+            print >>sys.stderr, "with current drivers."
+            ZoomWarningIssued = True
+        return        
+    if IsZoomed:
+        return
+    glBindTexture(TextureTarget, Tcurrent)
+    try:
+        glTexImage2D(TextureTarget, 0, 3, ZoomFactor * TexWidth, ZoomFactor * TexHeight, 0, \
+                     GL_RGB, GL_UNSIGNED_BYTE, PageImage(Pcurrent, True))
+    except GLerror:
+        if not ZoomWarningIssued:
+            print >>sys.stderr, "Sorry, but I can't increase the detail level in zoom mode any further, because"
+            print >>sys.stderr, "your OpenGL implementation does not support that. Either the texture memory is"
+            print >>sys.stderr, "exhausted, or there is no support for large textures (%dx%d). If you really" \
+                  % (ZoomFactor * TexWidth, ZoomFactor * TexHeight)
+            print >>sys.stderr, "need high-res zooming, please try to run Impressive in a smaller resolution"
+            print >>sys.stderr, "or use a lower zoom factor."
+            ZoomWarningIssued = True
+        return
+    DrawCurrentPage()
+    IsZoomed = True
 
 # leave zoom mode (if enabled)
 def LeaveZoomMode():
