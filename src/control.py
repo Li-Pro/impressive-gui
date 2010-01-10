@@ -122,6 +122,7 @@ def PageEntered(update_time=True):
     shown = GetPageProp(Pcurrent, '_shown', 0)
     if not shown:
         timeout = GetPageProp(Pcurrent, 'timeout', timeout)
+    if not(shown) or GetPageProp(Pcurrent, 'always', False):
         video = GetPageProp(Pcurrent, 'video')
         sound = GetPageProp(Pcurrent, 'sound')
         PlayVideo(video)
@@ -129,7 +130,7 @@ def PageEntered(update_time=True):
             StopMPlayer()
             try:
                 MPlayerProcess = os.Popen( \
-                    [MPlayerPath, "-quiet", "-really-quiet", \
+                    [MPlayerPath, "-quiet", "-really-quiet", "-novideo", \
                      FileNameEscape + sound + FileNameEscape], \
                     stdin=subprocess.PIPE)
             except OSError:

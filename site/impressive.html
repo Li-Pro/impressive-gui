@@ -402,7 +402,10 @@ In any case, the default file name can be overridden by the <code>-I</code> comm
 <dd>Specifies the file name of a sound file to be played (via MPlayer) when the page is first entered. Once started, the sound will be played until its end is reached, another sound or video is played, or Impressive is exited.</dd>
 
 <dt><code>video</code></dt>
-<dd>Specifies the file name of a video file to be played when the page is entered. The video will be displayed full-screen. Any key or mouse click stops playback. Note that this function is highly experimental and might not work reliably on every system!</dd>
+<dd>Specifies the file name of a video file to be played when the page is first entered. The video will be displayed full-screen. Any key or mouse click stops playback, except the cursor keys, which are used to seek in the video file, and space, which can be used to pause playback. Note that this function is highly experimental and might not work reliably on every system!</dd>
+
+<dt><code>always</code></dt>
+<dd>If this property is present and set to 1 or <code>True</code>, the media file specified in the <code>sound</code> or <code>video</code> properties will be played every time the page is entered, not just the first time.</dd>
 
 <dt><code>progress</code></dt>
 <dd>If this property is set to zero, the presentation progress bar (which is usually set up with the <code>-d</code>/<code>--duration</code> command line switch) will not be shown on this page. In practice, it might be useful to hide the bar from the first page so that it is not visible during the introduction.</dd>
