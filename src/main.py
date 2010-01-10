@@ -23,6 +23,9 @@ def main():
     if not(FileName) and (len(FileList) == 1):
         FileName = FileList[0]
 
+    # initialize PyGame
+    pygame.init()
+
     # detect screen size and compute aspect ratio
     if Fullscreen and UseAutoScreenSize:
         size = GetScreenSize()
@@ -107,7 +110,6 @@ def main():
     LoadInfoScript()
 
     # initialize graphics
-    pygame.init()
     flags = OPENGL|DOUBLEBUF
     if Fullscreen:
         flags |= FULLSCREEN
