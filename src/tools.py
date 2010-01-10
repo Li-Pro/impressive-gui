@@ -116,7 +116,11 @@ def analyze_pdf(filename):
 re_unescape = re.compile(r'&#[0-9]+;')
 def decode_literal(m):
     try:
-        return chr(int(m.group(0)[2:-1]))
+        code = int(m.group(0)[2:-1])
+        if code:
+            return chr(code)
+        else:
+            return ""
     except ValueError:
         return '?'
 def unescape_pdf(s):
