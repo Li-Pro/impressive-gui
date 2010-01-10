@@ -199,8 +199,8 @@ def HandleEvent(event):
                 DrawCurrentPage()
             except ValueError:
                 # no box present -> go to previous page
-                LeaveZoomMode()
-                TransitionTo(GetNextPage(Pcurrent, -1))
+                if not ZoomMode:
+                    TransitionTo(GetNextPage(Pcurrent, -1))
         Panning = False
 
     elif event.type == MOUSEMOTION:
