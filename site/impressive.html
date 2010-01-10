@@ -9,12 +9,12 @@
 <!--VERSION-->
 <p style="text-indent:0;">
 <a href="http://impressive.sourceforge.net/">http://impressive.sourceforge.net/</a><br />
-<b>Version:</b> 0.10.2<br />
+<b>Version:</b> 0.10.3-WIP<br />
 <b>Author:</b> <a href="mailto:martin.fiedler@gmx.net">Martin J. Fiedler</a><br />
-<b>Last updated:</b> 2008-05-24</p>
+<b>Last updated:</b> 2010-01-10</p>
 <!--END-->
 <!--man
-.TH IMPRESSIVE 1 2008-05-24 "Martin J. Fiedler" "Impressive Documentation">
+.TH IMPRESSIVE 1 2010-01-10 "Martin J. Fiedler" "Impressive Documentation">
 .SH "NAME"
 Impressive \- presentation tool with eye candy
 .SH "SYNOPSIS"
@@ -173,6 +173,9 @@ If an expected duration is specified, Impressive will show a semi-transparent gr
 <dt><code>-M</code> or <code>--minutes</code></dt>
 <dd>If this option is set, Impressive will show the on-screen timer (activated with the [T] key) only with 1 minute resolution. By default, it will show a timer with 1 second resolution.</dd>
 
+<dt><code>--nologo</code></dt>
+<dd>This option disables the Impressive logo and version number display. Instead, the loading screen will be just black or, if background rendering is disabled, only the progress bar will be visible.</dd>
+
 <dt><code>-o <em>&lt;directory&gt;</em></code> or <code>--output <em>&lt;directory&gt;</em></code></dt>
 <dd>Do not display the presentation, but render it into a series of PNG image files inside the specified directory. The images will be generated in the current resolution as specified by the <code>-g</code> option. This option is useful if you're going to give a presentation on a foreigh PC with an old, broken or otherwise problematic Xpdf or GhostScript installation: By generating images of the PDF pages you can ensure that no rendering bugs will happen on the target system.</dd>
 
@@ -218,7 +221,13 @@ The new PDF file must have at least as much pages as the old one; also, it shoul
 <dt><code>-w</code> or <code>--wrap</code></dt>
 <dd>If this option is set, Impressive will &ldquo;wrap&rdquo; over to the first page after the last page. In other words, advancing to the next page at the end of the presentation will restart the whole presentation.</dd>
 
-<dt><code>-Z <em>&lt;ms&gt;</em></code> or <code>--zoom <em>&lt;ms&gt;</em></code></dt>
+<dt><code>-x</code> or <code>--fade</code></dt>
+<dd>This option enables a smooth fade-in effect at the start of the presentation and a fade-out effect just before Impressive quits.</dd>
+
+<dt><code>-z <em>&lt;factor&gt;</em></code> or <code>--zoom <em>&lt;factor&gt;</em></code></dt>
+<dd>Sets the zoom factor that is used in zoom mode. It must be an integer value of at least 2. The default value is 2. Note that it might not be possible to get high-quality zooming for large zoom factors due to hardware restrictions.</dd>
+
+<dt><code>-Z <em>&lt;ms&gt;</em></code> or <code>--zoomtime <em>&lt;ms&gt;</em></code></dt>
 <dd>Sets the duration (in milliseconds) of the overview page zoom-in/zoom-out effects. Default value: 250 ms.</dd>
 
 <dt><code>--cachefile <em>&lt;filename&gt;</em></code></dt>
