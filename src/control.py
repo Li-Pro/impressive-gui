@@ -83,26 +83,37 @@ def ResetTimer():
 
 # start video playback
 def PlayVideo(video):
-    global MPlayerPID, VideoPlaying
+    global MPlayerProcess, VideoPlaying
     if not video: return
     StopMPlayer()
+    opts = ["-quiet", "-slave", \
+            "-monitorpixelaspect", "1:1", \
+            "-autosync", "100"] + \
+            MPlayerPlatformOptions
+    if Fullscreen:
+        opts += ["-fs"]
+    else:
+        try:
+            opts += ["-wid", str(pygame.display.get_wm_info()['window'])]
+        except KeyError:
+            print >>sys.stderr, "Sorry, but Impressive only supports video on your operating system if fullscreen"
+            print >>sys.stderr, "mode is used."
+            VideoPlaying = False
+            MPlayerProcess = None
+            return
+    opts += [FileNameEscape + video + FileNameEscape]
     try:
-        MPlayerPID = spawn(os.P_NOWAIT, \
-            MPlayerPath, [MPlayerPath, "-quiet",  \
-            "-monitorpixelaspect", "1:1", "-autosync", "100"] + \
-            MPlayerPlatformOptions + [ "-slave", \
-            "-wid", str(pygame.display.get_wm_info()['window']), \
-            FileNameEscape + video + FileNameEscape])
+        MPlayerProcess = subprocess.Popen([MPlayerPath] + opts, stdin=subprocess.PIPE)
         if MPlayerColorKey:
             glClear(GL_COLOR_BUFFER_BIT)
             pygame.display.flip()
         VideoPlaying = True
     except OSError:
-        MPlayerPID = 0
+        MPlayerProcess = None
 
 # called each time a page is entered
 def PageEntered(update_time=True):
-    global PageEnterTime, MPlayerPID, IsZoomed, WantStatus
+    global PageEnterTime, MPlayerProcess, IsZoomed, WantStatus
     if update_time:
         PageEnterTime = pygame.time.get_ticks() - StartTime
     IsZoomed = False  # no, we don't have a pre-zoomed image right now
@@ -117,11 +128,12 @@ def PageEntered(update_time=True):
         if sound and not(video):
             StopMPlayer()
             try:
-                MPlayerPID = spawn(os.P_NOWAIT, \
-                    MPlayerPath, [MPlayerPath, "-quiet", "-really-quiet", \
-                    FileNameEscape + sound + FileNameEscape])
+                MPlayerProcess = os.Popen( \
+                    [MPlayerPath, "-quiet", "-really-quiet", \
+                     FileNameEscape + sound + FileNameEscape], \
+                    stdin=subprocess.PIPE)
             except OSError:
-                MPlayerPID = 0
+                MPlayerProcess = None
         SafeCall(GetPageProp(Pcurrent, 'OnEnterOnce'))
     SafeCall(GetPageProp(Pcurrent, 'OnEnter'))
     if timeout: pygame.time.set_timer(USEREVENT_PAGE_TIMEOUT, timeout)
@@ -155,7 +167,9 @@ def TransitionTo(page):
     global Pcurrent, Pnext, Tcurrent, Tnext
     global PageCount, Marking, Tracing, Panning, TransitionRunning
 
-    # first, stop the auto-timer
+    # first, stop video and kill the auto-timer
+    if VideoPlaying:
+        StopMPlayer()
     pygame.time.set_timer(USEREVENT_PAGE_TIMEOUT, 0)
 
     # invalid page? go away

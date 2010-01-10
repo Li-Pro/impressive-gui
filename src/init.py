@@ -1,6 +1,6 @@
 # import basic modules
 import random, getopt, os, types, re, codecs, tempfile, glob, StringIO, md5, re
-import traceback
+import traceback, subprocess
 from math import *
 
 # initialize some platform-specific settings

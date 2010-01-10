@@ -45,8 +45,25 @@ def HandleEvent(event):
 
     elif event.type == KEYDOWN:
         if VideoPlaying:
-            StopMPlayer()
-            DrawCurrentPage()
+            try:
+                if event.key in (K_ESCAPE, K_RETURN, u'q'):
+                    StopMPlayer()
+                    DrawCurrentPage()
+                elif event.unicode == u' ':
+                    MPlayerProcess.stdin.write('pause\n')
+                elif event.unicode == u'.':
+                    MPlayerProcess.stdin.write('frame_step\n')
+                elif event.key == K_LEFT:
+                    MPlayerProcess.stdin.write('seek -1 pausing_keep\n')
+                elif event.key == K_RIGHT:
+                    MPlayerProcess.stdin.write('seek 1 pausing_keep\n')                
+                elif event.key == K_UP:
+                    MPlayerProcess.stdin.write('seek 10 pausing_keep\n')
+                elif event.key == K_DOWN:
+                    MPlayerProcess.stdin.write('seek -10 pausing_keep\n')                
+            except:
+                StopMPlayer()
+                DrawCurrentPage()
         elif (event.key == K_ESCAPE) or (event.unicode == u'q'):
             pygame.event.post(pygame.event.Event(QUIT))
         elif event.unicode == u'f':
@@ -272,5 +289,9 @@ def HandleEvent(event):
                     thread.start_new_thread(RenderThread, (Pcurrent, Pnext))
 
     elif event.type == USEREVENT_TIMER_UPDATE:
-        if TimerTick():
+        if VideoPlaying and MPlayerProcess:
+            if MPlayerProcess.poll() is not None:
+                StopMPlayer()
+                DrawCurrentPage()
+        elif TimerTick():
             DrawCurrentPage()

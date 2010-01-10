@@ -204,14 +204,14 @@ def OverviewPos(page):
     )
 
 def StopMPlayer():
-    global MPlayerPID, VideoPlaying
-    if not MPlayerPID: return
+    global MPlayerProcess, VideoPlaying
+    if not MPlayerProcess: return
     try:
         if os.name == 'nt':
-            win32api.TerminateProcess(MPlayerPID, 0)
+            win32api.TerminateProcess(MPlayerProcess.pid, 0)
         else:
-            os.kill(MPlayerPID, 2)
-        MPlayerPID = 0
+            os.kill(MPlayerProcess.pid, 2)
+        MPlayerProcess = None
     except:
         pass
     VideoPlaying = False
