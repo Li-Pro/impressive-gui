@@ -229,7 +229,7 @@ def TransitionTo(page):
             if backward: t = 1.0 - t
             glEnable(TextureTarget)
             trans.render(t)
-            DrawOverlays()
+            DrawOverlays(t)
             pygame.display.flip()
         TransitionRunning = False
 

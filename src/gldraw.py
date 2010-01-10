@@ -1,25 +1,33 @@
 ##### OPENGL RENDERING #########################################################
 
 # draw OSD overlays
-def DrawOverlays():
+def DrawOverlays(trans_time=0.0):
     reltime = pygame.time.get_ticks() - StartTime
-    if EstimatedDuration and (OverviewMode or GetPageProp(Pcurrent, 'progress', True)):
-        rel = (0.001 * reltime) / EstimatedDuration
+    if (EstimatedDuration or PageProgress) and (OverviewMode or GetPageProp(Pcurrent, 'progress', True)):
+        if EstimatedDuration:
+            rel = (0.001 * reltime) / EstimatedDuration
+            if rel < 1.0:
+                r, g, b = ProgressBarColorNormal
+            elif rel < ProgressBarWarningFactor:
+                r, g, b = lerpColor(ProgressBarColorNormal, ProgressBarColorWarning,
+                          (rel - 1.0) / (ProgressBarWarningFactor - 1.0))
+            elif rel < ProgressBarCriticalFactor:
+                r, g, b = lerpColor(ProgressBarColorWarning, ProgressBarColorCritical,
+                          (rel - ProgressBarWarningFactor) / (ProgressBarCriticalFactor - ProgressBarWarningFactor))
+            else:
+                r, g, b = ProgressBarColorCritical
+        else:
+            rel = (Pcurrent + trans_time * (Pnext - Pcurrent)) / PageCount
+            r, g, b = ProgressBarColorPage
         x = int(ScreenWidth * rel)
-        y = 1.0 - ProgressBarSize * PixelX
-        a = min(255, max(0, x - ScreenWidth))
-        b = min(255, max(0, x - ScreenWidth - 256))
-        r = a
-        g = 255 - b
-        b = 0
         glDisable(TextureTarget)
         glDisable(GL_TEXTURE_2D)
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glBegin(GL_QUADS)
         glColor4ub(r, g, b, 0)
-        glVertex2d(0, y)
-        glVertex2d(rel, y)
+        glVertex2d(0, 1.0 - ProgressBarSizeFactor)
+        glVertex2d(rel, 1.0 - ProgressBarSizeFactor)
         glColor4ub(r, g, b, ProgressBarAlpha)
         glVertex2d(rel, 1.0)
         glVertex2d(0, 1.0)

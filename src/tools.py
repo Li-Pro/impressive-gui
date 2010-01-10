@@ -98,6 +98,10 @@ def num(s):
     except ValueError:
         return -1
 
+# linearly interpolate between two 8-bit RGB colors represented as tuples
+def lerpColor(a, b, t):
+    return tuple([min(255, max(0, int(x + t * (y - x) + 0.5))) for x, y in zip(a, b)])
+
 # get a representative subset of file statistics
 def my_stat(filename):
     try:

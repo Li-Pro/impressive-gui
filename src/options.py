@@ -203,11 +203,11 @@ def ParseOptions(argv):
     global PageRangeStart, PageRangeEnd, FontList, FontSize, Gamma, BlackLevel
     global EstimatedDuration, CursorImage, CursorHotspot, MinutesOnly
     global GhostScriptPath, pdftoppmPath, UseGhostScript, InfoScriptPath
-    global AutoOverview, ZoomFactor, FadeInOut, ShowLogo, Shuffle
+    global AutoOverview, ZoomFactor, FadeInOut, ShowLogo, Shuffle, PageProgress
 
-    try:  # unused short options: jknqvyEHJKNQUVWXY
+    try:  # unused short options: jknqvyEHJKNQUVWY
         opts, args = getopt.getopt(argv, \
-            "hfg:sc:i:wa:t:lo:r:T:D:B:Z:P:R:eA:mbp:u:F:S:G:d:C:ML:I:O:z:xX", \
+            "hfg:sc:i:wa:t:lo:r:T:D:B:Z:P:R:eA:mbp:u:F:S:G:d:C:ML:I:O:z:xXq", \
            ["help", "fullscreen", "geometry=", "scale", "supersample", \
             "nocache", "initialpage=", "wrap", "auto", "listtrans", "output=", \
             "rotate=", "transition=", "transtime=", "mousedelay=", "boxfade=", \
@@ -215,7 +215,7 @@ def ParseOptions(argv):
             "noback", "pages=", "poll=", "font=", "fontsize=", "gamma=",
             "duration=", "cursor=", "minutes", "layout=", "script=", "cache=",
             "cachefile=", "autooverview=", "zoomtime=", "fade", "nologo",
-            "shuffle"])
+            "shuffle", "page-progress"])
     except getopt.GetoptError, message:
         opterr(message)
 
@@ -267,6 +267,8 @@ def ParseOptions(argv):
             ShowLogo = not(ShowLogo)
         if opt in ("-X", "--shuffle"):
             Shuffle = not(Shuffle)
+        if opt in ("-q", "--page-progress"):
+            PageProgress = not(PageProgress)
         if opt in ("-P", "--gspath"):
             UseGhostScript = (arg.replace("\\", "/").split("/")[-1].lower().find("pdftoppm") < 0)
             if UseGhostScript:
