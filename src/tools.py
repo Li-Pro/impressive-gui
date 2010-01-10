@@ -1,3 +1,5 @@
+##### TOOL CODE ################################################################
+
 # read and write the PageProps and FileProps meta-dictionaries
 def GetProp(prop_dict, key, prop, default=None):
     if not key in prop_dict: return default
