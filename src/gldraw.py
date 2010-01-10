@@ -160,6 +160,8 @@ def DrawCurrentPage(dark=1.0, do_flip=True):
 def DrawLogo():
     glClear(GL_COLOR_BUFFER_BIT)
     glColor3ub(255, 255, 255)
+    if not ShowLogo:
+        return
     if TextureTarget != GL_TEXTURE_2D:
         glDisable(TextureTarget)
     glEnable(GL_TEXTURE_2D)

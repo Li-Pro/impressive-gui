@@ -70,6 +70,7 @@ Advanced options:
   -P,  --gspath <path>    set path to GhostScript or pdftoppm executable
   -R,  --meshres <XxY>    set mesh resolution for effects (default: 48x36)
   -e,  --noext            don't use OpenGL texture size extensions
+       --nologo           disable startup logo and version number display
 
 For detailed information, visit""", __website__
     sys.exit(code)
@@ -201,7 +202,7 @@ def ParseOptions(argv):
     global PageRangeStart, PageRangeEnd, FontList, FontSize, Gamma, BlackLevel
     global EstimatedDuration, CursorImage, CursorHotspot, MinutesOnly
     global GhostScriptPath, pdftoppmPath, UseGhostScript, InfoScriptPath
-    global AutoOverview, ZoomFactor, FadeInOut
+    global AutoOverview, ZoomFactor, FadeInOut, ShowLogo
 
     try:  # unused short options: jknqvyEHJKNQUVWXY
         opts, args = getopt.getopt(argv, \
@@ -212,7 +213,7 @@ def ParseOptions(argv):
             "zoom=", "gspath=", "meshres=", "noext", "aspect=", "memcache", \
             "noback", "pages=", "poll=", "font=", "fontsize=", "gamma=",
             "duration=", "cursor=", "minutes", "layout=", "script=", "cache=",
-            "cachefile=", "autooverview=", "zoomtime=", "fade"])
+            "cachefile=", "autooverview=", "zoomtime=", "fade", "nologo"])
     except getopt.GetoptError, message:
         opterr(message)
 
@@ -260,6 +261,8 @@ def ParseOptions(argv):
             InfoScriptPath = arg
         if opt in ("-F", "--font"):
             FontList = [arg]
+        if opt == "--nologo":
+            ShowLogo = not(ShowLogo)
         if opt in ("-P", "--gspath"):
             UseGhostScript = (arg.replace("\\", "/").split("/")[-1].lower().find("pdftoppm") < 0)
             if UseGhostScript:
