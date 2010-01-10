@@ -115,7 +115,8 @@ def RenderPDF(page, MayAdjustResolution, ZoomMode):
         got = (img.size[0], int(img.size[1] * PAR + 0.5))
 
     # if the image size is strange, re-adjust the rendering resolution
-    if MayAdjustResolution and (max(abs(got[0] - out[0]), abs(got[1] - out[1])) >= 4):
+    tolerance = max(4, (ScreenWidth + ScreenHeight) / 400)
+    if MayAdjustResolution and (max(abs(got[0] - out[0]), abs(got[1] - out[1])) >= tolerance):
         newout = ZoomToFit((img.size[0], img.size[1] * PAR))
         rscale = (float(newout[0]) / img.size[0], float(newout[1]) / img.size[1])
         if rot & 1:
@@ -170,7 +171,8 @@ def LoadImage(page, ZoomMode):
         img = img.rotate(90 * (4 - rot))
 
     # determine destination size
-    newsize = ZoomToFit((img.size[0], int(img.size[1] * PAR + 0.5)))
+    newsize = ZoomToFit((img.size[0], int(img.size[1] * PAR + 0.5)),
+                        (ScreenWidth, ScreenHeight))
     # don't scale if the source size is too close to the destination size
     if abs(newsize[0] - img.size[0]) < 2: newsize = img.size
     # don't scale if the source is smaller than the destination
@@ -182,9 +184,9 @@ def LoadImage(page, ZoomMode):
 
     # select a nice filter and resize the image
     if newsize > img.size:
-      filter = Image.BICUBIC
+        filter = Image.BICUBIC
     else:
-      filter = Image.ANTIALIAS
+        filter = Image.ANTIALIAS
     return img.resize(newsize, filter)
 
 

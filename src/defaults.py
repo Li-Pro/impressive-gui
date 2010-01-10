@@ -34,6 +34,7 @@ Rotation = 0
 AllowExtensions = True
 DAR = None
 PAR = 1.0
+Overscan = 3
 PollInterval = 0
 PageRangeStart = 0
 PageRangeEnd = 999999

@@ -46,7 +46,8 @@ def main():
         if ispdf:
             # PDF input -> try to pre-parse the PDF file
             pages = 0
-            out = [(ScreenWidth, ScreenHeight), (ScreenWidth, ScreenHeight)]
+            out = [(ScreenWidth + Overscan, ScreenHeight + Overscan),
+                   (ScreenWidth + Overscan, ScreenHeight + Overscan)]
             res = [(72.0, 72.0), (72.0, 72.0)]
 
             # phase 1: internal PDF parser

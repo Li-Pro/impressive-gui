@@ -221,6 +221,9 @@ The following modes are available:<dl>
 <dd>If this option is specified, the source file or directory will be checked for changed regularly. If a change in the input PDF file or any of the image files in the input image directory is detected, the page cache will be flushed and the current page as well as the info script will be reloaded. The current page's transition will be shown between the old and the new version of the page.<br />
 The new PDF file must have at least as much pages as the old one; also, it should have the same aspect ratio. If the input is a directory, image files must not have disappeared.</dd>
 
+<dt><code>-V <em>&lt;pixels&gt;</em></code> or <code>--overscan <em>&lt;pixels&gt;</em></code></dt>
+<dd>PDF files often contain tiny amounts of white borders around the edges which look bad in screen presentations. To eliminate this problem, Impressive uses &raquo;overscan&laquo;: PDF files will not be rendered to fit the screen size exactly, but they will be rendered a bit larger so that the (possibly broken) borders can be cropped off. The amount of overscan, in screen pixels, can be set with this option. The default value is 3 pixels, which should remove borders in most presentations at most common screen resolutions without cropping the pages too much.</dd>
+
 <dt><code>-w</code> or <code>--wrap</code></dt>
 <dd>If this option is set, Impressive will &ldquo;wrap&rdquo; over to the first page after the last page. In other words, advancing to the next page at the end of the presentation will restart the whole presentation.</dd>
 

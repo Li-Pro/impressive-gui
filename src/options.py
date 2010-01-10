@@ -20,11 +20,11 @@ Input options:
   -I,  --script <path>    set the path of the info script
   -u,  --poll <seconds>   check periodically if the source file has been
                           updated and reload it if it did
-  -o,  --output <dir>     don't display the presentation, only render to .png
   -X,  --shuffle          put input files into random order
   -h,  --help             show this help text and exit
 
 Output options:
+  -o,  --output <dir>     don't display the presentation, only render to .png
   -f,  --fullscreen       """+if_op(Fullscreen,"do NOT ","")+"""start in fullscreen mode
   -g,  --geometry <WxH>   set window size or fullscreen resolution
   -A,  --aspect <X:Y>     adjust for a specific display aspect ratio (e.g. 5:4)
@@ -71,6 +71,7 @@ Advanced options:
   -P,  --gspath <path>    set path to GhostScript or pdftoppm executable
   -R,  --meshres <XxY>    set mesh resolution for effects (default: 48x36)
   -e,  --noext            don't use OpenGL texture size extensions
+  -V,  --overscan <px>    render PDF files <px> pixels larger than the screen
        --nologo           disable startup logo and version number display
 
 For detailed information, visit""", __website__
@@ -201,13 +202,13 @@ def ParseOptions(argv):
     global AutoAdvance, RenderToDirectory, Rotation, AllowExtensions, DAR
     global BackgroundRendering, UseAutoScreenSize, PollInterval, CacheFileName
     global PageRangeStart, PageRangeEnd, FontList, FontSize, Gamma, BlackLevel
-    global EstimatedDuration, CursorImage, CursorHotspot, MinutesOnly
+    global EstimatedDuration, CursorImage, CursorHotspot, MinutesOnly, Overscan
     global GhostScriptPath, pdftoppmPath, UseGhostScript, InfoScriptPath
     global AutoOverview, ZoomFactor, FadeInOut, ShowLogo, Shuffle, PageProgress
 
-    try:  # unused short options: jknqvyEHJKNQUVWY
+    try:  # unused short options: jknqvyEHJKNQUWY
         opts, args = getopt.getopt(argv, \
-            "hfg:sc:i:wa:t:lo:r:T:D:B:Z:P:R:eA:mbp:u:F:S:G:d:C:ML:I:O:z:xXq", \
+            "hfg:sc:i:wa:t:lo:r:T:D:B:Z:P:R:eA:mbp:u:F:S:G:d:C:ML:I:O:z:xXqV:", \
            ["help", "fullscreen", "geometry=", "scale", "supersample", \
             "nocache", "initialpage=", "wrap", "auto", "listtrans", "output=", \
             "rotate=", "transition=", "transtime=", "mousedelay=", "boxfade=", \
@@ -215,7 +216,7 @@ def ParseOptions(argv):
             "noback", "pages=", "poll=", "font=", "fontsize=", "gamma=",
             "duration=", "cursor=", "minutes", "layout=", "script=", "cache=",
             "cachefile=", "autooverview=", "zoomtime=", "fade", "nologo",
-            "shuffle", "page-progress"])
+            "shuffle", "page-progress", "overscan"])
     except getopt.GetoptError, message:
         opterr(message)
 
@@ -397,6 +398,11 @@ def ParseOptions(argv):
                 assert ZoomFactor > 1
             except:
                 opterr("invalid parameter for --zoom")
+        if opt in ("-V", "--overscan"):
+            try:
+                Overscan = int(arg)
+            except:
+                opterr("invalid parameter for --overscan")
 
     for arg in args:
         AddFile(arg)

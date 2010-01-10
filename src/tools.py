@@ -192,7 +192,7 @@ def FindBox(x, y, boxes):
 # zoom an image size to a destination size, preserving the aspect ratio
 def ZoomToFit(size, dest=None):
     if not dest:
-        dest = (ScreenWidth, ScreenHeight)
+        dest = (ScreenWidth + Overscan, ScreenHeight + Overscan)
     newx = dest[0]
     newy = size[1] * newx / size[0]
     if newy > dest[1]:
