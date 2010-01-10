@@ -38,6 +38,8 @@ def main():
         PAR = DAR / float(ScreenWidth) * float(ScreenHeight)
 
     # fill the page list
+    if Shuffle:
+        random.shuffle(FileList)
     PageCount = 0
     for name in FileList:
         ispdf = name.lower().endswith(".pdf")

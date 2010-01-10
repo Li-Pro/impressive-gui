@@ -59,3 +59,4 @@ OSDStatusPos = TopLeft
 ZoomFactor = 2
 FadeInOut = False
 ShowLogo = True
+Shuffle = False

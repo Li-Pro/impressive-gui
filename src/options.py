@@ -21,6 +21,7 @@ Input options:
   -u,  --poll <seconds>   check periodically if the source file has been
                           updated and reload it if it did
   -o,  --output <dir>     don't display the presentation, only render to .png
+  -X,  --shuffle          put input files into random order
   -h,  --help             show this help text and exit
 
 Output options:
@@ -202,18 +203,19 @@ def ParseOptions(argv):
     global PageRangeStart, PageRangeEnd, FontList, FontSize, Gamma, BlackLevel
     global EstimatedDuration, CursorImage, CursorHotspot, MinutesOnly
     global GhostScriptPath, pdftoppmPath, UseGhostScript, InfoScriptPath
-    global AutoOverview, ZoomFactor, FadeInOut, ShowLogo
+    global AutoOverview, ZoomFactor, FadeInOut, ShowLogo, Shuffle
 
     try:  # unused short options: jknqvyEHJKNQUVWXY
         opts, args = getopt.getopt(argv, \
-            "hfg:sc:i:wa:t:lo:r:T:D:B:Z:P:R:eA:mbp:u:F:S:G:d:C:ML:I:O:z:x", \
+            "hfg:sc:i:wa:t:lo:r:T:D:B:Z:P:R:eA:mbp:u:F:S:G:d:C:ML:I:O:z:xX", \
            ["help", "fullscreen", "geometry=", "scale", "supersample", \
             "nocache", "initialpage=", "wrap", "auto", "listtrans", "output=", \
             "rotate=", "transition=", "transtime=", "mousedelay=", "boxfade=", \
             "zoom=", "gspath=", "meshres=", "noext", "aspect=", "memcache", \
             "noback", "pages=", "poll=", "font=", "fontsize=", "gamma=",
             "duration=", "cursor=", "minutes", "layout=", "script=", "cache=",
-            "cachefile=", "autooverview=", "zoomtime=", "fade", "nologo"])
+            "cachefile=", "autooverview=", "zoomtime=", "fade", "nologo",
+            "shuffle"])
     except getopt.GetoptError, message:
         opterr(message)
 
@@ -263,6 +265,8 @@ def ParseOptions(argv):
             FontList = [arg]
         if opt == "--nologo":
             ShowLogo = not(ShowLogo)
+        if opt in ("-X", "--shuffle"):
+            Shuffle = not(Shuffle)
         if opt in ("-P", "--gspath"):
             UseGhostScript = (arg.replace("\\", "/").split("/")[-1].lower().find("pdftoppm") < 0)
             if UseGhostScript:
