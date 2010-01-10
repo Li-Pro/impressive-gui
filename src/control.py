@@ -120,7 +120,7 @@ def PageEntered(update_time=True):
     WantStatus = False  # don't show status unless it's changed interactively
     timeout = AutoAdvance
     shown = GetPageProp(Pcurrent, '_shown', 0)
-    if not shown:
+    if not(shown) or Wrap:
         timeout = GetPageProp(Pcurrent, 'timeout', timeout)
     if not(shown) or GetPageProp(Pcurrent, 'always', False):
         video = GetPageProp(Pcurrent, 'video')

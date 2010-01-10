@@ -393,7 +393,7 @@ In any case, the default file name can be overridden by the <code>-I</code> comm
 <dd>This property stores a list of highlight box coordinates. Normally, there is no need to edit this by hand, as Impressive handles this automatically if the <strong>S</strong> key is pressed.</dd>
 
 <dt><code>timeout</code></dt>
-<dd>If a <code>timeout</code> property is present and the page is shown for the first time, Impressive will automatically switch to the next page after the specified number of milliseconds.</dd>
+<dd>If a <code>timeout</code> property is present and the page is shown, Impressive will automatically switch to the next page after the specified number of milliseconds. Normally, the timeout will only be effective the first time the page is shown unless wrap mode is used (command-line option <code>-w</code> or <code>--wrap</code>). This restriction makes it possible to create self-running presentations with individual per-page timeouts.</dd>
 
 <dt><code>comment</code></dt>
 <dd>This property can hold a string with a single line of text that will be displayed on screen while the page is shown. Display of this text can not be disabled.</dd>
