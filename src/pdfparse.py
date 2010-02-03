@@ -114,7 +114,7 @@ class PDFParser:
         data = pdf_mask_all_strings(data)
         data = data.replace("<<", " << ").replace("[", " [ ").replace("(", " (")
         data = data.replace(">>", " >> ").replace("]", " ] ").replace(")", ") ")
-        data = data.replace("/", " /")
+        data = data.replace("/", " /").replace("><", "> <")
         return self.parse_tokens(filter(None, data.split()))
 
     def getobj(self, obj, force_type=None):
@@ -168,18 +168,19 @@ class PDFParser:
             start, count = map(int, line.split())
             xref.update(self.parse_xref_section(start, count))
         # parse trailer
+        trailer = ""
         while True:
             line = self.getline()
             if line in ("startxref", "%%EOF"): break
-            if line[0] != '/': continue
-            parts = line[1:].split()
-            if parts[0] == 'Prev':
-                offset = int(parts[1])
-            if parts[0] == 'Root':
-                if (len(parts) != 4) or (parts[3] != 'R'):
-                    raise PDFError, "root catalog entry is not a reference"
-                rootref = int(parts[1])
-        return (xref, rootref, offset)
+            trailer += line
+        trailer = self.parse(trailer)
+        try:
+            rootref = trailer['Root'].ref
+        except KeyError:
+            raise PDFError, "root catalog entry missing"
+        except AttributeError:
+            raise PDFError, "root catalog entry is not a reference"
+        return (xref, rootref, trailer.get('Prev', 0))
 
     def scan_page_tree(self, obj, mbox=None, cbox=None):
         node = self.getobj(obj)
