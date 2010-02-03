@@ -241,6 +241,7 @@ def SafeCall(func, args=[], kwargs={}):
         print >>sys.stderr, "----- End of traceback -----"
 
 def Quit(code=0):
+    pygame.display.quit()
     print >>sys.stderr, "Total presentation time: %s." % \
                         FormatTime((pygame.time.get_ticks() - StartTime) / 1000)
     sys.exit(code)
