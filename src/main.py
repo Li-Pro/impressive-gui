@@ -133,7 +133,9 @@ def main():
     # check if graphics are unaccelerated
     renderer = glGetString(GL_RENDERER)
     print >>sys.stderr, "OpenGL renderer:", renderer
-    if renderer.lower() in ("mesa glx indirect", "gdi generic"):
+    renderer = renderer.lower()
+    if (renderer in ("mesa glx indirect", "gdi generic")) \
+    or renderer.startswith("software"):
         print >>sys.stderr, "WARNING: Using an OpenGL software renderer. Impressive will work, but it will"
         print >>sys.stderr, "         very likely be too slow to be usable."
 
