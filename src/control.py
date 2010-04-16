@@ -129,7 +129,7 @@ def PageEntered(update_time=True):
         if sound and not(video):
             StopMPlayer()
             try:
-                MPlayerProcess = os.Popen( \
+                MPlayerProcess = subprocess.Popen( \
                     [MPlayerPath, "-quiet", "-really-quiet", "-novideo", \
                      FileNameEscape + sound + FileNameEscape], \
                     stdin=subprocess.PIPE)
