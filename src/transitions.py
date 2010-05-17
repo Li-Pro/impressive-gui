@@ -34,12 +34,26 @@ def EnableAlphaBlend():
 class Crossfade(Transition):
     """simple crossfade"""
     def render(self,t):
-      DrawPageDirect(Tcurrent)
-      EnableAlphaBlend()
-      glBindTexture(TextureTarget, Tnext)
-      glColor4d(1, 1, 1, t)
-      DrawFullQuad()
+       DrawPageDirect(Tcurrent)
+       EnableAlphaBlend()
+       glBindTexture(TextureTarget, Tnext)
+       glColor4d(1, 1, 1, t)
+       DrawFullQuad()
 AllTransitions.append(Crossfade)
+
+
+# FadeOutFadeIn: again, very simple :)
+class FadeOutFadeIn(Transition):
+    """fade out to black and fade in again"""
+    def render(self,t):
+        if t < 0.5:
+            glBindTexture(TextureTarget, Tcurrent)
+        else:
+            glBindTexture(TextureTarget, Tnext)
+        c = fabs(2.0 * t - 1.0)
+        glColor3d(c, c, c)
+        DrawFullQuad()
+AllTransitions.append(FadeOutFadeIn)
 
 
 # Slide: a class of transitions that simply slide the new page in from one side
