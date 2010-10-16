@@ -45,17 +45,22 @@ class PDFParser:
             self.xref, rootref, offset = self.parse_trailer(offset)
             self.xref.update(newxref)
 
-        # scan the page tree
+        # scan the page and names tree
         self.obj2page = {}
         self.page2obj = {}
         self.annots = {}
         self.page_count = 0
         self.box = {}
+        self.names = {}
         root = self.getobj(rootref, 'Catalog')
         try:
             self.scan_page_tree(root['Pages'].ref)
         except KeyError:
             raise PDFError, "root page tree node missing"
+        try:
+            self.scan_names_tree(root['Names'].ref)
+        except KeyError:
+            pass
 
     def getline(self):
         while True:
@@ -118,6 +123,10 @@ class PDFParser:
         return self.parse_tokens(filter(None, data.split()))
 
     def getobj(self, obj, force_type=None):
+        if obj.__class__ == PDFref:
+            obj = obj.ref
+        if type(obj) != types.IntType:
+            raise PDFError, "object is not a valid reference"
         offset = self.xref.get(obj, 0)
         if not offset:
             raise PDFError, "referenced non-existing PDF object"
@@ -198,7 +207,36 @@ class PDFParser:
             self.annots[page] = [a.ref for a in anode]
             self.box[page] = node.get('CropBox', cbox) or node.get('MediaBox', mbox)
 
+    def scan_names_tree(self, obj, come_from=None, name=None):
+        try:
+            node = self.getobj(obj)
+            # if we came from the root node, proceed to Dests
+            if not come_from:
+                for entry in ('Dests', ):
+                    if entry in node:
+                        self.scan_names_tree(node[entry], entry)
+            elif come_from == 'Dests':
+                if 'Kids' in node:
+                    for kid in node['Kids']:
+                        self.scan_names_tree(kid, come_from)
+                elif 'Names' in node:
+                    nlist = node['Names']
+                    while (len(nlist) >= 2) \
+                    and (type(nlist[0]) == types.StringType) \
+                    and (nlist[1].__class__ == PDFref):
+                        self.scan_names_tree(nlist[1], come_from, nlist[0])
+                        del nlist[:2]
+                elif name and ('D' in node):
+                    page = self.dest2page(node['D'])
+                    if page:
+                        self.names[name] = page
+            # else: unsupported node, don't care
+        except PDFError:
+            pass  #  errors in the Names tree aren't critical, just ignore them
+
     def dest2page(self, dest):
+        if type(dest) in (types.StringType, types.UnicodeType):
+            return self.names.get(dest, None)
         if type(dest) != types.ListType:
             return dest
         elif dest[0].__class__ == PDFref:
