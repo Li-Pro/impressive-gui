@@ -1,7 +1,7 @@
-all: man demo
+all: impressive.py impressive.1 demo
 
-man: site/impressive.html html2man.py
-	python html2man.py -O impressive.1 site/impressive.html
+impressive.1: site/impressive.html html2man.py
+	python html2man.py -O $@ site/impressive.html
 
 demo: demo.pdf
 
@@ -12,18 +12,17 @@ release:
 	sh makerelease.sh
 
 %.pdf:	%.tex
-	pdflatex $<
-	pdflatex $<
+	pdflatex -halt-on-error $<
+	pdflatex -halt-on-error $<
 
-clt:	impressive-de.pdf
-	sudo cpufreq-set -f 1733000
-	./impressive.py -e impressive-de.pdf
-	sudo cpufreq-set -f 800000
+impressive.py: compile.py impressive_dev.py src/*.py
+	python compile.py
+	chmod +x $@
 
 clean:
-	rm -f *.{nav,out,snm,toc,vrb,aux,log,pyc,pyo}
+	rm -f *.{nav,out,snm,toc,vrb,aux,log,pyc,pyo} impressive.1 impressive.py
 
 distclean: clean
-	rm -f impressive-de.pdf
+	rm -f demo.pdf
 
-.PHONY: all man demo test release clt clean distclean
+.PHONY: all man demo test release clean distclean
