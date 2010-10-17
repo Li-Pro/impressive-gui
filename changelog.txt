@@ -12,7 +12,25 @@
 - releasing all locks at the end of run_main()
 - included some library version numbers in crash messages
 - added option to fade in at program start and fade out at program end
-
+- added --nologo option
+- added shuffle feature
+- right mouse button will no longer switch to previous page in zoom mode
+  (prevents accidental page switches)
+- improved MPlayer interface
+- added 'always' PageProp to play sound or video every time a page is entered
+- 'timeout' PageProp is now respected every time a page is entered if wrap mode
+  (-w) is enabled
+- added finer-grained control over the progress bar colors and timing;
+  added --page-progress option
+- added overscan option
+- display will now be quickly uninitialized when Impressive quits
+- improved PDF parser robustness
+- now using hashlib instead of md5 module, if available, to avoid a
+  DeprecationWarning on Python 2.6
+- software rendering warning now also reacts on any OpenGL renderer string
+  beginning with 'software'
+- added FadeOutFadeIn transition (idea by Antonio Terceiro)
+- hyperlinks now work correctly on rotated pages
 
 0.10.2 [2008-02-03]
 - --listtrans now shows which transitions are enabled by default
