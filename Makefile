@@ -20,9 +20,9 @@ impressive.py: compile.py impressive_dev.py src/*.py
 	chmod +x $@
 
 clean:
-	rm -f *.{nav,out,snm,toc,vrb,aux,log,pyc,pyo} impressive.1 impressive.py
+	rm -f *.nav *.out *.snm *.toc *.vrb *.aux *.log *.pyc *.pyo
 
 distclean: clean
-	rm -f demo.pdf
+	rm -f demo.pdf impressive.1 impressive.py
 
 .PHONY: all man demo test release clean distclean
