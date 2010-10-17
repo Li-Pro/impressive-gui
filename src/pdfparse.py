@@ -52,6 +52,7 @@ class PDFParser:
         self.page_count = 0
         self.box = {}
         self.names = {}
+        self.rotate = {}
         root = self.getobj(rootref, 'Catalog')
         try:
             self.scan_page_tree(root['Pages'].ref)
@@ -191,11 +192,14 @@ class PDFParser:
             raise PDFError, "root catalog entry is not a reference"
         return (xref, rootref, trailer.get('Prev', 0))
 
-    def scan_page_tree(self, obj, mbox=None, cbox=None):
+    def scan_page_tree(self, obj, mbox=None, cbox=None, rotate=0):
         node = self.getobj(obj)
         if node['Type'] == 'Pages':
             for kid in node['Kids']:
-                self.scan_page_tree(kid.ref, node.get('MediaBox', mbox), node.get('CropBox', cbox))
+                self.scan_page_tree(kid.ref, \
+                                    node.get('MediaBox', mbox), \
+                                    node.get('CropBox', cbox), \
+                                    node.get('Rotate', 0))
         else:
             page = self.page_count + 1
             anode = node.get('Annots', [])
@@ -206,6 +210,7 @@ class PDFParser:
             self.page2obj[page] = obj
             self.annots[page] = [a.ref for a in anode]
             self.box[page] = node.get('CropBox', cbox) or node.get('MediaBox', mbox)
+            self.rotate[page] = node.get('Rotate', rotate)
 
     def scan_names_tree(self, obj, come_from=None, name=None):
         try:
@@ -267,16 +272,44 @@ class PDFParser:
         return res
 
 
-def AddHyperlink(page_offset, page, target, linkbox, pagebox):
+def rotate_coord(x, y, rot):
+    if   rot == 1: x, y = 1.0 - y,       x
+    elif rot == 2: x, y = 1.0 - x, 1.0 - y
+    elif rot == 3: x, y =       y, 1.0 - x
+    return (x, y)
+
+
+def AddHyperlink(page_offset, page, target, linkbox, pagebox, rotate):
     page += page_offset
     if type(target) == types.IntType:
         target += page_offset
+
+    # compute relative position of the link on the page
     w = 1.0 / (pagebox[2] - pagebox[0])
     h = 1.0 / (pagebox[3] - pagebox[1])
     x0 = (linkbox[0] - pagebox[0]) * w
     y0 = (pagebox[3] - linkbox[3]) * h
     x1 = (linkbox[2] - pagebox[0]) * w
     y1 = (pagebox[3] - linkbox[1]) * h
+
+    # get effective rotation
+    rotate /= 90
+    page_rot = GetPageProp(page, 'rotate')
+    if page_rot is None:
+        page_rot = Rotation
+    if page_rot:
+        rotate += page_rot
+    while rotate < 0:
+        rotate += 1000000
+    rotate &= 3
+
+    # rotate the rectangle
+    x0, y0 = rotate_coord(x0, y0, rotate)
+    x1, y1 = rotate_coord(x1, y1, rotate)
+    if x0 > x1: x0, x1 = x1, x0
+    if y0 > y1: y0, y1 = y1, y0
+
+    # save the hyperlink
     href = (0, target, x0, y0, x1, y1)
     if GetPageProp(page, '_href'):
         PageProps[page]['_href'].append(href)
@@ -321,7 +354,7 @@ def ParsePDF(filename):
             for page, annots in pdf.GetHyperlinks().iteritems():
                 for page_offset in FileProps[filename]['offsets']:
                     for a in annots:
-                        AddHyperlink(page_offset, page, a[4], a[:4], pdf.box[page])
+                        AddHyperlink(page_offset, page, a[4], a[:4], pdf.box[page], pdf.rotate[page])
                 count += len(annots)
                 FixHyperlinks(page)
             del pdf
