@@ -24,4 +24,8 @@ If changing the backend doesn't help either, you may try the aforementioned &raq
     Error: No display font for 'ZapfDingbats'</code><br />
 As far as I see, there's no problem with that, so you can safely ignore these errors. If there are really missing characters or something like that, you may try GhostScript-based rendering instead. To check if it helps, install GhostScript on your system and use the <code>-P</code> switch to point to the installed <code>gswin32c.exe</code> (Windows) or <code>gs</code> (Unix) executable.</p>
 
+<p class="q">I have a multi-monitor setup and Impressive behaves strangely. What can I do?</p>
+<p class="a">Unfortunately PyGame, the windowing API currently used by Impressive, does not contain any support for multi-monitor setups whatsoever. This means that you can't really tell Impressive on with monitor it shall run. On Linux, you can try to run it in windowed mode, move the window to the proper monitor and enable fullscreen mode there, but it isn't guaranteed that this works either.</p>
+<p>As a corollary to PyGame's inability to support multiple monitors or even multiple windows, it is also <em>not</em> possible to have a presenter screen like OpenOffice or Keynote.</p>
+
 </div></body></html>

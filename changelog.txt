@@ -32,6 +32,7 @@
 - added FadeOutFadeIn transition (idea by Antonio Terceiro)
 - hyperlinks now work correctly on rotated pages
 
+
 0.10.2 [2008-02-03]
 - --listtrans now shows which transitions are enabled by default
 - number of digits in pdftoppm output file names is cached
