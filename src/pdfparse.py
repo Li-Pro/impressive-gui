@@ -24,6 +24,7 @@ def pdf_unmaskstring(s):
 class PDFParser:
     def __init__(self, filename):
         self.f = file(filename, "rb")
+        self.errors = 0
 
         # find the first cross-reference table
         self.f.seek(0, 2)
@@ -193,24 +194,27 @@ class PDFParser:
         return (xref, rootref, trailer.get('Prev', 0))
 
     def scan_page_tree(self, obj, mbox=None, cbox=None, rotate=0):
-        node = self.getobj(obj)
-        if node['Type'] == 'Pages':
-            for kid in node['Kids']:
-                self.scan_page_tree(kid.ref, \
-                                    node.get('MediaBox', mbox), \
-                                    node.get('CropBox', cbox), \
-                                    node.get('Rotate', 0))
-        else:
-            page = self.page_count + 1
-            anode = node.get('Annots', [])
-            if anode.__class__ == PDFref:
-                anode = self.getobj(anode.ref)
-            self.page_count = page
-            self.obj2page[obj] = page
-            self.page2obj[page] = obj
-            self.annots[page] = [a.ref for a in anode]
-            self.box[page] = node.get('CropBox', cbox) or node.get('MediaBox', mbox)
-            self.rotate[page] = node.get('Rotate', rotate)
+        try:
+            node = self.getobj(obj)
+            if node['Type'] == 'Pages':
+                for kid in node['Kids']:
+                    self.scan_page_tree(kid.ref, \
+                                        node.get('MediaBox', mbox), \
+                                        node.get('CropBox', cbox), \
+                                        node.get('Rotate', 0))
+            else:
+                page = self.page_count + 1
+                anode = node.get('Annots', [])
+                if anode.__class__ == PDFref:
+                    anode = self.getobj(anode.ref)
+                self.page_count = page
+                self.obj2page[obj] = page
+                self.page2obj[page] = obj
+                self.box[page] = node.get('CropBox', cbox) or node.get('MediaBox', mbox)
+                self.rotate[page] = node.get('Rotate', rotate)
+                self.annots[page] = [a.ref for a in anode]
+        except (KeyError, TypeError, ValueError):
+            self.errors += 1
 
     def scan_names_tree(self, obj, come_from=None, name=None):
         try:
@@ -237,7 +241,7 @@ class PDFParser:
                         self.names[name] = page
             # else: unsupported node, don't care
         except PDFError:
-            pass  #  errors in the Names tree aren't critical, just ignore them
+            self.errors += 1
 
     def dest2page(self, dest):
         if type(dest) in (types.StringType, types.UnicodeType):
@@ -250,24 +254,31 @@ class PDFParser:
             return dest[0]
 
     def get_href(self, obj):
-        node = self.getobj(obj, 'Annot')
-        if node['Subtype'] != 'Link': return None
-        dest = None
-        if 'Dest' in node:
-            dest = self.dest2page(node['Dest'])
-        elif 'A' in node:
-            action = node['A']['S']
-            if action == 'URI':
-                dest = node['A'].get('URI', None)
-            elif action == 'GoTo':
-                dest = self.dest2page(node['A'].get('D', None))
-        if dest:
-            return tuple(node['Rect'] + [dest])
+        try:
+            node = self.getobj(obj, 'Annot')
+            if node['Subtype'] != 'Link': return None
+            dest = None
+            if 'Dest' in node:
+                dest = self.dest2page(node['Dest'])
+            elif 'A' in node:
+                action = node['A']['S']
+                if action == 'URI':
+                    dest = node['A'].get('URI', None)
+                elif action == 'GoTo':
+                    dest = self.dest2page(node['A'].get('D', None))
+            if dest:
+                return tuple(node['Rect'] + [dest])
+        except PDFError:
+            self.errors += 1
 
     def GetHyperlinks(self):
         res = {}
         for page in self.annots:
-            a = filter(None, map(self.get_href, self.annots[page]))
+            try:
+                a = filter(None, map(self.get_href, self.annots[page]))
+            except (PDFError, TypeError, ValueError):
+                self.errors += 1
+                a = None
             if a: res[page] = a
         return res
 
@@ -357,12 +368,14 @@ def ParsePDF(filename):
                         AddHyperlink(page_offset, page, a[4], a[:4], pdf.box[page], pdf.rotate[page])
                 count += len(annots)
                 FixHyperlinks(page)
+            if pdf.errors:
+                print >>sys.stderr, "Note: there are errors in the PDF file, hyperlinks might not work properly"
             del pdf
             return count
         except IOError:
             print >>sys.stderr, "Note: file produced by pdftk not readable, hyperlinks disabled."
         except PDFError, e:
-            print >>sys.stderr, "Note: error in file produced by pdftk, hyperlinks disabled."
+            print >>sys.stderr, "Note: error in PDF file, hyperlinks disabled."
             print >>sys.stderr, "      PDF parser error message:", e
     finally:
         try:
