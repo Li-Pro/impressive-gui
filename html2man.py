@@ -121,7 +121,7 @@ class Converter(HTMLParser.HTMLParser):
             lines = data.replace("\r", "").rstrip().split("\n")
             self.f.write(".ne %d\n" % len(lines))
             for l in lines:
-                self.f.write("\\&  %s\n" % l)
+                self.f.write("\\&  %s\n" % l.replace('\\', '\\\\'))
             self.f.write(".\n")
             self.data = ""
         else:
@@ -173,26 +173,6 @@ class Converter(HTMLParser.HTMLParser):
                 print >>sys.stderr, "unknown command `%s'" % cmd
         data = data[len(commands):].lstrip().replace("\r\n", "\n")
         if data:
-            if self.data:
-                self.data += data
-            else:
-                self.f.write(data + "\n")
-
-    def handle_comment_OLD(self, data):
-        if DEBUG: print "comment:", repr(data)
-        command = data[:64].strip().lower()
-        if not command.startswith("man"): return
-        if command == "man:on":
-            self.enabled = True
-        elif command == "man:off":
-            self.flush()
-            self.enabled = False
-        elif command == "man:nolistspace":
-            self.listspace = False
-        elif command == "man:listspace":
-            self.listspace = True
-        else:
-            data = data.lstrip()[3:].strip().replace("\r\n", "\n")
             if self.data:
                 self.data += data
             else:
