@@ -264,6 +264,8 @@ class PDFParser:
                 action = node['A']['S']
                 if action == 'URI':
                     dest = node['A'].get('URI', None)
+                elif action == 'Launch':
+                    dest = node['A'].get('F', None)
                 elif action == 'GoTo':
                     dest = self.dest2page(node['A'].get('D', None))
             if dest:
