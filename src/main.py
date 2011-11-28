@@ -325,7 +325,7 @@ def main():
     if not CacheMode:
         for pdf in FileProps:
             if pdf.lower().endswith(".pdf"):
-                ParsePDF(pdf)
+                SafeCall(ParsePDF, [pdf])
 
     # start output and enter main loop
     StartTime = pygame.time.get_ticks()

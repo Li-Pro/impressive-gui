@@ -236,7 +236,7 @@ def SafeCall(func, args=[], kwargs={}):
     try:
         return func(*args, **kwargs)
     except:
-        print >>sys.stderr, "----- Exception in user function ----"
+        print >>sys.stderr, "----- Unhandled Exception ----"
         traceback.print_exc(file=sys.stderr)
         print >>sys.stderr, "----- End of traceback -----"
 

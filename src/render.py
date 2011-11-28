@@ -294,13 +294,13 @@ def RenderThread(p1, p2):
         for pdf in FileProps:
             if not pdf.lower().endswith(".pdf"): continue
             if RTrestart: break
-            ParsePDF(pdf)
+            SafeCall(ParsePDF, [pdf])
         if RTrestart: continue
         for page in xrange(1, PageCount + 1):
             if RTrestart: break
             if (page != p1) and (page != p2) \
             and (page >= PageRangeStart) and (page <= PageRangeEnd):
-                PageImage(page)
+                SafeCall(PageImage, [page])
     RTrunning = False
     if CacheMode >= FileCache:
         print >>sys.stderr, "Background rendering finished, used %.1f MiB of disk space." %\

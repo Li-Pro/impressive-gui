@@ -125,7 +125,7 @@ class PDFParser:
         return self.parse_tokens(filter(None, data.split()))
 
     def getobj(self, obj, force_type=None):
-        if obj.__class__ == PDFref:
+        if isinstance(obj, PDFref):
             obj = obj.ref
         if type(obj) != types.IntType:
             raise PDFError, "object is not a valid reference"
@@ -261,13 +261,16 @@ class PDFParser:
             if 'Dest' in node:
                 dest = self.dest2page(node['Dest'])
             elif 'A' in node:
-                action = node['A']['S']
+                a = node['A']
+                if isinstance(a, PDFref):
+                    a = self.getobj(a)
+                action = a['S']
                 if action == 'URI':
-                    dest = node['A'].get('URI', None)
+                    dest = a.get('URI', None)
                 elif action == 'Launch':
-                    dest = node['A'].get('F', None)
+                    dest = a.get('F', None)
                 elif action == 'GoTo':
-                    dest = self.dest2page(node['A'].get('D', None))
+                    dest = self.dest2page(a.get('D', None))
             if dest:
                 return tuple(node['Rect'] + [dest])
         except PDFError:
