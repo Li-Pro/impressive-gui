@@ -1,13 +1,13 @@
 #!/bin/bash
 
+make all
+
 base=_releases
 dir=Impressive
 exe=impressive.py
 hlp=site/impressive.html
 ver=$(grep __version__ $exe | head -n 1 | cut -d'"' -f2)
 dir=$dir-$ver
-
-make man
 
 mkdir -p $base/$dir
 chmod -x demo.pdf

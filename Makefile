@@ -1,4 +1,6 @@
-all: impressive.py impressive.1 demo
+all: impressive.py man demo
+
+man: impressive.1
 
 impressive.1: site/impressive.html html2man.py
 	python html2man.py -O $@ site/impressive.html
