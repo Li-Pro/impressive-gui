@@ -175,6 +175,9 @@ def TransitionTo(page):
 
     # invalid page? go away
     if not PreloadNextPage(page):
+        if QuitAtEnd:
+            PageLeft()
+            Quit()
         return 0
 
     # notify that the page has been left
