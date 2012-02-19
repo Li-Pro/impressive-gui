@@ -1,5 +1,5 @@
 @echo off
-set PY=C:\Programme\Dev\Python24\Lib
+set PY=C:\Programme\Dev\Python25\Lib
 
 rm -rfv dist
 

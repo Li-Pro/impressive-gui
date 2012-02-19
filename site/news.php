@@ -1,5 +1,8 @@
 <?php include("menu.php"); ?>
 
+<h1><span class="date">2010-10-17</span>0.10.3 is out &mdash; finally a new release after a long time!</h1>
+<p>It has been over one and a half years since the last regular Impressive release. Development slowed down considerably since, but it didn't halt: A few changes were made in the Subversion repository. Most of these are bugfixes, stability fixes and compatibility fixes to make Impressive work with newer versions of the tools it relies on. There are a few new features, though these are just minor ones.</p>
+
 <h1><span class="date">2008-02-03</span>0.10.2 is out, containing a few new features</h1>
 <p>This release contains some internal fixes and improvements, but also a few user-visible new features. First, there's support for URL hyperlinks like web links and e-mail addresses. Second, Impressive now understands list files: These are text files that contain the actual names of the files to show, which can be useful for image slideshows. Third, there's are new &raquo;automatic overview&laquo; mode that hides PDF pages from Impressive's overview page based on whether they have a title or not. This makes use of the fact that some LaTeX packages for presentation slide generation don't emit PDF titles for pages that are part of multi-step slides (those who are revealed one step after another).<br />
 Finally, there are three new PageProps: Using <code>keys</code>, alphanumeric keys can be bound to user-provided Python functions now, <code>comment</code> permanently shows a line of text on a page and <code>video</code> is a <strong>highly experimental</strong>(!!!) feature that plays a fullscreen video when a page is entered.</p>
