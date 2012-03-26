@@ -267,6 +267,10 @@ class PDFParser:
                 action = a['S']
                 if action == 'URI':
                     dest = a.get('URI', None)
+                    for prefix in ("file://", "file:"):
+                        if dest.startswith(prefix):
+                            dest = dest[len(prefix):]
+                            break
                 elif action == 'Launch':
                     dest = a.get('F', None)
                 elif action == 'GoTo':
