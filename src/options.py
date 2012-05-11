@@ -60,6 +60,8 @@ Timing options:
   -D,  --mousedelay <ms>  set mouse hide delay for fullscreen mode (in ms)
   -B,  --boxfade <ms>     set highlight box fade duration in milliseconds
   -Z,  --zoomtime <ms>    set zoom animation duration in milliseconds
+  -q,  --page-progress    shows a progress bar based on the position in the
+                          presentation (based on pages, not time)
 
 Advanced options:
   -c,  --cache <mode>     set page cache mode:
