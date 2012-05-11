@@ -69,3 +69,4 @@ FadeInOut = False
 ShowLogo = True
 Shuffle = False
 QuitAtEnd = False
+PageClicks = True

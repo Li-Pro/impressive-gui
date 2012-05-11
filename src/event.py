@@ -199,7 +199,8 @@ def HandleEvent(event):
                         dest = target
                         break
                 if type(dest) == types.IntType:
-                    TransitionTo(dest)
+		    if PageClicks:
+                        TransitionTo(dest)
                 else:
                     RunURL(dest)
         if (event.button == 3) and not(Panning):
@@ -216,7 +217,7 @@ def HandleEvent(event):
                 DrawCurrentPage()
             except ValueError:
                 # no box present -> go to previous page
-                if not ZoomMode:
+                if PageClicks and not ZoomMode:
                     TransitionTo(GetNextPage(Pcurrent, -1))
         Panning = False
 

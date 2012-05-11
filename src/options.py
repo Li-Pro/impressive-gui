@@ -74,6 +74,7 @@ Advanced options:
   -e,  --noext            don't use OpenGL texture size extensions
   -V,  --overscan <px>    render PDF files <px> pixels larger than the screen
        --nologo           disable startup logo and version number display
+       --noclicks         disable page transition via left/right mouse click
 
 For detailed information, visit""", __website__
     sys.exit(code)
@@ -218,7 +219,7 @@ def ParseOptions(argv):
             "noback", "pages=", "poll=", "font=", "fontsize=", "gamma=",
             "duration=", "cursor=", "minutes", "layout=", "script=", "cache=",
             "cachefile=", "autooverview=", "zoomtime=", "fade", "nologo",
-            "shuffle", "page-progress", "overscan", "autoquit"])
+            "shuffle", "page-progress", "overscan", "autoquit", "noclicks"])
     except getopt.GetoptError, message:
         opterr(message)
 
@@ -268,6 +269,8 @@ def ParseOptions(argv):
             FontList = [arg]
         if opt == "--nologo":
             ShowLogo = not(ShowLogo)
+        if opt == "--noclicks":
+            PageClicks = not(PageClicks)
         if opt in ("-X", "--shuffle"):
             Shuffle = not(Shuffle)
         if opt in ("-Q", "--autoquit"):
