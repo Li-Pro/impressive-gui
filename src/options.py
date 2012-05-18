@@ -54,6 +54,7 @@ Display options:
 
 Timing options:
   -M,  --minutes          display time in minutes, not seconds
+       --clock            show current time instead of time elapsed
   -d,  --duration <time>  set the desired duration of the presentation and show
                           a progress bar at the bottom of the screen
   -T,  --transtime <ms>   set transition duration in milliseconds
@@ -209,7 +210,7 @@ def ParseOptions(argv):
     global EstimatedDuration, CursorImage, CursorHotspot, MinutesOnly, Overscan
     global GhostScriptPath, pdftoppmPath, UseGhostScript, InfoScriptPath
     global AutoOverview, ZoomFactor, FadeInOut, ShowLogo, Shuffle, PageProgress
-    global QuitAtEnd
+    global QuitAtEnd, PageClicks, ShowClock
 
     try:  # unused short options: jknqvyEHJKNUWY
         opts, args = getopt.getopt(argv, \
@@ -221,7 +222,8 @@ def ParseOptions(argv):
             "noback", "pages=", "poll=", "font=", "fontsize=", "gamma=",
             "duration=", "cursor=", "minutes", "layout=", "script=", "cache=",
             "cachefile=", "autooverview=", "zoomtime=", "fade", "nologo",
-            "shuffle", "page-progress", "overscan", "autoquit", "noclicks"])
+            "shuffle", "page-progress", "overscan", "autoquit", "noclicks",
+            "clock"])
     except getopt.GetoptError, message:
         opterr(message)
 
@@ -273,6 +275,8 @@ def ParseOptions(argv):
             ShowLogo = not(ShowLogo)
         if opt == "--noclicks":
             PageClicks = not(PageClicks)
+        if opt == "--clock":
+            ShowClock = not(ShowClock)
         if opt in ("-X", "--shuffle"):
             Shuffle = not(Shuffle)
         if opt in ("-Q", "--autoquit"):

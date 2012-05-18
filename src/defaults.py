@@ -70,3 +70,4 @@ ShowLogo = True
 Shuffle = False
 QuitAtEnd = False
 PageClicks = True
+ShowClock = False

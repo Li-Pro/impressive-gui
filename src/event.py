@@ -86,7 +86,7 @@ def HandleEvent(event):
         elif event.unicode == u't':
             TimeDisplay = not(TimeDisplay)
             DrawCurrentPage()
-            if TimeDisplay and not(TimeTracking) and FirstPage:
+            if TimeDisplay and not(TimeTracking) and not(ShowClock) and FirstPage:
                 print >>sys.stderr, "Time tracking mode enabled."
                 TimeTracking = True
                 print "page duration    enter    leave"

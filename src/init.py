@@ -1,6 +1,6 @@
 # import basic modules
 import random, getopt, os, types, re, codecs, tempfile, glob, StringIO, re
-import traceback, subprocess
+import traceback, subprocess, time
 from math import *
 
 # import hashlib for MD5 generation, but fall back to old md5 lib if unavailable

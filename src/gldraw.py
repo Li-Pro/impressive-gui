@@ -36,8 +36,11 @@ def DrawOverlays(trans_time=0.0):
     if WantStatus:
         DrawOSDEx(OSDStatusPos, CurrentOSDStatus)
     if TimeDisplay:
-        t = reltime / 1000
-        DrawOSDEx(OSDTimePos, FormatTime(t, MinutesOnly))
+        if ShowClock:
+            DrawOSDEx(OSDTimePos, ClockTime(MinutesOnly))
+        else:
+            t = reltime / 1000
+            DrawOSDEx(OSDTimePos, FormatTime(t, MinutesOnly))
     if CurrentOSDComment and (OverviewMode or not(TransitionRunning)):
         DrawOSD(ScreenWidth/2, \
                 ScreenHeight - 3*OSDMargin - FontSize, \

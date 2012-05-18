@@ -129,6 +129,9 @@ Impressive \- presentation tool with eye candy
 <dt><code>-C <em>&lt;filename&gt;</em>[:<em>&lt;X&gt;</em>,<em>&lt;Y&gt;</em>]</code> or <code>--cursor <em>&lt;filename&gt;</em>[:<em>&lt;X&gt;</em>,<em>&lt;Y&gt;</em>]</code></dt>
 <dd>This option can be used to specify the path to an image file (typically a transparent .png) that shall be used as the mouse cursor instead of the default one. Optionally, the hotspot may be specified (this is the position inside the cursor image where the real mouse position is located). Example: <code>--cursor mycursor.png:2,4</code></dd>
 
+<dt><code>--clock</code></dt>
+<dd>If this option is enabled, the current time will be shown instead of the elapsed time if time display is activated with the <strong>T</strong> key. Compatible with the <code>-M</code> option.</dd>
+
 <dt><code>-d <em>&lt;time&gt;</em></code> or <code>--duration <em>&lt;time&gt;</em></code></dt>
 <dd>Specifies the expected run time of the presentation. The <em>time</em> parameter can be either a number of seconds or a human-readable time like <code>1:23</code> (1 minute and 23 seconds), <code>4:56h</code> (4 hours and 56 minutes), <code>3m45s</code> (3 minutes and 45 seconds), <code>5m</code> (5 minutes) or <code>1:23:45</code> (1 hour, 23 minutes and 45 seconds).<br />
 If an expected duration is specified, Impressive will show a semi-transparent green progress bar at the lower edge of the screen, indicating how much time has already passed. If the time is up, the bar will occupy the whole edge and fade to yellow (at 125% of the expected time) to red (at 150% or more).</dd>
@@ -177,7 +180,7 @@ If an expected duration is specified, Impressive will show a semi-transparent gr
 <dd>This option disables the Impressive logo and version number display. Instead, the loading screen will be just black or, if background rendering is disabled, only the progress bar will be visible.</dd>
 
 <dt><code>--noclicks</code></dt>
-<dd>It this option is enabled, switching to the previous or next page with the left and right mouse buttons is deactivated. The keyboard shortcuts are unaffected from this.</dd>
+<dd>If this option is enabled, switching to the previous or next page with the left and right mouse buttons is deactivated. The keyboard shortcuts are unaffected from this.</dd>
 
 <dt><code>-o <em>&lt;directory&gt;</em></code> or <code>--output <em>&lt;directory&gt;</em></code></dt>
 <dd>Do not display the presentation, but render it into a series of PNG image files inside the specified directory. The images will be generated in the current resolution as specified by the <code>-g</code> option. This option is useful if you're going to give a presentation on a foreigh PC with an old, broken or otherwise problematic Xpdf or GhostScript installation: By generating images of the PDF pages you can ensure that no rendering bugs will happen on the target system.</dd>

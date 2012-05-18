@@ -220,6 +220,12 @@ def StopMPlayer():
         pass
     VideoPlaying = False
 
+def ClockTime(minutes):
+    if minutes:
+        return time.strftime("%H:%M")
+    else:
+        return time.strftime("%H:%M:%S")
+
 def FormatTime(t, minutes=False):
     if minutes and (t < 3600):
         return "%d min" % (t / 60)
