@@ -353,8 +353,8 @@ def ParseOptions(argv):
         if opt in ("-g", "--geometry"):
             try:
                 ScreenWidth, ScreenHeight = map(int, arg.split("x"))
-                assert (ScreenWidth  >= 320) and (ScreenWidth  < 4096)
-                assert (ScreenHeight >= 200) and (ScreenHeight < 4096)
+                assert (ScreenWidth  >= 320) and (ScreenWidth  < 32768)
+                assert (ScreenHeight >= 200) and (ScreenHeight < 32768)
                 UseAutoScreenSize = False
             except:
                 opterr("invalid parameter for --geometry")
