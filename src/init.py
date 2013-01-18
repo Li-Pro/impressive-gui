@@ -78,14 +78,15 @@ try:
     from OpenGL.GL import *
     import pygame
     from pygame.locals import *
-    import Image, ImageDraw, ImageFont, ImageFilter
-    import TiffImagePlugin, BmpImagePlugin, JpegImagePlugin, PngImagePlugin, PpmImagePlugin
+    from PIL import Image, ImageDraw, ImageFont, ImageFilter
+    from PIL import TiffImagePlugin, BmpImagePlugin, JpegImagePlugin, PngImagePlugin, PpmImagePlugin
 except (ValueError, ImportError), err:
     print >>sys.stderr, "Oops! Cannot load necessary modules:", err
     print >>sys.stderr, """To use Impressive, you need to install the following Python modules:
  - PyOpenGL [python-opengl]   http://pyopengl.sourceforge.net/
  - PyGame   [python-pygame]   http://www.pygame.org/
  - PIL      [python-imaging]  http://www.pythonware.com/products/pil/
+   or Pillow                  http://pypi.python.org/pypi/Pillow/
  - PyWin32  (OPTIONAL, Win32) http://starship.python.net/crew/mhammond/win32/
 Additionally, please be sure to have pdftoppm or GhostScript installed if you
 intend to use PDF input."""
