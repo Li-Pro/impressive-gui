@@ -161,6 +161,11 @@ If an expected duration is specified, Impressive will show a semi-transparent gr
 <dt><code>-h</code> or <code>--help</code></dt>
 <dd>If this option is specified, Impressive writes a short command line help screen to standard output and does not start a presentation.</dd>
 
+<dt><code>-H</code> or <code>--half-screen</code></dt>
+<dd>This option makes Impressive show the overview page and OSD elements on the right half of the screen only. Using a multi-monitor setup with a wide virtual screen and specially crafted slides (e.g. those that can be generated with LaTeX's beamer class), this makes it possible to have presenter's notes on the second screen.<br />
+Note that transitions (including the Overview Page enter/leave animation) are still operating on the whole screen, making them look ugly. For that reason, Impressive disables the overview zoom animation when this option is found; it can be re-enabled by explicitly setting it to another value with a later command line option (<code>--zoomtime</code>).<br />
+Another limitation is that the allocation of the screen halves (slides left, overview right) is fixed.</dd>
+
 <dt><code>-i <em>&lt;page&gt;</em></code> or <code>--initialpage <em>&lt;page&gt;</em></code></dt>
 <dd>Specifies the page number to start with. The default value is 1 (start with the first page). If another value is specified, the page shown by Impressive right after initialization is not the first one of the PDF or image list. Additionally, pre-rendering (if enabled) will also start at the specified page.</dd>
 

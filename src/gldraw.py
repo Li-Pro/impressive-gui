@@ -19,18 +19,22 @@ def DrawOverlays(trans_time=0.0):
         else:
             rel = (Pcurrent + trans_time * (Pnext - Pcurrent)) / PageCount
             r, g, b = ProgressBarColorPage
-        x = int(ScreenWidth * rel)
+        if HalfScreen:
+            zero = 0.5
+            rel = 0.5 + 0.5 * rel
+        else:
+            zero = 0.0
         glDisable(TextureTarget)
         glDisable(GL_TEXTURE_2D)
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glBegin(GL_QUADS)
         glColor4ub(r, g, b, 0)
-        glVertex2d(0, 1.0 - ProgressBarSizeFactor)
+        glVertex2d(zero, 1.0 - ProgressBarSizeFactor)
         glVertex2d(rel, 1.0 - ProgressBarSizeFactor)
         glColor4ub(r, g, b, ProgressBarAlpha)
         glVertex2d(rel, 1.0)
-        glVertex2d(0, 1.0)
+        glVertex2d(zero, 1.0)
         glEnd()
         glDisable(GL_BLEND)
     if WantStatus:
@@ -173,18 +177,22 @@ def DrawLogo():
     glColor3ub(255, 255, 255)
     if not ShowLogo:
         return
+    if HalfScreen:
+        x0 = 0.25
+    else:
+        x0 = 0.5
     if TextureTarget != GL_TEXTURE_2D:
         glDisable(TextureTarget)
     glEnable(GL_TEXTURE_2D)
     glBindTexture(GL_TEXTURE_2D, LogoTexture)
     glBegin(GL_QUADS)
-    glTexCoord2d(0, 0);  glVertex2d(0.5 - 128.0 / ScreenWidth, 0.5 - 32.0 / ScreenHeight)
-    glTexCoord2d(1, 0);  glVertex2d(0.5 + 128.0 / ScreenWidth, 0.5 - 32.0 / ScreenHeight)
-    glTexCoord2d(1, 1);  glVertex2d(0.5 + 128.0 / ScreenWidth, 0.5 + 32.0 / ScreenHeight)
-    glTexCoord2d(0, 1);  glVertex2d(0.5 - 128.0 / ScreenWidth, 0.5 + 32.0 / ScreenHeight)
+    glTexCoord2d(0, 0);  glVertex2d(x0 - 128.0 / ScreenWidth, 0.5 - 32.0 / ScreenHeight)
+    glTexCoord2d(1, 0);  glVertex2d(x0 + 128.0 / ScreenWidth, 0.5 - 32.0 / ScreenHeight)
+    glTexCoord2d(1, 1);  glVertex2d(x0 + 128.0 / ScreenWidth, 0.5 + 32.0 / ScreenHeight)
+    glTexCoord2d(0, 1);  glVertex2d(x0 - 128.0 / ScreenWidth, 0.5 + 32.0 / ScreenHeight)
     glEnd()
     if OSDFont:
-        OSDFont.Draw((ScreenWidth / 2, ScreenHeight / 2 + 48), \
+        OSDFont.Draw((int(ScreenWidth * x0), ScreenHeight / 2 + 48), \
                      __version__, align=Center, alpha=0.25)
     glDisable(GL_TEXTURE_2D)
 
@@ -196,6 +204,10 @@ def DrawProgress(position):
     x1 = position * x2 + (1.0 - position) * x0
     y1 = 0.9
     y0 = y1 - 16.0 / ScreenHeight
+    if HalfScreen:
+        x0 *= 0.5
+        x1 *= 0.5
+        x2 *= 0.5
     glBegin(GL_QUADS)
     glColor3ub( 64,  64,  64);  glVertex2d(x0, y0);  glVertex2d(x2, y0)
     glColor3ub(128, 128, 128);  glVertex2d(x2, y1);  glVertex2d(x0, y1)

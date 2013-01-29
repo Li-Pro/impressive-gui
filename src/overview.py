@@ -43,6 +43,8 @@ def DrawOverview():
 # overview zoom effect, time mapped through func
 def OverviewZoom(func):
     global TransitionRunning
+    if ZoomDuration <= 0:
+        return
     pos = OverviewPos(OverviewSelection)
     X0 = PixelX * (pos[0] + OverviewBorder)
     Y0 = PixelY * (pos[1] + OverviewBorder)

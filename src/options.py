@@ -78,6 +78,7 @@ Advanced options:
   -V,  --overscan <px>    render PDF files <px> pixels larger than the screen
        --nologo           disable startup logo and version number display
        --noclicks         disable page transition via left/right mouse click
+  -H,  --half-screen      show OSD on right half of the screen only
 
 For detailed information, visit""", __website__
     sys.exit(code)
@@ -210,11 +211,11 @@ def ParseOptions(argv):
     global EstimatedDuration, CursorImage, CursorHotspot, MinutesOnly, Overscan
     global GhostScriptPath, pdftoppmPath, UseGhostScript, InfoScriptPath
     global AutoOverview, ZoomFactor, FadeInOut, ShowLogo, Shuffle, PageProgress
-    global QuitAtEnd, PageClicks, ShowClock
+    global QuitAtEnd, PageClicks, ShowClock, HalfScreen
 
-    try:  # unused short options: jknqvyEHJKNUWY
+    try:  # unused short options: jknqvyEJKNUWY
         opts, args = getopt.getopt(argv, \
-            "hfg:sc:i:wa:t:lo:r:T:D:B:Z:P:R:eA:mbp:u:F:S:G:d:C:ML:I:O:z:xXqV:Q", \
+            "hfg:sc:i:wa:t:lo:r:T:D:B:Z:P:R:eA:mbp:u:F:S:G:d:C:ML:I:O:z:xXqV:QH", \
            ["help", "fullscreen", "geometry=", "scale", "supersample", \
             "nocache", "initialpage=", "wrap", "auto", "listtrans", "output=", \
             "rotate=", "transition=", "transtime=", "mousedelay=", "boxfade=", \
@@ -223,7 +224,7 @@ def ParseOptions(argv):
             "duration=", "cursor=", "minutes", "layout=", "script=", "cache=",
             "cachefile=", "autooverview=", "zoomtime=", "fade", "nologo",
             "shuffle", "page-progress", "overscan", "autoquit", "noclicks",
-            "clock"])
+            "clock", "half-screen"])
     except getopt.GetoptError, message:
         opterr(message)
 
@@ -283,6 +284,10 @@ def ParseOptions(argv):
             QuitAtEnd = not(QuitAtEnd)
         if opt in ("-q", "--page-progress"):
             PageProgress = not(PageProgress)
+        if opt in ("-H", "--half-screen"):
+            HalfScreen = not(HalfScreen)
+            if HalfScreen:
+                ZoomDuration = 0
         if opt in ("-P", "--gspath"):
             UseGhostScript = (arg.replace("\\", "/").split("/")[-1].lower().find("pdftoppm") < 0)
             if UseGhostScript:

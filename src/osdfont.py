@@ -226,6 +226,8 @@ def DrawOSD(x, y, text, halign=Auto, valign=Auto, alpha=1.0):
             halign = Right
         else:
             halign = Left
+    if HalfScreen and (halign == Left):
+        x += ScreenWidth / 2
     if valign == Auto:
         if y < 0:
             y += ScreenHeight

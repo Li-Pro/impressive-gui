@@ -12,6 +12,7 @@ def main():
     global Extensions, AllowExtensions, TextureTarget, PAR, DAR, TempFileName
     global BackgroundRendering, FileStats, RTrunning, RTrestart, StartTime
     global CursorImage, CursorVisible, InfoScriptPath
+    global HalfScreen
 
     # allocate temporary file
     TempFileName = tempfile.mktemp(prefix="impressive-", suffix="_tmp")
@@ -237,12 +238,19 @@ def main():
     OverviewGridSize = 1
     while OverviewPageCount > OverviewGridSize * OverviewGridSize:
         OverviewGridSize += 1
+    if HalfScreen:
+        # in half-screen mode, temporarily override ScreenWidth
+        saved_screen_width = ScreenWidth
+        ScreenWidth /= 2
     OverviewCellX = int(ScreenWidth  / OverviewGridSize)
     OverviewCellY = int(ScreenHeight / OverviewGridSize)
     OverviewOfsX = int((ScreenWidth  - OverviewCellX * OverviewGridSize)/2)
     OverviewOfsY = int((ScreenHeight - OverviewCellY * \
                    int((OverviewPageCount + OverviewGridSize - 1) / OverviewGridSize)) / 2)
     OverviewImage = Image.new('RGB', (TexWidth, TexHeight))
+    if HalfScreen:
+        OverviewOfsX += ScreenWidth
+        ScreenWidth = saved_screen_width
 
     # fill overlay "dummy" images
     dummy = LogoImage.copy()
