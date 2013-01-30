@@ -246,6 +246,8 @@ def PageImage(page, ZoomMode=False, RenderMode=False):
                                                 pos[1] + OverviewBorder))
                 del blackness
                 # then, scale down the original image and paste it
+                if HalfScreen:
+                    img = img.crop((0, 0, img.size[0] / 2, img.size[1]))
                 img.thumbnail((OverviewCellX - 2 * OverviewBorder, \
                                OverviewCellY - 2 * OverviewBorder), \
                                Image.ANTIALIAS)
