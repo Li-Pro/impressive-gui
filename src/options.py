@@ -51,6 +51,7 @@ Display options:
   -L,  --layout <spec>    set the OSD layout (please read the documentation)
   -z,  --zoom <factor>    set zoom factor (integer number, default: 2)
   -x,  --fade             fade in at start and fade out at end
+       --spot-radius <px> set the initial radius of the spotlight, in pixels
 
 Timing options:
   -M,  --minutes          display time in minutes, not seconds
@@ -211,7 +212,7 @@ def ParseOptions(argv):
     global EstimatedDuration, CursorImage, CursorHotspot, MinutesOnly, Overscan
     global GhostScriptPath, pdftoppmPath, UseGhostScript, InfoScriptPath
     global AutoOverview, ZoomFactor, FadeInOut, ShowLogo, Shuffle, PageProgress
-    global QuitAtEnd, PageClicks, ShowClock, HalfScreen
+    global QuitAtEnd, PageClicks, ShowClock, HalfScreen, SpotRadius
 
     try:  # unused short options: jknqvyEJKNUWY
         opts, args = getopt.getopt(argv, \
@@ -224,7 +225,7 @@ def ParseOptions(argv):
             "duration=", "cursor=", "minutes", "layout=", "script=", "cache=",
             "cachefile=", "autooverview=", "zoomtime=", "fade", "nologo",
             "shuffle", "page-progress", "overscan", "autoquit", "noclicks",
-            "clock", "half-screen"])
+            "clock", "half-screen", "spot-radius="])
     except getopt.GetoptError, message:
         opterr(message)
 
@@ -342,6 +343,11 @@ def ParseOptions(argv):
                 assert (ZoomDuration >= 0) and (ZoomDuration < 32768)
             except:
                 opterr("invalid parameter for --zoomtime")
+        if opt == "--spot-radius":
+            try:
+                SpotRadius = int(arg)
+            except:
+                opterr("invalid parameter for --spot-radius")
         if opt in ("-r", "--rotate"):
             try:
                 Rotation = int(arg)
