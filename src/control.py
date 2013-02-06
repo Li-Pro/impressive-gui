@@ -255,7 +255,7 @@ def TransitionTo(page):
 def ZoomAnimation(targetx, targety, func):
     global ZoomX0, ZoomY0, ZoomArea
     t0 = pygame.time.get_ticks()
-    while True:
+    while ZoomDuration > 0:
         if pygame.event.get([KEYDOWN,MOUSEBUTTONUP]): break
         t = (pygame.time.get_ticks() - t0) * 1.0 / ZoomDuration
         if t >= 1.0: break
