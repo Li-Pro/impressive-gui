@@ -65,7 +65,7 @@ def PreloadNextPage(page):
 # perform box fading; the fade animation time is mapped through func()
 def BoxFade(func):
     t0 = pygame.time.get_ticks()
-    while 1:
+    while BoxFadeDuration > 0:
         if pygame.event.get([KEYDOWN,MOUSEBUTTONUP]): break
         t = (pygame.time.get_ticks() - t0) * 1.0 / BoxFadeDuration
         if t >= 1.0: break
