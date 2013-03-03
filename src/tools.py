@@ -142,7 +142,7 @@ def pdftkParse(filename, page_offset=0):
     for line in f.xreadlines():
         try:
             key, value = [item.strip() for item in line.split(':', 1)]
-        except IndexError:
+        except ValueError:
             continue
         key = key.lower()
         if key == "numberofpages":
