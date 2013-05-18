@@ -7,7 +7,10 @@ impressive.1: site/impressive.html html2man.py
 
 demo: demo.pdf
 
-test: demo
+test: impressive.py demo.pdf
+	xvfb-run -s "-screen 0 640x480x24 -ac +extension GLX +render -noreset" ./impressive.py -I alltrans.info -a 1 -Q demo.pdf
+
+test-demo: demo
 	xpdf demo.pdf &
 
 release:
@@ -27,4 +30,4 @@ clean:
 distclean: clean
 	rm -f demo.pdf impressive.1 impressive.py
 
-.PHONY: all man demo test release clean distclean
+.PHONY: all man demo test test-demo release clean distclean

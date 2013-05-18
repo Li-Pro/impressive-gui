@@ -1,0 +1,2 @@
+# info script that cycles through all transitions, used for smoke testing
+PageProps = dict([(i+1, {'transition':t}) for i,t in zip(xrange(PageCount), [PagePeel]+AllTransitions)])
