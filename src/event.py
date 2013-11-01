@@ -180,8 +180,8 @@ def HandleEvent(event):
                 # left mouse button released in marking mode -> stop box marking
                 Marking = False
                 # reject too small boxes
-                if  (abs(MarkUL[0] - MarkLR[0]) > 0.04) \
-                and (abs(MarkUL[1] - MarkLR[1]) > 0.03):
+                if  ((abs(MarkUL[0] - MarkLR[0]) * ScreenWidth)  >= MinBoxSize) \
+                and ((abs(MarkUL[1] - MarkLR[1]) * ScreenHeight) >= MinBoxSize):
                     boxes = GetPageProp(Pcurrent, 'boxes', [])
                     oldboxcount = len(boxes)
                     boxes.append(NormalizeRect(MarkUL[0], MarkUL[1], MarkLR[0], MarkLR[1]))

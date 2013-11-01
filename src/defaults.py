@@ -73,3 +73,4 @@ PageClicks = True
 ShowClock = False
 HalfScreen = False
 InvertPages = False
+MinBoxSize = 20

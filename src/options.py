@@ -53,6 +53,7 @@ Display options:
   -x,  --fade             fade in at start and fade out at end
        --spot-radius <px> set the initial radius of the spotlight, in pixels
        --invert           display slides in inverted colors
+       --min-box-size <x> set minimum size of a highlight box to, in pixels
 
 Timing options:
   -M,  --minutes          display time in minutes, not seconds
@@ -214,6 +215,7 @@ def ParseOptions(argv):
     global GhostScriptPath, pdftoppmPath, UseGhostScript, InfoScriptPath
     global AutoOverview, ZoomFactor, FadeInOut, ShowLogo, Shuffle, PageProgress
     global QuitAtEnd, PageClicks, ShowClock, HalfScreen, SpotRadius, InvertPages
+    global MinBoxSize
 
     try:  # unused short options: jknqvyEJKNUWY
         opts, args = getopt.getopt(argv, \
@@ -226,7 +228,7 @@ def ParseOptions(argv):
             "duration=", "cursor=", "minutes", "layout=", "script=", "cache=",
             "cachefile=", "autooverview=", "zoomtime=", "fade", "nologo",
             "shuffle", "page-progress", "overscan", "autoquit", "noclicks",
-            "clock", "half-screen", "spot-radius=", "invert"])
+            "clock", "half-screen", "spot-radius=", "invert", "min-box-size="])
     except getopt.GetoptError, message:
         opterr(message)
 
@@ -351,6 +353,11 @@ def ParseOptions(argv):
                 SpotRadius = int(arg)
             except:
                 opterr("invalid parameter for --spot-radius")
+        if opt == "--min-box-size":
+            try:
+                MinBoxSize = int(arg)
+            except:
+                opterr("invalid parameter for --min-box-size")
         if opt in ("-r", "--rotate"):
             try:
                 Rotation = int(arg)
