@@ -215,6 +215,8 @@ def PageImage(page, ZoomMode=False, RenderMode=False):
                 img = RenderPDF(page, not(ZoomMode), ZoomMode)
             else:
                 img = LoadImage(page, ZoomMode)
+            if GetPageProp(page, 'invert', InvertPages):
+                img = ImageChops.invert(img)
             if EnableCacheWrite:
                 AddToPCache(page, img)
 

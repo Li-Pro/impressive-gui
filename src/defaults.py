@@ -72,3 +72,4 @@ QuitAtEnd = False
 PageClicks = True
 ShowClock = False
 HalfScreen = False
+InvertPages = False

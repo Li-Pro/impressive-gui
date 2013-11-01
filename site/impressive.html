@@ -172,6 +172,9 @@ Another limitation is that the allocation of the screen halves (slides left, ove
 <dt><code>-I <em>&lt;filename&gt;</em></code> or <code>--script <em>&lt;filename&gt;</em></code></dt>
 <dd>Overrides automatic derivation of the info script filename and specifies a script file directly.</dd>
 
+<dt><code>--invert</code></dt>
+<dd>This option makes Impressive invert the colors of each page, turning black to white and vice-versa. Note that it is a full RGB inversion, so it will, for example, turn dark green to light purple (and vice-versa) too.</dd>
+
 <dt><code>-l</code> or <code>--listtrans</code></dt>
 <dd>If this option is specified, Impressive writes a list of all available transition classes to standard output and does not start a presentation. Transitions that are enabled by default are marked with a star (<code>*</code>) left of the class name.</dd>
 
@@ -446,6 +449,9 @@ In any case, the default file name can be overridden by the <code>-I</code> comm
 
 <dt><code>keys</code></dt>
 <dd>This property can be assigned a dictionary that maps alphanumerical keys to Python functions. For example, <code>'keys': { 'x': SomeFunction }</code> will invoke <code>SomeFunction()</code> if the lowercase character 'x' is typed while the page is displayed. Regarding the functions, the same restrictions as for the <code>OnEnter</code>/<code>OnLeave</code> family apply: the function must not take any parameters and lambda functions can not be saved. Also note that it is not possible to overwrite Impressive's pre-defined key bindings with this method.</dd>
+
+<dt><code>invert</code></dt>
+<dd>This property specifies whether the colors of that page shall be inverted in the same way the <code>--invert</code> command-line switch does. It overrides the <code>--invert</code> setting on a per-page basis: If set to <code>True</code>, the page will always be inverted; if set to <code>False</code>, the page will never be inverted even if <code>--invert</code> has been specified on the command line.</dd>
 
 </dl>
 

@@ -52,6 +52,7 @@ Display options:
   -z,  --zoom <factor>    set zoom factor (integer number, default: 2)
   -x,  --fade             fade in at start and fade out at end
        --spot-radius <px> set the initial radius of the spotlight, in pixels
+       --invert           display slides in inverted colors
 
 Timing options:
   -M,  --minutes          display time in minutes, not seconds
@@ -212,7 +213,7 @@ def ParseOptions(argv):
     global EstimatedDuration, CursorImage, CursorHotspot, MinutesOnly, Overscan
     global GhostScriptPath, pdftoppmPath, UseGhostScript, InfoScriptPath
     global AutoOverview, ZoomFactor, FadeInOut, ShowLogo, Shuffle, PageProgress
-    global QuitAtEnd, PageClicks, ShowClock, HalfScreen, SpotRadius
+    global QuitAtEnd, PageClicks, ShowClock, HalfScreen, SpotRadius, InvertPages
 
     try:  # unused short options: jknqvyEJKNUWY
         opts, args = getopt.getopt(argv, \
@@ -225,7 +226,7 @@ def ParseOptions(argv):
             "duration=", "cursor=", "minutes", "layout=", "script=", "cache=",
             "cachefile=", "autooverview=", "zoomtime=", "fade", "nologo",
             "shuffle", "page-progress", "overscan", "autoquit", "noclicks",
-            "clock", "half-screen", "spot-radius="])
+            "clock", "half-screen", "spot-radius=", "invert"])
     except getopt.GetoptError, message:
         opterr(message)
 
@@ -289,6 +290,8 @@ def ParseOptions(argv):
             HalfScreen = not(HalfScreen)
             if HalfScreen:
                 ZoomDuration = 0
+        if opt == "--invert":
+            InvertPages = not(InvertPages)
         if opt in ("-P", "--gspath"):
             UseGhostScript = (arg.replace("\\", "/").split("/")[-1].lower().find("pdftoppm") < 0)
             if UseGhostScript:

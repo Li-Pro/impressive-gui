@@ -78,7 +78,7 @@ try:
     from OpenGL.GL import *
     import pygame
     from pygame.locals import *
-    from PIL import Image, ImageDraw, ImageFont, ImageFilter
+    from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageChops
     from PIL import TiffImagePlugin, BmpImagePlugin, JpegImagePlugin, PngImagePlugin, PpmImagePlugin
 except (ValueError, ImportError), err:
     print >>sys.stderr, "Oops! Cannot load necessary modules:", err
