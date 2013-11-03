@@ -116,10 +116,13 @@ def HandleEvent(event):
             if Pcurrent != PageCount:
                 TransitionTo(PageCount)
         elif event.key in (K_RETURN, K_KP_ENTER):
-            if not(GetPageProp(Pcurrent, 'boxes')) and Tracing:
+            have_boxes = bool(GetPageProp(Pcurrent, 'boxes'))
+            if not(have_boxes) and Tracing:
                 BoxFade(lambda t: 1.0 - t)
             Tracing = not(Tracing)
-            if not(GetPageProp(Pcurrent, 'boxes')) and Tracing:
+            if have_boxes:
+                DrawCurrentPage()
+            elif Tracing:
                 BoxFade(lambda t: t)
         elif event.unicode == u'+':
             IncrementSpotSize(+8)
