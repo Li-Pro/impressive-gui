@@ -64,7 +64,22 @@ def HandleEvent(event):
             except:
                 StopMPlayer()
                 DrawCurrentPage()
-        elif (event.key == K_ESCAPE) or (event.unicode == u'q'):
+        elif event.key == K_ESCAPE:
+            if ZoomMode:
+                LeaveZoomMode()
+            elif Tracing:
+                if GetPageProp(Pcurrent, 'boxes'):
+                    Tracing = False
+                    DrawCurrentPage()
+                else:
+                    BoxFade(lambda t: 1.0 - t)
+                    Tracing = False
+            elif GetPageProp(Pcurrent, 'boxes'):
+                BoxFade(lambda t: 1.0 - t)
+                DelPageProp(Pcurrent, 'boxes')
+            else:
+                pygame.event.post(pygame.event.Event(QUIT))
+        elif event.unicode == u'q':
             pygame.event.post(pygame.event.Event(QUIT))
         elif event.unicode == u'f':
             SetFullscreen(not Fullscreen)

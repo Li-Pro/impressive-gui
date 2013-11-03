@@ -16,6 +16,11 @@ def SetProp(prop_dict, key, prop, value):
         prop_dict[key] = {prop: value}
     else:
         prop_dict[key][prop] = value
+def DelProp(prop_dict, key, prop):
+    try:
+        del prop_dict[key][prop]
+    except KeyError:
+        pass
 
 def GetPageProp(page, prop, default=None):
     global PageProps
@@ -23,6 +28,9 @@ def GetPageProp(page, prop, default=None):
 def SetPageProp(page, prop, value):
     global PageProps
     SetProp(PageProps, page, prop, value)
+def DelPageProp(page, prop):
+    global PageProps
+    DelProp(PageProps, page, prop)
 def GetTristatePageProp(page, prop, default=0):
     res = GetPageProp(page, prop, default)
     if res != FirstTimeOnly: return res

@@ -129,7 +129,10 @@ def HandleOverviewEvent(event):
         DrawOverview()
 
     elif event.type == KEYDOWN:
-        if (event.key == K_ESCAPE) or (event.unicode == u'q'):
+        if event.key == K_ESCAPE:
+            OverviewSelection = -1
+            return 0
+        if event.unicode == u'q':
             pygame.event.post(pygame.event.Event(QUIT))
         elif event.unicode == u'f':
             SetFullscreen(not Fullscreen)
