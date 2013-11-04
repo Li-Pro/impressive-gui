@@ -1,27 +1,24 @@
 @echo off
-set PY=C:\Programme\Dev\Python25\Lib
+set pyinstaller_path="C:\Program Files (x86)\Dev\Python25\pyinstaller-2.0"
 
-rm -rfv dist
-
-python deploy.py py2exe --excludes=OpenGL
+python compile.py
 if errorlevel 1 goto end
 
-rem cp -a gs dist
-cp -a OpenGL dist
-rm -rf build
-cp license.txt dist
-cp changelog.txt dist
-cp site/impressive.html dist
-cp demo.pdf dist
-cp msvcr71.dll dist
-cp *.exe dist
+python %pyinstaller_path%\pyinstaller.py --noconfirm --onedir --name=Impressive --console impressive.py
+if errorlevel 1 goto end
+rmdir /s /q build
+del Impressive.spec
+del logdict2.*.log
 
-rm -f Impressive.zip
-cd dist
-rm -rf tcl tcl*.dll tk*.dll
-zip -rv9 ..\Impressive *
-cd ..
+set target=dist\Impressive\
+copy /b win32\*.exe %target%
+copy /b win32\*.dll %target%
+copy /b demo.pdf %target%
+copy /b license.txt %target%
+copy /b changelog.txt %target%
+copy /b site\Impressive.html %target%
 
-du -hs dist Impressive.zip
+del Impressive.zip
+zip -jr9 Impressive.zip %target%
 
 :end

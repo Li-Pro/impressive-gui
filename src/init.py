@@ -104,3 +104,5 @@ except ImportError:
         def release(self): self.state = False
         def locked(self): return self.state
     def create_lock(): return pseudolock()
+
+CleanExit = False

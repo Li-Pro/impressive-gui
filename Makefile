@@ -29,5 +29,6 @@ clean:
 
 distclean: clean
 	rm -f demo.pdf impressive.1 impressive.py
+	rm -rf dist
 
 .PHONY: all man demo test test-demo release clean distclean
