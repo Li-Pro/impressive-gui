@@ -3,6 +3,7 @@ Win32 executables of Impressive:
 
 * pdftk.exe - an older version of pdftk (<= 1.45). original source:
               http://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/
+              Note: may also require libiconv2.dll
 
 * pdftoppm.exe - Xpdf's PDF-to-image converter, from:
                  http://www.foolabs.com/xpdf/download.html

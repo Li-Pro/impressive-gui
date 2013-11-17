@@ -66,6 +66,8 @@ class Converter(HTMLParser.HTMLParser):
     def handle_starttag(self, tag, attrs):
         if DEBUG: print "starttag:", tag, attrs
         tag = tag.lower()
+        if (tag == "p") and (tag in self.stack):
+            raise HTMLParser.HTMLParseError("nested <p> found")
         self.stack.append(tag)
         if not self.enabled: return
         if tag in ("b", "strong", "code"):
@@ -92,7 +94,7 @@ class Converter(HTMLParser.HTMLParser):
         if DEBUG: print "endtag:", tag
         tag = tag.lower()
         if not(self.stack) or (self.stack[-1] != tag):
-            raise HTMLParser.HTMLParseError("start/end tag mismatch")
+            raise HTMLParser.HTMLParseError("start/end tag mismatch\nstack is %r, got %r" % (self.stack, tag))
         del self.stack[-1]
         if not self.enabled: return
         if tag == "p":
