@@ -62,6 +62,6 @@ if __name__=="__main__":
         ParseOptions(sys.argv[1:])
         run_main()
     finally:
-        if not(CleanExit) and (os.name == 'nt') and sys.frozen:
+        if not(CleanExit) and (os.name == 'nt') and getattr(sys, "frozen", False):
             print
             raw_input("<-- press ENTER to close this window --> ")

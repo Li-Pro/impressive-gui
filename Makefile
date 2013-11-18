@@ -26,6 +26,7 @@ impressive.py: compile.py impressive_dev.py src/*.py
 
 clean:
 	rm -f *.nav *.out *.snm *.toc *.vrb *.aux *.log *.pyc *.pyo
+	rm -rf win32/mplayer
 
 distclean: clean
 	rm -f demo.pdf impressive.1 impressive.py

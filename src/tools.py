@@ -218,9 +218,24 @@ def OverviewPos(page):
 def StopMPlayer():
     global MPlayerProcess, VideoPlaying
     if not MPlayerProcess: return
+
+    # first, ask politely
+    try:
+        MPlayerProcess.stdin.write('quit\n')
+        for i in xrange(10):
+            if not(MPlayerProcess.poll() is None):
+                MPlayerProcess = None
+                VideoPlaying = False
+                return
+            time.sleep(0.1)
+    except:
+        pass
+
+    # if that didn't work, be rude
+    print >>sys.stderr, "MPlayer didn't exit properly, killing PID", MPlayerProcess.pid
     try:
         if os.name == 'nt':
-            win32api.TerminateProcess(MPlayerProcess.pid, 0)
+            win32api.TerminateProcess(win32api.OpenProcess(1, False, MPlayerProcess.pid), 0)
         else:
             os.kill(MPlayerProcess.pid, 2)
         MPlayerProcess = None
@@ -258,6 +273,7 @@ def Quit(code=0):
     global CleanExit
     if not code:
         CleanExit = True
+    StopMPlayer()
     pygame.display.quit()
     print >>sys.stderr, "Total presentation time: %s." % \
                         FormatTime((pygame.time.get_ticks() - StartTime) / 1000)

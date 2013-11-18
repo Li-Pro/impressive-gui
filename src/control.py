@@ -101,9 +101,8 @@ def PlayVideo(video):
             VideoPlaying = False
             MPlayerProcess = None
             return
-    opts += [FileNameEscape + video + FileNameEscape]
     try:
-        MPlayerProcess = subprocess.Popen([MPlayerPath] + opts, stdin=subprocess.PIPE)
+        MPlayerProcess = subprocess.Popen([MPlayerPath] + opts + [video], stdin=subprocess.PIPE)
         if MPlayerColorKey:
             glClear(GL_COLOR_BUFFER_BIT)
             pygame.display.flip()
@@ -130,8 +129,7 @@ def PageEntered(update_time=True):
             StopMPlayer()
             try:
                 MPlayerProcess = subprocess.Popen( \
-                    [MPlayerPath, "-quiet", "-really-quiet", "-novideo", \
-                     FileNameEscape + sound + FileNameEscape], \
+                    [MPlayerPath, "-quiet", "-really-quiet", "-novideo", sound], \
                     stdin=subprocess.PIPE)
             except OSError:
                 MPlayerProcess = None

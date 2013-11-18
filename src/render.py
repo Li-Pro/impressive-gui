@@ -40,12 +40,10 @@ def RenderPDF(page, MayAdjustResolution, ZoomMode):
         renderer = "pdftoppm"
         try:
             useres = max(res[0], res[1])
-            assert 0 == spawn(os.P_WAIT, \
-                pdftoppmPath, ["pdftoppm", "-q"] + [ \
+            assert 0 == subprocess.Popen([pdftoppmPath, "-q", \
                 "-f", str(RealPage), "-l", str(RealPage),
                 "-r", str(int(useres + 0.5)),
-                FileNameEscape + SourceFile + FileNameEscape,
-                TempFileName])
+                SourceFile, TempFileName]).wait()
             if abs(1.0 - PAR) > 0.01:
                 parscale = True
             res = (useres, useres)
@@ -71,15 +69,14 @@ def RenderPDF(page, MayAdjustResolution, ZoomMode):
         imgfile = TempFileName + ".tif"
         renderer = "GhostScript"
         try:
-            assert 0 == spawn(os.P_WAIT, \
-                GhostScriptPath, ["gs", "-q"] + GhostScriptPlatformOptions + [ \
+            assert 0 == subprocess.Popen([GhostScriptPath, "-q"] + GhostScriptPlatformOptions + [ \
                 "-dBATCH", "-dNOPAUSE", "-sDEVICE=tiff24nc", "-dUseCropBox",
                 "-sOutputFile=" + imgfile, \
                 "-dFirstPage=%d" % RealPage, "-dLastPage=%d" % RealPage,
                 "-r%dx%d" % (int(res[0] + 0.5), int(res[1] + 0.5)), \
                 "-dTextAlphaBits=%d" % AlphaBits, \
                 "-dGraphicsAlphaBits=%s" % AlphaBits, \
-                FileNameEscape + SourceFile + FileNameEscape])
+                SourceFile]).wait()
         except OSError, (errcode, errmsg):
             print >>sys.stderr, "Error: Cannot start GhostScript -", errmsg
             return DummyPage()

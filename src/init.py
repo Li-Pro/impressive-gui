@@ -15,12 +15,20 @@ except ImportError:
 # initialize some platform-specific settings
 if os.name == "nt":
     root = os.path.split(sys.argv[0])[0] or "."
-    pdftoppmPath = os.path.join(root, "pdftoppm.exe")
-    GhostScriptPath = os.path.join(root, "gs\\gswin32c.exe")
+    _find_paths = [root, os.path.join(root, "win32"), os.path.join(root, "gs")] + filter(None, os.getenv("PATH").split(';'))
+    def FindBinary(binary):
+        for p in _find_paths:
+            path = os.path.join(p, binary)
+            if os.path.isfile(path):
+                return path
+        return os.path.join(root, binary)  # fall-back if not found
+    pdftkPath = FindBinary("pdftk.exe")
+    pdftoppmPath = FindBinary("pdftoppm.exe")
+    GhostScriptPath = FindBinary("gswin32c.exe")
     GhostScriptPlatformOptions = ["-I" + os.path.join(root, "gs")]
     try:
         import win32api
-        MPlayerPath = os.path.join(root, "mplayer.exe")
+        MPlayerPath = FindBinary("mplayer.exe")
         def GetScreenSize():
             dm = win32api.EnumDisplaySettings(None, -1) #ENUM_CURRENT_SETTINGS
             return (int(dm.PelsWidth), int(dm.PelsHeight))
@@ -32,10 +40,7 @@ if os.name == "nt":
         def RunURL(url): print "Error: cannot run URL `%s'" % url
     MPlayerPlatformOptions = [ "-colorkey", "0x000000" ]
     MPlayerColorKey = True
-    pdftkPath = os.path.join(root, "pdftk.exe")
-    FileNameEscape = '"'
-    spawn = os.spawnv
-    if getattr(sys, "frozen", None):
+    if getattr(sys, "frozen", False):
         sys.path.append(root)
     FontPath = []
     FontList = ["Verdana.ttf", "Arial.ttf"]
@@ -47,13 +52,11 @@ else:
     MPlayerPlatformOptions = [ "-vo", "gl" ]
     MPlayerColorKey = False
     pdftkPath = "pdftk"
-    spawn = os.spawnvp
-    FileNameEscape = ""
     FontPath = ["/usr/share/fonts", "/usr/local/share/fonts", "/usr/X11R6/lib/X11/fonts/TTF"]
     FontList = ["DejaVuSans.ttf", "Vera.ttf", "Verdana.ttf"]
     def RunURL(url):
         try:
-            spawn(os.P_NOWAIT, "xdg-open", ["xdg-open", url])
+            subprocess.Popen(["xdg-open", url])
         except OSError:
             print >>sys.stderr, "Error: cannot open URL `%s'" % url
     def GetScreenSize():

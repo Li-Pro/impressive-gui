@@ -356,10 +356,7 @@ def FixHyperlinks(page):
 
 def ParsePDF(filename):
     try:
-        assert 0 == spawn(os.P_WAIT, pdftkPath, \
-                ["pdftk", FileNameEscape + filename + FileNameEscape, \
-                 "output", FileNameEscape + TempFileName + ".pdf" + FileNameEscape,
-                 "uncompress"])
+        assert 0 == subprocess.Popen([pdftkPath, filename, "output", TempFileName + ".pdf", "uncompress"]).wait()
     except OSError:
         print >>sys.stderr, "Note: pdftk not found, hyperlinks disabled."
         return

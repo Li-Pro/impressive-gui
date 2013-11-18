@@ -65,9 +65,7 @@ def main():
 
             # phase 2: use pdftk
             try:
-                assert 0 == spawn(os.P_WAIT, pdftkPath, \
-                    ["pdftk", FileNameEscape + name + FileNameEscape, \
-                     "dump_data", "output", TempFileName + ".txt"])
+                assert 0 == subprocess.Popen([pdftkPath, name, "dump_data", "output", TempFileName + ".txt"]).wait()
                 title, pages = pdftkParse(TempFileName + ".txt", PageCount)
                 if DocumentTitle and title: DocumentTitle = title
             except KeyboardInterrupt:
@@ -371,17 +369,14 @@ def run_main():
             print >>sys.stderr, "PyGame version:", pygame.__version__
             print >>sys.stderr, "PIL version:", Image.VERSION
             print >>sys.stderr, "PyOpenGL version:", OpenGL.__version__
-            try:
-                uname = os.uname()
+            if hasattr(os, 'uname'):
                 print >>sys.stderr, "Operating system: %s %s (%s)" % (uname[0], uname[2], uname[4])
-            except (OSError, AttributeError):
+            else:
                 print >>sys.stderr, "Python platform:", sys.platform
-            try:
-                lsb_release = subprocess.Popen(["lsb_release", "-sd"], stdout=subprocess.PIPE)
+            if os.path.isfile("/usr/bin/lsb_release"):
+                lsb_release = subprocess.Popen(["/usr/bin/lsb_release", "-sd"], stdout=subprocess.PIPE)
                 print >>sys.stderr, "Linux distribution:", lsb_release.stdout.read().strip()
                 lsb_release.wait()
-            except OSError:
-                pass
             print >>sys.stderr, "Command line:", ' '.join(('"%s"'%arg if (' ' in arg) else arg) for arg in sys.argv)
             raise
     finally:
