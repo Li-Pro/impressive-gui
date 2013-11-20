@@ -198,8 +198,10 @@ def HandleEvent(event):
             Panning = False
             return
         if event.button == 2:
-            LeaveZoomMode()
-            DoOverview()
+            if ZoomMode:
+                LeaveZoomMode()
+            else:
+                DoOverview()
             return
         if event.button == 1:
             if Marking:
@@ -215,9 +217,8 @@ def HandleEvent(event):
                     if not(oldboxcount) and not(Tracing):
                         BoxFade(lambda t: t)
                 DrawCurrentPage()
-            else:
-                # left mouse button released, but no marking
-                LeaveZoomMode()
+            elif not ZoomMode:
+                # left mouse button released, but no marking and no zoom
                 dest = GetNextPage(Pcurrent, 1)
                 x, y = event.pos
                 for valid, target, x0, y0, x1, y1 in GetPageProp(Pcurrent, '_href', []):
@@ -225,7 +226,7 @@ def HandleEvent(event):
                         dest = target
                         break
                 if type(dest) == types.IntType:
-		    if PageClicks:
+                    if PageClicks:
                         TransitionTo(dest)
                 else:
                     RunURL(dest)
