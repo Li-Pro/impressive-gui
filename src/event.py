@@ -97,6 +97,11 @@ def HandleEvent(event):
                 tx, ty = MouseToScreen(pygame.mouse.get_pos())
                 EnterZoomMode((1.0 - 1.0 / ZoomFactor) * tx, \
                               (1.0 - 1.0 / ZoomFactor) * ty)
+        elif event.unicode == u'c':
+            if not Tracing:
+                BoxFade(lambda t: 1.0 - t)
+            DelPageProp(Pcurrent, 'boxes')
+            DrawCurrentPage()
         elif event.unicode in (u'b', u'.'):
             FadeMode(0.0)
         elif event.unicode in (u'w', u','):
