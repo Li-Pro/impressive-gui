@@ -179,6 +179,8 @@ def TransitionTo(page):
     # invalid page? go away
     if not PreloadNextPage(page):
         if QuitAtEnd:
+            if FadeInOut:
+                EnterFadeMode()
             PageLeft()
             Quit()
         return 0
