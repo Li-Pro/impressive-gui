@@ -12,7 +12,7 @@ def main():
     global Extensions, AllowExtensions, TextureTarget, PAR, DAR, TempFileName
     global BackgroundRendering, FileStats, RTrunning, RTrestart, StartTime
     global CursorImage, CursorVisible, InfoScriptPath
-    global HalfScreen
+    global HalfScreen, AutoAdvance
 
     # allocate temporary file
     TempFileName = tempfile.mktemp(prefix="impressive-", suffix="_tmp")
@@ -111,6 +111,14 @@ def main():
         InfoScriptPath = FileName + ".info"
     LoadInfoScript()
 
+    # get the initial page number
+    if not InitialPage:
+        InitialPage = GetNextPage(0, 1)
+    Pcurrent = InitialPage
+    if (Pcurrent <= 0) or (Pcurrent > PageCount):
+        print >>sys.stderr, "Attempt to start the presentation at an invalid page (%d of %d), quitting." % (InitialPage, PageCount)
+        sys.exit(1)
+
     # initialize graphics
     flags = OPENGL|DOUBLEBUF
     if Fullscreen:
@@ -174,9 +182,6 @@ def main():
     PixelY = 1.0 / ScreenHeight
     EdgeX = BoxEdgeSize * 1.0 / ScreenWidth
     EdgeY = BoxEdgeSize * 1.0 / ScreenHeight
-    if InitialPage is None:
-        InitialPage = GetNextPage(0, 1)
-    Pcurrent = InitialPage
 
     # prepare logo image
     LogoImage = Image.open(StringIO.StringIO(LOGO))
@@ -263,6 +268,27 @@ def main():
         pos = OverviewPos(page)
         OverviewImage.paste(dummy, (pos[0] + margX, pos[1] + margY))
     del dummy
+
+    # compute auto-advance timeout, if applicable
+    if EstimatedDuration and AutoAutoAdvance:
+        time_left = EstimatedDuration * 1000
+        pages = 0
+        p = InitialPage
+        while p:
+            override = GetPageProp(p, 'timeout')
+            if override:
+                time_left -= override
+            else:
+                pages += 1
+            pnext = GetNextPage(p, 1)
+            if pnext:
+                time_left -= GetPageProp(p, 'transtime', TransitionDuration)
+            p = pnext
+        if pages and (time_left >= pages):
+            AutoAdvance = time_left / pages
+            print >>sys.stderr, "Setting auto-advance timeout to %.1f seconds." % (0.001 * AutoAdvance)
+        else:
+            print >>sys.stderr, "Warning: Could not determine auto-advance timeout automatically."
 
     # set up background rendering
     if not EnableBackgroundRendering:

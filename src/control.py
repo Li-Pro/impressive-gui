@@ -114,15 +114,15 @@ def PlayVideo(video):
 
 # called each time a page is entered
 def PageEntered(update_time=True):
-    global PageEnterTime, MPlayerProcess, IsZoomed, WantStatus
+    global PageEnterTime, PageTimeout, MPlayerProcess, IsZoomed, WantStatus
     if update_time:
         PageEnterTime = pygame.time.get_ticks() - StartTime
     IsZoomed = False  # no, we don't have a pre-zoomed image right now
     WantStatus = False  # don't show status unless it's changed interactively
-    timeout = AutoAdvance
+    PageTimeout = AutoAdvance
     shown = GetPageProp(Pcurrent, '_shown', 0)
     if not(shown) or Wrap:
-        timeout = GetPageProp(Pcurrent, 'timeout', timeout)
+        PageTimeout = GetPageProp(Pcurrent, 'timeout', PageTimeout)
     if not(shown) or GetPageProp(Pcurrent, 'always', False):
         video = GetPageProp(Pcurrent, 'video')
         sound = GetPageProp(Pcurrent, 'sound')
@@ -137,12 +137,14 @@ def PageEntered(update_time=True):
                 MPlayerProcess = None
         SafeCall(GetPageProp(Pcurrent, 'OnEnterOnce'))
     SafeCall(GetPageProp(Pcurrent, 'OnEnter'))
-    if timeout: pygame.time.set_timer(USEREVENT_PAGE_TIMEOUT, timeout)
+    if PageTimeout:
+        pygame.time.set_timer(USEREVENT_PAGE_TIMEOUT, PageTimeout)
     SetPageProp(Pcurrent, '_shown', shown + 1)
 
 # called each time a page is left
 def PageLeft(overview=False):
-    global FirstPage, LastPage, WantStatus
+    global FirstPage, LastPage, WantStatus, PageLeaveTime
+    PageLeaveTime = pygame.time.get_ticks() - StartTime
     WantStatus = False
     if not overview:
         if GetTristatePageProp(Pcurrent, 'reset'):
@@ -166,7 +168,8 @@ def PageLeft(overview=False):
 # perform a transition to a specified page
 def TransitionTo(page):
     global Pcurrent, Pnext, Tcurrent, Tnext
-    global PageCount, Marking, Tracing, Panning, TransitionRunning
+    global PageCount, Marking, Tracing, Panning
+    global TransitionRunning, TransitionPhase
 
     # first, stop video and kill the auto-timer
     if VideoPlaying:
@@ -229,6 +232,7 @@ def TransitionTo(page):
                 break
             t = (pygame.time.get_ticks() - t0) * transtime
             if t >= 1.0: break
+            TransitionPhase = t
             if backward: t = 1.0 - t
             glEnable(TextureTarget)
             trans.render(t)
@@ -361,6 +365,8 @@ def TimerTick():
         ProgressBarPos = newpos
     newtime = int(newtime)
     if TimeDisplay and (CurrentTime != newtime):
+        redraw = True
+    if PageTimeout and AutoAdvanceProgress:
         redraw = True
     CurrentTime = newtime
     return redraw

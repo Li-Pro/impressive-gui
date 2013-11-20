@@ -35,7 +35,6 @@ Page options:
   -p,  --pages <A-B>      only cache pages in the specified range;
                           implicitly sets -i <A>
   -w,  --wrap             go back to the first page after the last page
-  -a,  --auto <seconds>   automatically advance to next page after some seconds
   -O,  --autooverview <x> automatically derive page visibility on overview page
                             -O first = show pages with captions
                             -O last  = show pages before pages with captions
@@ -58,8 +57,12 @@ Display options:
 Timing options:
   -M,  --minutes          display time in minutes, not seconds
        --clock            show current time instead of time elapsed
+  -a,  --auto <seconds>   automatically advance to next page after some seconds
   -d,  --duration <time>  set the desired duration of the presentation and show
                           a progress bar at the bottom of the screen
+  -y,  --auto-auto        if a duration is set, set the default time-out so
+                          that it will be reached exactly
+  -k,  --auto-progress    shows a progress bar for each page for auto-advance
   -T,  --transtime <ms>   set transition duration in milliseconds
   -D,  --mousedelay <ms>  set mouse hide delay for fullscreen mode (in ms)
   -B,  --boxfade <ms>     set highlight box fade duration in milliseconds
@@ -215,11 +218,11 @@ def ParseOptions(argv):
     global GhostScriptPath, pdftoppmPath, UseGhostScript, InfoScriptPath
     global AutoOverview, ZoomFactor, FadeInOut, ShowLogo, Shuffle, PageProgress
     global QuitAtEnd, PageClicks, ShowClock, HalfScreen, SpotRadius, InvertPages
-    global MinBoxSize
+    global MinBoxSize, AutoAutoAdvance, AutoAdvanceProgress
 
-    try:  # unused short options: jknqvyEJKNUWY
+    try:  # unused short options: jnvEJKNUWY
         opts, args = getopt.getopt(argv, \
-            "hfg:sc:i:wa:t:lo:r:T:D:B:Z:P:R:eA:mbp:u:F:S:G:d:C:ML:I:O:z:xXqV:QH", \
+            "hfg:sc:i:wa:t:lo:r:T:D:B:Z:P:R:eA:mbp:u:F:S:G:d:C:ML:I:O:z:xXqV:QHyk", \
            ["help", "fullscreen", "geometry=", "scale", "supersample", \
             "nocache", "initialpage=", "wrap", "auto", "listtrans", "output=", \
             "rotate=", "transition=", "transtime=", "mousedelay=", "boxfade=", \
@@ -228,7 +231,8 @@ def ParseOptions(argv):
             "duration=", "cursor=", "minutes", "layout=", "script=", "cache=",
             "cachefile=", "autooverview=", "zoomtime=", "fade", "nologo",
             "shuffle", "page-progress", "overscan", "autoquit", "noclicks",
-            "clock", "half-screen", "spot-radius=", "invert", "min-box-size="])
+            "clock", "half-screen", "spot-radius=", "invert", "min-box-size=",
+            "auto-auto", "auto-progress"])
     except getopt.GetoptError, message:
         opterr(message)
 
@@ -286,6 +290,10 @@ def ParseOptions(argv):
             Shuffle = not(Shuffle)
         if opt in ("-Q", "--autoquit"):
             QuitAtEnd = not(QuitAtEnd)
+        if opt in ("-y", "--auto-auto"):
+            AutoAutoAdvance = not(AutoAutoAdvance)
+        if opt in ("-k", "--auto-progress"):
+            AutoAdvanceProgress = not(AutoAdvanceProgress)
         if opt in ("-q", "--page-progress"):
             PageProgress = not(PageProgress)
         if opt in ("-H", "--half-screen"):
@@ -320,7 +328,7 @@ def ParseOptions(argv):
                 opterr("invalid parameter for --duration")
         if opt in ("-a", "--auto"):
             try:
-                AutoAdvance = int(arg) * 1000
+                AutoAdvance = int(float(arg) * 1000)
                 assert (AutoAdvance > 0) and (AutoAdvance <= 86400000)
             except:
                 opterr("invalid parameter for --auto")
@@ -393,7 +401,7 @@ def ParseOptions(argv):
                 assert PageRangeStart <= PageRangeEnd
             except:
                 opterr("invalid parameter for --pages")
-            InitialPage=PageRangeStart
+            InitialPage = PageRangeStart
         if opt in ("-A", "--aspect"):
             try:
                 if ':' in arg:

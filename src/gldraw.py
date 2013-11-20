@@ -1,10 +1,23 @@
 ##### OPENGL RENDERING #########################################################
 
+import traceback
+
 # draw OSD overlays
 def DrawOverlays(trans_time=0.0):
     reltime = pygame.time.get_ticks() - StartTime
-    if (EstimatedDuration or PageProgress) and (OverviewMode or GetPageProp(Pcurrent, 'progress', True)):
-        if EstimatedDuration:
+    if (EstimatedDuration or PageProgress or (PageTimeout and AutoAdvanceProgress)) \
+    and (OverviewMode or GetPageProp(Pcurrent, 'progress', True)):
+        r, g, b = ProgressBarColorPage
+        a = ProgressBarAlpha
+        if PageTimeout and AutoAdvanceProgress:
+            rel = (reltime - PageEnterTime) / float(PageTimeout)
+            if TransitionRunning:
+                a = int(a * (1.0 - TransitionPhase))
+            elif PageLeaveTime > PageEnterTime:
+                # we'll be called one frame after the transition finished, but
+                # before the new page has been fully activated => don't flash
+                a = 0
+        elif EstimatedDuration:
             rel = (0.001 * reltime) / EstimatedDuration
             if rel < 1.0:
                 r, g, b = ProgressBarColorNormal
@@ -16,9 +29,8 @@ def DrawOverlays(trans_time=0.0):
                           (rel - ProgressBarWarningFactor) / (ProgressBarCriticalFactor - ProgressBarWarningFactor))
             else:
                 r, g, b = ProgressBarColorCritical
-        else:
+        else:  # must be PageProgress
             rel = (Pcurrent + trans_time * (Pnext - Pcurrent)) / PageCount
-            r, g, b = ProgressBarColorPage
         if HalfScreen:
             zero = 0.5
             rel = 0.5 + 0.5 * rel
@@ -32,7 +44,7 @@ def DrawOverlays(trans_time=0.0):
         glColor4ub(r, g, b, 0)
         glVertex2d(zero, 1.0 - ProgressBarSizeFactor)
         glVertex2d(rel, 1.0 - ProgressBarSizeFactor)
-        glColor4ub(r, g, b, ProgressBarAlpha)
+        glColor4ub(r, g, b, a)
         glVertex2d(rel, 1.0)
         glVertex2d(zero, 1.0)
         glEnd()
