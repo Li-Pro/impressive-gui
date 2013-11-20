@@ -101,8 +101,10 @@ def PlayVideo(video):
             VideoPlaying = False
             MPlayerProcess = None
             return
+    if not isinstance(video, list):
+        video = [video]
     try:
-        MPlayerProcess = subprocess.Popen([MPlayerPath] + opts + [video], stdin=subprocess.PIPE)
+        MPlayerProcess = subprocess.Popen([MPlayerPath] + opts + video, stdin=subprocess.PIPE)
         if MPlayerColorKey:
             glClear(GL_COLOR_BUFFER_BIT)
             pygame.display.flip()
