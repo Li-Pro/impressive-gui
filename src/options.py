@@ -84,7 +84,8 @@ Advanced options:
   -e,  --noext            don't use OpenGL texture size extensions
   -V,  --overscan <px>    render PDF files <px> pixels larger than the screen
        --nologo           disable startup logo and version number display
-       --noclicks         disable page transition via left/right mouse click
+       --noclicks         disable page navigation via left/right mouse click
+  -W,  --nowheel          disable page navigation via mouse wheel
   -H,  --half-screen      show OSD on right half of the screen only
 
 For detailed information, visit""", __website__
@@ -220,10 +221,11 @@ def ParseOptions(argv):
     global AutoOverview, ZoomFactor, FadeInOut, ShowLogo, Shuffle, PageProgress
     global QuitAtEnd, PageClicks, ShowClock, HalfScreen, SpotRadius, InvertPages
     global MinBoxSize, AutoAutoAdvance, AutoAdvanceProgress, BoxFadeDarkness
+    global PageWheel
 
-    try:  # unused short options: jnvEJKNUWY
+    try:  # unused short options: jnvEJKNUY
         opts, args = getopt.getopt(argv, \
-            "hfg:sc:i:wa:t:lo:r:T:D:B:Z:P:R:eA:mbp:u:F:S:G:d:C:ML:I:O:z:xXqV:QHyk", \
+            "hfg:sc:i:wa:t:lo:r:T:D:B:Z:P:R:eA:mbp:u:F:S:G:d:C:ML:I:O:z:xXqV:QHykW", \
            ["help", "fullscreen", "geometry=", "scale", "supersample", \
             "nocache", "initialpage=", "wrap", "auto", "listtrans", "output=", \
             "rotate=", "transition=", "transtime=", "mousedelay=", "boxfade=", \
@@ -233,7 +235,8 @@ def ParseOptions(argv):
             "cachefile=", "autooverview=", "zoomtime=", "fade", "nologo",
             "shuffle", "page-progress", "overscan", "autoquit", "noclicks",
             "clock", "half-screen", "spot-radius=", "invert", "min-box-size=",
-            "auto-auto", "auto-progress", "darkness="])
+            "auto-auto", "auto-progress", "darkness=", "no-clicks", "nowheel",
+            "no-wheel"])
     except getopt.GetoptError, message:
         opterr(message)
 
@@ -283,8 +286,10 @@ def ParseOptions(argv):
             FontList = [arg]
         if opt == "--nologo":
             ShowLogo = not(ShowLogo)
-        if opt == "--noclicks":
+        if opt in ("--noclicks", "--no-clicks"):
             PageClicks = not(PageClicks)
+        if opt in ("-W", "--nowheel", "--no-wheel"):
+            PageWheel = not(PageWheel)
         if opt == "--clock":
             ShowClock = not(ShowClock)
         if opt in ("-X", "--shuffle"):

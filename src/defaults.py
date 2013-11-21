@@ -74,6 +74,7 @@ ShowLogo = True
 Shuffle = False
 QuitAtEnd = False
 PageClicks = True
+PageWheel = True
 ShowClock = False
 HalfScreen = False
 InvertPages = False

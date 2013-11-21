@@ -255,6 +255,9 @@ The new PDF file must have at least as much pages as the old one; also, it shoul
 <dt><code>-w</code> or <code>--wrap</code></dt>
 <dd>If this option is set, Impressive will &ldquo;wrap&rdquo; over to the first page after the last page. In other words, advancing to the next page at the end of the presentation will restart the whole presentation.</dd>
 
+<dt><code>-W</code> or <code>--nowheel</code></dt>
+<dd>By default, it is possible to change pages using the mouse wheel. This option disables this behavior, which can be useful to prevent spurious page changes if the mouse wheel is likely to be moved by accident.</dd>
+
 <dt><code>-x</code> or <code>--fade</code></dt>
 <dd>This option enables a smooth fade-in effect at the start of the presentation and a fade-out effect just before Impressive quits.</dd>
 
@@ -330,10 +333,10 @@ The following keyboard and mouse operations are available from this moment on:</
 <dt><strong>Q</strong> key</dt>
 <dd>Quit Impressive immediately.</dd>
 
-<dt><strong>LMB</strong> (left mouse button), <strong>Page Down</strong> key, <strong>Cursor Down</strong> key, <strong>Cursor Right</strong> key or <strong>Spacebar</strong></dt>
+<dt><strong>LMB</strong> (left mouse button), mouse wheel down, <strong>Page Down</strong> key, <strong>Cursor Down</strong> key, <strong>Cursor Right</strong> key or <strong>Spacebar</strong></dt>
 <dd>Go to the next page (using a transition).</dd>
 
-<dt><strong>RMB</strong> (right mouse button), <strong>Page Up</strong> key, <strong>Cursor Up</strong> key, <strong>Cursor Left</strong> key or <strong>Backspace</strong> key</dt>
+<dt><strong>RMB</strong> (right mouse button), mouse wheel up, <strong>Page Up</strong> key, <strong>Cursor Up</strong> key, <strong>Cursor Left</strong> key or <strong>Backspace</strong> key</dt>
 <dd>Go to the previous page (using a transition).</dd>
 
 <dt><strong>Home</strong> key / <strong>End</strong> key</dt>
@@ -379,7 +382,7 @@ If a page with highlight boxes is left, the boxes will be saved and restored the
 <dt><strong>Return</strong> key or <strong>Enter</strong> key</dt>
 <dd>Toggle spotlight mode. In this mode, the page is darkened in the same way as if highlight boxes are present, but instead of (or in addition to) the boxes, a circular &ldquo;spotlight&rdquo; will be shown around the mouse cursor position, following every motion of the mouse cursor.</dd>
 
-<dt><strong>+</strong> / <strong>&ndash;</strong> key, <strong>9</strong> / <strong>0</strong> key or mouse wheel</dt>
+<dt><strong>+</strong> / <strong>&ndash;</strong> key, <strong>9</strong> / <strong>0</strong> key or mouse wheel in spotlight mode</dt>
 <dd>Adjust the spotlight radius.</dd>
 
 <dt><strong>Z</strong> key</dt>

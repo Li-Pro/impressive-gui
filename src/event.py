@@ -184,10 +184,6 @@ def HandleEvent(event):
         elif (event.button == 3) and ZoomMode:
             PanAnchorX = ZoomX0
             PanAnchorY = ZoomY0
-        elif event.button == 4:
-            IncrementSpotSize(+8)
-        elif event.button == 5:
-            IncrementSpotSize(-8)
 
     elif event.type == MOUSEBUTTONUP:
         if VideoPlaying:
@@ -202,7 +198,7 @@ def HandleEvent(event):
             else:
                 DoOverview()
             return
-        if event.button == 1:
+        elif event.button == 1:
             if Marking:
                 # left mouse button released in marking mode -> stop box marking
                 Marking = False
@@ -229,7 +225,7 @@ def HandleEvent(event):
                         TransitionTo(dest)
                 else:
                     RunURL(dest)
-        if (event.button == 3) and not(Panning):
+        elif (event.button == 3) and not(Panning):
             # right mouse button -> check if a box has to be killed
             boxes = GetPageProp(Pcurrent, 'boxes', [])
             x, y = MouseToScreen(event.pos)
@@ -245,6 +241,16 @@ def HandleEvent(event):
                 # no box present -> go to previous page
                 if PageClicks and not ZoomMode:
                     TransitionTo(GetNextPage(Pcurrent, -1))
+        elif event.button == 4:
+            if Tracing:
+                IncrementSpotSize(+8)
+            elif PageWheel:
+                TransitionTo(GetNextPage(Pcurrent, -1))
+        elif event.button == 5:
+            if Tracing:
+                IncrementSpotSize(-8)
+            elif PageWheel:
+                TransitionTo(GetNextPage(Pcurrent, 1))
         Panning = False
 
     elif event.type == MOUSEMOTION:
