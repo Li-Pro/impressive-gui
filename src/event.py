@@ -146,9 +146,9 @@ def HandleEvent(event):
                 DrawCurrentPage()
             elif Tracing:
                 BoxFade(lambda t: t)
-        elif event.unicode == u'+':
+        elif event.unicode in (u'+', u'0'):
             IncrementSpotSize(+8)
-        elif event.unicode == u'-':
+        elif event.unicode in (u'-', u'9'):
             IncrementSpotSize(-8)
         elif event.unicode == u'[':
             SetGamma(new_gamma=Gamma / GammaStep)
