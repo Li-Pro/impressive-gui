@@ -1,7 +1,5 @@
 ##### OPENGL RENDERING #########################################################
 
-import traceback
-
 # draw OSD overlays
 def DrawOverlays(trans_time=0.0):
     reltime = pygame.time.get_ticks() - StartTime
@@ -99,7 +97,7 @@ def DrawCurrentPage(dark=1.0, do_flip=True):
     glEnable(TextureTarget)
     glBindTexture(TextureTarget, Tcurrent)
     if boxes or Tracing:
-        light = 1.0 - 0.25 * dark
+        light = 1.0 - BoxFadeDarkness * dark
     else:
         light = 1.0
     glColor3d(light, light, light)

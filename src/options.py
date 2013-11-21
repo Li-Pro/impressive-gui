@@ -52,7 +52,8 @@ Display options:
   -x,  --fade             fade in at start and fade out at end
        --spot-radius <px> set the initial radius of the spotlight, in pixels
        --invert           display slides in inverted colors
-       --min-box-size <x> set minimum size of a highlight box to, in pixels
+       --min-box-size <x> set minimum size of a highlight box, in pixels
+       --darkness <p>     set highlight box mode darkness to <p> percent
 
 Timing options:
   -M,  --minutes          display time in minutes, not seconds
@@ -218,7 +219,7 @@ def ParseOptions(argv):
     global GhostScriptPath, pdftoppmPath, UseGhostScript, InfoScriptPath
     global AutoOverview, ZoomFactor, FadeInOut, ShowLogo, Shuffle, PageProgress
     global QuitAtEnd, PageClicks, ShowClock, HalfScreen, SpotRadius, InvertPages
-    global MinBoxSize, AutoAutoAdvance, AutoAdvanceProgress
+    global MinBoxSize, AutoAutoAdvance, AutoAdvanceProgress, BoxFadeDarkness
 
     try:  # unused short options: jnvEJKNUWY
         opts, args = getopt.getopt(argv, \
@@ -232,7 +233,7 @@ def ParseOptions(argv):
             "cachefile=", "autooverview=", "zoomtime=", "fade", "nologo",
             "shuffle", "page-progress", "overscan", "autoquit", "noclicks",
             "clock", "half-screen", "spot-radius=", "invert", "min-box-size=",
-            "auto-auto", "auto-progress"])
+            "auto-auto", "auto-progress", "darkness="])
     except getopt.GetoptError, message:
         opterr(message)
 
@@ -445,6 +446,11 @@ def ParseOptions(argv):
                 Overscan = int(arg)
             except:
                 opterr("invalid parameter for --overscan")
+        if opt == "--darkness":
+            try:
+                BoxFadeDarkness = float(arg) * 0.01
+            except:
+                opterr("invalid parameter for --darkness")
 
     for arg in args:
         AddFile(arg)

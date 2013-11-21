@@ -16,6 +16,7 @@ MouseHideDelay = 3000
 BoxFadeDuration = 100
 ZoomDuration = 250
 BlankFadeDuration = 250
+BoxFadeDarkness = 0.25
 MeshResX = 48
 MeshResY = 36
 MarkColor = (1.0, 0.0, 0.0, 0.1)
