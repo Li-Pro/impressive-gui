@@ -166,7 +166,7 @@ def PageLeft(overview=False):
                                   FormatTime(t1 / 1000))
 
 # perform a transition to a specified page
-def TransitionTo(page):
+def TransitionTo(page, allow_transition=True):
     global Pcurrent, Pnext, Tcurrent, Tnext
     global PageCount, Marking, Tracing, Panning
     global TransitionRunning, TransitionPhase
@@ -179,11 +179,15 @@ def TransitionTo(page):
     # invalid page? go away
     if not PreloadNextPage(page):
         if QuitAtEnd:
+            LeaveZoomMode(allow_transition)
             if FadeInOut:
                 EnterFadeMode()
             PageLeft()
             Quit()
         return 0
+
+    # leave zoom mode now, if enabled
+    LeaveZoomMode(allow_transition)
 
     # notify that the page has been left
     PageLeft()
@@ -201,11 +205,11 @@ def TransitionTo(page):
 
     # check if the transition is valid
     tpage = min(Pcurrent, Pnext)
-    if 'transition' in PageProps[tpage]:
-        tkey = 'transition'
+    trans = None
+    if allow_transition:
+        trans = GetPageProp(tpage, 'transition', GetPageProp(tpage, '_transition'))
     else:
-        tkey = '_transition'
-    trans = PageProps[tpage][tkey]
+        trans = None
     if trans is None:
         transtime = 0
     else:
@@ -213,7 +217,7 @@ def TransitionTo(page):
         try:
             dummy = trans.__class__
         except AttributeError:
-            # ah, gotcha! the transition is not yet intantiated!
+            # ah, gotcha! the transition is not yet instantiated!
             trans = trans()
             PageProps[tpage][tkey] = trans
 
@@ -258,12 +262,16 @@ def TransitionTo(page):
     return 1
 
 # zoom mode animation
-def ZoomAnimation(targetx, targety, func):
+def ZoomAnimation(targetx, targety, func, duration_override=None):
     global ZoomX0, ZoomY0, ZoomArea
     t0 = pygame.time.get_ticks()
-    while ZoomDuration > 0:
+    if duration_override is None:
+        duration = ZoomDuration
+    else:
+        duration = duration_override
+    while duration > 0:
         if pygame.event.get([KEYDOWN,MOUSEBUTTONUP]): break
-        t = (pygame.time.get_ticks() - t0) * 1.0 / ZoomDuration
+        t = (pygame.time.get_ticks() - t0) * 1.0 / duration
         if t >= 1.0: break
         t = func(t)
         t = (2.0 - t) * t
@@ -319,10 +327,10 @@ def EnterZoomMode(targetx, targety):
     IsZoomed = True
 
 # leave zoom mode (if enabled)
-def LeaveZoomMode():
+def LeaveZoomMode(allow_transition=True):
     global ZoomMode
     if not ZoomMode: return
-    ZoomAnimation(ZoomX0, ZoomY0, lambda t: 1.0 - t)
+    ZoomAnimation(ZoomX0, ZoomY0, lambda t: 1.0 - t, (None if allow_transition else 0))
     ZoomMode = False
     Panning = False
 

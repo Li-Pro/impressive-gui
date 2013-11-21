@@ -44,6 +44,7 @@ def HandleEvent(event):
         DrawCurrentPage()
 
     elif event.type == KEYDOWN:
+        no_ctrl = not(event.mod & KMOD_CTRL)
         if VideoPlaying:
             try:
                 if event.key in (K_ESCAPE, K_RETURN):
@@ -127,17 +128,15 @@ def HandleEvent(event):
             LeaveZoomMode()
             DoOverview()
         elif event.key in (32, K_DOWN, K_RIGHT, K_PAGEDOWN):
-            LeaveZoomMode()
-            TransitionTo(GetNextPage(Pcurrent, 1))
+            TransitionTo(GetNextPage(Pcurrent, 1), allow_transition=no_ctrl)
         elif event.key in (K_BACKSPACE, K_UP, K_LEFT, K_PAGEUP):
-            LeaveZoomMode()
-            TransitionTo(GetNextPage(Pcurrent, -1))
+            TransitionTo(GetNextPage(Pcurrent, -1), allow_transition=no_ctrl)
         elif event.key == K_HOME:
             if Pcurrent != 1:
-                TransitionTo(1)
+                TransitionTo(1, allow_transition=no_ctrl)
         elif event.key == K_END:
             if Pcurrent != PageCount:
-                TransitionTo(PageCount)
+                TransitionTo(PageCount, allow_transition=no_ctrl)
         elif event.key in (K_RETURN, K_KP_ENTER):
             have_boxes = bool(GetPageProp(Pcurrent, 'boxes'))
             if not(have_boxes) and Tracing:
@@ -172,7 +171,7 @@ def HandleEvent(event):
                     # load keyboard shortcut
                     page = FindShortcut(event.key)
                     if page and (page != Pcurrent):
-                        TransitionTo(page)
+                        TransitionTo(page, allow_transition=no_ctrl)
 
     elif event.type == MOUSEBUTTONDOWN:
         if VideoPlaying:
