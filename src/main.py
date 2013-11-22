@@ -4,7 +4,7 @@ def main():
     global ScreenWidth, ScreenHeight, TexWidth, TexHeight, TexSize, LogoImage
     global TexMaxS, TexMaxT, MeshStepX, MeshStepY, EdgeX, EdgeY, PixelX, PixelY
     global OverviewGridSize, OverviewCellX, OverviewCellY, HaveNPOT
-    global OverviewOfsX, OverviewOfsY, OverviewImage, OverviewPageCount
+    global OverviewOfsX, OverviewOfsY, OverviewBorder, OverviewImage, OverviewPageCount
     global OverviewPageMap, OverviewPageMapInv, FileName, FileList, PageCount
     global DocumentTitle, PageProps, LogoTexture, OSDFont
     global Pcurrent, Pnext, Tcurrent, Tnext, InitialPage
@@ -250,6 +250,8 @@ def main():
     OverviewOfsX = int((ScreenWidth  - OverviewCellX * OverviewGridSize)/2)
     OverviewOfsY = int((ScreenHeight - OverviewCellY * \
                    int((OverviewPageCount + OverviewGridSize - 1) / OverviewGridSize)) / 2)
+    while OverviewBorder and (min(OverviewCellX - 2 * OverviewBorder, OverviewCellY - 2 * OverviewBorder) < 16):
+        OverviewBorder -= 1
     OverviewImage = Image.new('RGB', (TexWidth, TexHeight))
     if HalfScreen:
         OverviewOfsX += ScreenWidth
