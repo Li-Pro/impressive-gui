@@ -25,7 +25,9 @@ Input options:
 
 Output options:
   -o,  --output <dir>     don't display the presentation, only render to .png
-  -f,  --fullscreen       """+if_op(Fullscreen,"do NOT ","")+"""start in fullscreen mode
+       --fullscreen       start in fullscreen mode
+  -ff, --fake-fullscreen  start in "fake fullscreen" mode
+  -f,  --windowed         start in windowed mode
   -g,  --geometry <WxH>   set window size or fullscreen resolution
   -A,  --aspect <X:Y>     adjust for a specific display aspect ratio (e.g. 5:4)
   -G,  --gamma <G[:BL]>   specify startup gamma and black level
@@ -221,7 +223,7 @@ def ParseOptions(argv):
     global AutoOverview, ZoomFactor, FadeInOut, ShowLogo, Shuffle, PageProgress
     global QuitAtEnd, PageClicks, ShowClock, HalfScreen, SpotRadius, InvertPages
     global MinBoxSize, AutoAutoAdvance, AutoAdvanceProgress, BoxFadeDarkness
-    global PageWheel
+    global PageWheel, WindowPos, FakeFullscreen
 
     try:  # unused short options: jnvEJKNUY
         opts, args = getopt.getopt(argv, \
@@ -236,7 +238,7 @@ def ParseOptions(argv):
             "shuffle", "page-progress", "overscan", "autoquit", "noclicks",
             "clock", "half-screen", "spot-radius=", "invert", "min-box-size=",
             "auto-auto", "auto-progress", "darkness=", "no-clicks", "nowheel",
-            "no-wheel"])
+            "no-wheel", "fake-fullscreen", "windowed"])
     except getopt.GetoptError, message:
         opterr(message)
 
@@ -245,8 +247,13 @@ def ParseOptions(argv):
             HelpExit()
         if opt in ("-l", "--listtrans"):
             ListTransitions()
-        if opt in ("-f", "--fullscreen"):
-            Fullscreen = not(Fullscreen)
+        if opt == "--fullscreen":      Fullscreen, FakeFullscreen = True,  False
+        if opt == "--fake-fullscreen": Fullscreen, FakeFullscreen = True,  True
+        if opt == "--windowed":        Fullscreen, FakeFullscreen = False, False
+        if opt == "-f":
+            if FakeFullscreen: Fullscreen, FakeFullscreen = True,  False
+            elif   Fullscreen: Fullscreen, FakeFullscreen = False, False
+            else:              Fullscreen, FakeFullscreen = True,  True
         if opt in ("-e", "--noext"):
             AllowExtensions = not(AllowExtensions)
         if opt in ("-s", "--scale"):
@@ -387,7 +394,13 @@ def ParseOptions(argv):
                 opterr("invalid parameter for --poll")
         if opt in ("-g", "--geometry"):
             try:
-                ScreenWidth, ScreenHeight = map(int, arg.split("x"))
+                parts = arg.replace('+', '|+').replace('-', '|-').split('|')
+                assert len(parts) in (1, 3)
+                if len(parts) == 3:
+                    WindowPos = (int(parts[1]), int(parts[2]))
+                else:
+                    assert len(parts) == 1
+                ScreenWidth, ScreenHeight = map(int, parts[0].split("x"))
                 assert (ScreenWidth  >= 320) and (ScreenWidth  < 32768)
                 assert (ScreenHeight >= 200) and (ScreenHeight < 32768)
                 UseAutoScreenSize = False

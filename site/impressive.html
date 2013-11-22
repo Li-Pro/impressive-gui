@@ -142,18 +142,29 @@ If an expected duration is specified, Impressive will show a semi-transparent gr
 <dt><code>-e</code> or <code>--noext</code></dt>
 <dd>OpenGL normally only supports textures with power-of-two dimensions. This means that for a 1024x768 screen, the actual texture size will be 1024x1024, for 1600x1200 it will even be 2048x2048. To overcome this limit and save texture memory, Impressive will automatically use the OpenGL extensions <code>GL_ARB_texture_rectangle</code> (available on most graphics cards) or <code>GL_ARB_texture_non_power_of_two</code> (available on modern graphics cards with current drivers). If these cause any trouble, the <code>-e</code> option may be used to prevent Impressive from using the problematic extensions.</dd>
 
-<dt><code>-f</code> or <code>--fullscreen</code></dt>
-<dd>Toggles fullscreen mode. By default, fullscreen mode is activated, and can be deactivated using this switch.<br />
+<dt><code>-f</code></dt>
+<dd>Sets the window/fullscreen mode Impressive shall start up with. This option can be specified multiple times; each times it is found, the next of the three options is selected, in the follwing order:<ul style="margin-top:0; margin-bottom:0;">
+<li><!--man (1.) -->True <strong>fullscreen mode</strong>, including setting the video mode. This is the default mode.</li>
+<li><!--man (2.) --><strong>Windowed</strong> mode, where Impressive runs in a standard window.</li>
+<li><!--man (3.) -->&raquo;<strong>Fake-fullscreen</strong>&laquo; mode, where fullscreen is emulated by uding a window without border that fills the whole screen. Setting the display resolution is not possible in this mode.</li>
+</ul>Each of these modes has a corresponding long option that enables it directly (<code>--fullscreen</code>, <code>--windowed</code> and <code>--fake-fullscreen</code>).<br />
 <!--man:off-->
-<strong>Note:</strong> On Windows systems, toggling fullscreen mode while Impressive runs does <em>not</em> work. So, this option is the only way to set whether fullscreen mode shall be used or not.
+<strong>Note:</strong> On Windows systems, toggling fullscreen mode while Impressive runs does <em>not</em> work. So, the command-line options are the only way to set whether fullscreen mode shall be used or not.
 <!--man:on-->
 </dd>
+
+<dt><code>--fullscreen</code></dt>
+<dd>Starts Impressive in fullscreen mode (the default). See the discussion of the <code>-f</code> option for details.</dd>
+
+<dt><code>--fake-fullscreen</code></dt>
+<dd>Starts Impressive in &raquo;fake fullscreen&laquo; mode. See the discussion of the <code>-f</code> option for details.</dd>
 
 <dt><code>-F <em>&lt;file&gt;</em></code> or <code>--font <em>&lt;file&gt;</em></code></dt>
 <dd>Impressive uses some kind of text OSD to overlay the current page number and title (if available) on the overview page. This option can be used to specify a TrueType font file (.ttf) to use for the OSD. If the path specified doesn't directly point to a useable font file, Impressive will try to search the system font directories. <!--man:off-->On Unix-like systems, it<!--man:on--><!--man It--> assumes that all fonts are stored below <code>/usr/share/fonts</code>, <code>/usr/local/share/fonts</code> or <code>/usr/X11R6/lib/X11/fonts/TTF</code> for this purpose (the latter one is useful for Mac OS X systems specifically). If this option is not specified, <!--man:off--><code>Verdana.ttf</code> will be used as a default if the operating system is Windows, or<!--man:on--> any of <code>DejaVuSans.ttf</code> or <code>Vera.ttf</code> (the typical file name of Bitstream Vera Sans) <!--man:off-->if it's not<!--man:on--><!--man will be used as a default.-->.</dd>
 
-<dt><code>-g <em>&lt;width&gt;</em>x<em>&lt;height&gt;</em></code> or <code>--geometry <em>&lt;width&gt;</em>x<em>&lt;height&gt;</em></code></dt>
-<dd>Sets the screen size or resolution Impressive shall use (in pixels).<!--man:off--> On Win32 platforms and Unix platforms with <code>xrandr</code><!--man:on--><!--man If \fBxrandr\fR is-->installed, the default screen size for fullscreen mode is the current screen resolution; on other platforms, Impressive uses the highest resolution available to the graphics system. If a standard resolution cannot be determined, the default is 1024x768 pixels. Note that this option is <em>not</em> the standard X &ldquo;geometry&rdquo; option and does therefore not support window positioning (e.g. <code>-g 800x600+0-0</code> will <em>not</em> work!).</dd>
+<dt><code>-g <em>&lt;width&gt;</em>x<em>&lt;height&gt;</em>[+<em>&lt;posX&gt;</em>+<em>&lt;posY&gt;</em>]</code> or <code>--geometry <em>&lt;width&gt;</em>x<em>&lt;height&gt;</em>[+<em>&lt;posX&gt;</em>+<em>&lt;posY&gt;</em>]</code></dt>
+<dd>Sets the screen size or resolution Impressive shall use (in pixels).<!--man:off--> On Win32 platforms and Unix platforms with <code>xrandr</code><!--man:on--><!--man If \fBxrandr\fR is-->installed, the default screen size for fullscreen mode is the current screen resolution; on other platforms, Impressive uses the highest resolution available to the graphics system. If a standard resolution cannot be determined, the default is 1024x768 pixels. This is also the default for windowed mode.<br />
+Furthermore, if the additional parameters <em>posX</em> and <em>posY</em> are present, they specify the position of the upper-left corner of the window (relative to the upper-left corner of the desktop), in pixels, for windowed and fake-fullscreen mode. The values are ignored in &raquo;true&laquo; fullscreen mode.</dd>
 
 <dt><code>-G <em>&lt;gamma&gt;</em>[:<em>&lt;blacklevel&gt;</em>]</code> or <code>--gamma <em>&lt;gamma&gt;</em>[:<em>&lt;blacklevel&gt;</em>]</code></dt>
 <dd>Sets up the startup gamma and (optional) black level value. The black level is the original image's intensity level (0...254) that is to be mapped to black in Impressive's output. Note that gamma and black level adjustments may be unavailable or constrained on some systems.</dd>
@@ -257,6 +268,9 @@ The new PDF file must have at least as much pages as the old one; also, it shoul
 
 <dt><code>-W</code> or <code>--nowheel</code></dt>
 <dd>By default, it is possible to change pages using the mouse wheel. This option disables this behavior, which can be useful to prevent spurious page changes if the mouse wheel is likely to be moved by accident.</dd>
+
+<dt><code>--windowed</code></dt>
+<dd>Starts Impressive in windowed mode. See the discussion of the <code>-f</code> option for details.</dd>
 
 <dt><code>-x</code> or <code>--fade</code></dt>
 <dd>This option enables a smooth fade-in effect at the start of the presentation and a fade-out effect just before Impressive quits.</dd>
@@ -414,7 +428,7 @@ In zoom mode, all other functions will work as normal. Any operations that leave
 <dd>Navigate through pages.</dd>
 
 <dt><strong>Alt</strong>+<strong>Tab</strong> keys</dt>
-<dd>Leaves fullscreen mode<!--man:off--> on Unix-like systems<!--man:on--> to facilitate task switching while running full-screen presentations.</dd>
+<dd>If Impressive is in fullscreen mode, the window will be minimized so that other applications can be used.</dd>
 
 </dl>
 

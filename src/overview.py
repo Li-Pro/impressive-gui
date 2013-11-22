@@ -136,6 +136,9 @@ def HandleOverviewEvent(event):
             pygame.event.post(pygame.event.Event(QUIT))
         elif event.unicode == u'f':
             SetFullscreen(not Fullscreen)
+        elif (event.key == K_TAB) and (event.mod & KMOD_ALT) and Fullscreen:
+            SetFullscreen(False)
+            pygame.display.iconify()
         elif event.unicode == u't':
             TimeDisplay = not(TimeDisplay)
             DrawOverview()

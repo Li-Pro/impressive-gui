@@ -4,6 +4,7 @@ Off, First, Last = range(3)  # for AutoOverview
 
 # You may change the following lines to modify the default settings
 Fullscreen = True
+FakeFullscreen = False
 Scaling = False
 Supersample = None
 BackgroundRendering = True
@@ -11,6 +12,7 @@ UseGhostScript = False
 UseAutoScreenSize = True
 ScreenWidth = 1024
 ScreenHeight = 768
+WindowPos = None
 TransitionDuration = 1000
 MouseHideDelay = 3000
 BoxFadeDuration = 100

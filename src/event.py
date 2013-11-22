@@ -4,11 +4,14 @@
 def SetFullscreen(fs, do_init=True):
     global Fullscreen
 
+    # this doesn't work in fake-fullscreen mode
+    if FakeFullscreen: return
+
     # let pygame do the real work
     if do_init:
         if fs == Fullscreen: return
         if not pygame.display.toggle_fullscreen(): return
-    Fullscreen=fs
+    Fullscreen = fs
 
     # redraw the current page (pygame is too lazy to send an expose event ...)
     DrawCurrentPage()
@@ -89,6 +92,7 @@ def HandleEvent(event):
             SetFullscreen(not Fullscreen)
         elif (event.key == K_TAB) and (event.mod & KMOD_ALT) and Fullscreen:
             SetFullscreen(False)
+            pygame.display.iconify()
         elif event.unicode == u's':
             SaveInfoScript(InfoScriptPath)
         elif event.unicode == u'z':  # handle QWERTY and QWERTZ keyboards

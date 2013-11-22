@@ -12,7 +12,7 @@ def main():
     global Extensions, AllowExtensions, TextureTarget, PAR, DAR, TempFileName
     global BackgroundRendering, FileStats, RTrunning, RTrestart, StartTime
     global CursorImage, CursorVisible, InfoScriptPath
-    global HalfScreen, AutoAdvance
+    global HalfScreen, AutoAdvance, WindowPos
 
     # allocate temporary file
     TempFileName = tempfile.mktemp(prefix="impressive-", suffix="_tmp")
@@ -25,7 +25,7 @@ def main():
         FileName = FileList[0]
 
     # initialize PyGame
-    pygame.init()
+    pygame.display.init()
 
     # detect screen size and compute aspect ratio
     if Fullscreen and UseAutoScreenSize:
@@ -120,15 +120,23 @@ def main():
         sys.exit(1)
 
     # initialize graphics
-    flags = OPENGL|DOUBLEBUF
+    pygame.display.set_caption(__title__)
+    flags = OPENGL | DOUBLEBUF
     if Fullscreen:
-        flags |= FULLSCREEN
+        if FakeFullscreen:
+            print >>sys.stderr, "Using \"fake-fullscreen\" mode."
+            flags |= NOFRAME
+            if not WindowPos:
+                WindowPos = (0,0)
+        else:
+            flags |= FULLSCREEN
+    if WindowPos:
+        os.environ["SDL_VIDEO_WINDOW_POS"] = ','.join(map(str, WindowPos))
     try:
         pygame.display.set_mode((ScreenWidth, ScreenHeight), flags)
     except:
         print >>sys.stderr, "FATAL: cannot create rendering surface in the desired resolution (%dx%d)" % (ScreenWidth, ScreenHeight)
         sys.exit(1)
-    pygame.display.set_caption(__title__)
     pygame.key.set_repeat(500, 30)
     if Fullscreen:
         pygame.mouse.set_visible(False)
