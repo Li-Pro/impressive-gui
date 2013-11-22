@@ -179,6 +179,10 @@ def HandleOverviewEvent(event):
         elif event.button in (2, 3):
             OverviewSelection = -1
             return 0
+        elif (event.button == 4) and PageWheel:
+            OverviewKeyboardNav(-1)
+        elif (event.button == 5) and PageWheel:
+            OverviewKeyboardNav(+1)
 
     elif event.type == MOUSEMOTION:
         pygame.event.clear(MOUSEMOTION)
