@@ -406,6 +406,7 @@ def run_main():
             print >>sys.stderr, "PIL version:", Image.VERSION
             print >>sys.stderr, "PyOpenGL version:", OpenGL.__version__
             if hasattr(os, 'uname'):
+                uname = os.uname()
                 print >>sys.stderr, "Operating system: %s %s (%s)" % (uname[0], uname[2], uname[4])
             else:
                 print >>sys.stderr, "Python platform:", sys.platform
