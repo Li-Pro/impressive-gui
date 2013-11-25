@@ -474,29 +474,3 @@ def ParseOptions(argv):
         AddFile(arg)
     if not FileList:
         opterr("no playable files specified")
-    return
-
-    # glob and filter argument list
-    files = []
-    for arg in args:
-        files.extend(glob.glob(arg))
-    files = list(filter(IsPlayable, files))
-
-    # if only one argument is specified, use it as the informal file name
-    if len(files) == 1:
-        FileName = files[0]
-    else:
-        FileName = ""
-
-    # construct final FileList by expanding directories to image file lists
-    FileList = []
-    for item in files:
-        if os.path.isdir(item):
-            images = [os.path.join(item, f) for f in os.listdir(item) if IsImageFileName(f)]
-            images.sort(lambda a, b: cmp(a.lower(), b.lower()))
-            FileList.extend(images)
-        else:
-            FileList.append(item)
-
-    if not FileList:
-        opterr("no playable files specified")

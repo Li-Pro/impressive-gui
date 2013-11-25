@@ -8,7 +8,7 @@ def main():
     global OverviewPageMap, OverviewPageMapInv, FileName, FileList, PageCount
     global DocumentTitle, PageProps, LogoTexture, OSDFont
     global Pcurrent, Pnext, Tcurrent, Tnext, InitialPage
-    global CacheFile, CacheFileName
+    global CacheFile, CacheFileName, BaseWorkingDir
     global Extensions, AllowExtensions, TextureTarget, PAR, DAR, TempFileName
     global BackgroundRendering, FileStats, RTrunning, RTrestart, StartTime
     global CursorImage, CursorVisible, InfoScriptPath
@@ -18,11 +18,13 @@ def main():
     TempFileName = tempfile.mktemp(prefix="impressive-", suffix="_tmp")
 
     # some input guesswork
-    DocumentTitle = os.path.splitext(os.path.split(FileName)[1])[0]
-    if FileName and not(FileList):
-        AddFile(FileName)
+    BaseWorkingDir = os.getcwd()
     if not(FileName) and (len(FileList) == 1):
         FileName = FileList[0]
+    if FileName and not(FileList):
+        AddFile(FileName)
+    if FileName:
+        DocumentTitle = os.path.splitext(os.path.split(FileName)[1])[0]
 
     # initialize PyGame
     pygame.display.init()
@@ -67,7 +69,8 @@ def main():
             try:
                 assert 0 == subprocess.Popen([pdftkPath, name, "dump_data", "output", TempFileName + ".txt"]).wait()
                 title, pages = pdftkParse(TempFileName + ".txt", PageCount)
-                if DocumentTitle and title: DocumentTitle = title
+                if title and (len(FileList) == 1):
+                    DocumentTitle = title
             except KeyboardInterrupt:
                 raise
             except:

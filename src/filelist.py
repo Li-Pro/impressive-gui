@@ -9,6 +9,8 @@ def IsPlayable(name):
 def AddFile(name, title=None):
     global FileList, FileName
 
+    name = os.path.normpath(os.path.abspath(name))
+
     if os.path.isfile(name):
         FileList.append(name)
         if title: SetFileProp(name, 'title', title)

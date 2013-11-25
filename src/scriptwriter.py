@@ -4,23 +4,27 @@
 def LoadInfoScript():
     global PageProps
     try:
-        OldPageProps = PageProps
+        os.chdir(os.path.dirname(InfoScriptPath) or BaseWorkingDir)
+    except OSError:
+        pass
+    OldPageProps = PageProps
+    try:
         execfile(InfoScriptPath, globals())
-        NewPageProps = PageProps
-        PageProps = OldPageProps
-        del OldPageProps
-        for page in NewPageProps:
-            for prop in NewPageProps[page]:
-                SetPageProp(page, prop, NewPageProps[page][prop])
-        del NewPageProps
     except IOError:
         pass
     except:
         print >>sys.stderr, "----- Exception in info script ----"
         traceback.print_exc(file=sys.stderr)
         print >>sys.stderr, "----- End of traceback -----"
+    NewPageProps = PageProps
+    PageProps = OldPageProps
+    del OldPageProps
+    for page in NewPageProps:
+        for prop in NewPageProps[page]:
+            SetPageProp(page, prop, NewPageProps[page][prop])
+    del NewPageProps
 
-# we can't save lamba expressions, so we need to warn the user
+# we can't save lambda expressions, so we need to warn the user
 # in every possible way
 ScriptTainted = False
 LambdaWarning = False

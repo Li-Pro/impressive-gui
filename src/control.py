@@ -121,6 +121,10 @@ def PageEntered(update_time=True):
     WantStatus = False  # don't show status unless it's changed interactively
     PageTimeout = AutoAdvance
     shown = GetPageProp(Pcurrent, '_shown', 0)
+    try:
+        os.chdir(os.path.dirname(GetPageProp(Pcurrent, '_file')))
+    except OSError:
+        pass
     if not(shown) or Wrap:
         PageTimeout = GetPageProp(Pcurrent, 'timeout', PageTimeout)
     if not(shown) or GetPageProp(Pcurrent, 'always', False):
@@ -255,7 +259,7 @@ def TransitionTo(page, allow_transition=True):
     if not(skip) and GetPageProp(Pcurrent, 'boxes'): BoxFade(lambda t: t)
 
     # finally update the screen and preload the next page
-    DrawCurrentPage() # I do that twice because for some strange reason, the
+    DrawCurrentPage()
     PageEntered()
     if not PreloadNextPage(GetNextPage(Pcurrent, 1)):
         PreloadNextPage(GetNextPage(Pcurrent, -1))

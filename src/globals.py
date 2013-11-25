@@ -1,9 +1,11 @@
 ##### GLOBAL VARIABLES #########################################################
 
 # initialize private variables
+DocumentTitle = None
 FileName = ""
 FileList = []
 InfoScriptPath = None
+BaseWorkingDir = '.'
 Marking = False
 Tracing = False
 Panning = False
