@@ -15,12 +15,13 @@ def RenderPDF(page, MayAdjustResolution, ZoomMode):
     # load props
     SourceFile = GetPageProp(page, '_file')
     RealPage = GetPageProp(page, '_page')
-    OutputSizes = GetFileProp(SourceFile, 'out', [(ScreenWidth, ScreenHeight), (ScreenWidth, ScreenHeight)])
+    OutputSizes = GetFileProp(SourceFile, 'out', [(ScreenWidth + Overscan, ScreenHeight + Overscan), (ScreenWidth + Overscan, ScreenHeight + Overscan)])
     Resolutions = GetFileProp(SourceFile, 'res', [(72.0, 72.0), (72.0, 72.0)])
     rot = GetPageProp(page, 'rotate')
     if rot is None: rot = Rotation
     out = OutputSizes[rot & 1]
     res = Resolutions[rot & 1]
+    zscale = 1
 
     # handle supersample and zoom mode
     if Supersample and not(ZoomMode):
@@ -30,6 +31,7 @@ def RenderPDF(page, MayAdjustResolution, ZoomMode):
     if ZoomMode:
         res = (ZoomFactor * res[0], ZoomFactor * res[1])
         out = (ZoomFactor * out[0], ZoomFactor * out[1])
+        zscale = ZoomFactor
     elif Supersample:
         res = (Supersample * res[0], Supersample * res[1])
         out = (Supersample * out[0], Supersample * out[1])
@@ -130,20 +132,33 @@ def RenderPDF(page, MayAdjustResolution, ZoomMode):
 
     # downsample a supersampled image
     if Supersample and not(ZoomMode):
-        if Supersample and not(ZoomMode):
-            w = out[0] / Supersample
-            h = out[1] / Supersample
-        else:
-            w, h = out
-        return img.resize((int(w + 0.5), int(h + 0.5)), Image.ANTIALIAS)
+        img = img.resize((int(float(out[0]) / Supersample + 0.5),
+                          int(float(out[1]) / Supersample + 0.5)), Image.ANTIALIAS)
+        parscale = False  # don't scale again
 
     # perform PAR scaling (required for pdftoppm which doesn't support different
     # dpi for horizontal and vertical)
     if parscale:
         if PAR > 1.0:
-            return img.resize((int(img.size[0] / PAR + 0.5), img.size[1]), Image.ANTIALIAS)
+            img = img.resize((int(img.size[0] / PAR + 0.5), img.size[1]), Image.ANTIALIAS)
         else:
-            return img.resize((img.size[0], int(img.size[1] * PAR + 0.5)), Image.ANTIALIAS)
+            img = img.resize((img.size[0], int(img.size[1] * PAR + 0.5)), Image.ANTIALIAS)
+
+    # crop the overscan (if present)
+    if Overscan:
+        target = (ScreenWidth * zscale, ScreenHeight * zscale)
+        scale = None
+        if (img.size[1] > target[1]) and (img.size[0] < target[0]):
+            scale = float(target[1]) / img.size[1]
+        elif (img.size[0] > target[0]) and (img.size[1] < target[1]):
+            scale = float(target[0]) / img.size[0]
+        if scale:
+            w = int(img.size[0] * scale + 0.5)
+            h = int(img.size[1] * scale + 0.5)
+            if (w <= img.size[0]) and (h <= img.size[1]):
+                x0 = (img.size[0] - w) / 2
+                y0 = (img.size[1] - h) / 2
+                img = img.crop((x0, y0, x0 + w, y0 + h))
 
     return img
 
