@@ -37,6 +37,7 @@ def HandleEvent(event):
     global MarkUL, MarkLR, MouseDownX, MouseDownY, PanAnchorX, PanAnchorY
     global ZoomX0, ZoomY0, RTrunning, RTrestart, StartTime, PageEnterTime
     global CurrentTime, TimeDisplay, TimeTracking, ProgressBarPos
+    global BoxFadeDarkness
 
     if event.type == QUIT:
         if FadeInOut:
@@ -150,10 +151,16 @@ def HandleEvent(event):
                 DrawCurrentPage()
             elif Tracing:
                 BoxFade(lambda t: t)
-        elif event.unicode in (u'+', u'0'):
-            IncrementSpotSize(+8)
+        elif event.unicode == u'7':
+            BoxFadeDarkness = max(0.0, BoxFadeDarkness - BoxFadeDarknessStep)
+            DrawCurrentPage()
+        elif event.unicode == u'8':
+            BoxFadeDarkness = min(1.0, BoxFadeDarkness + BoxFadeDarknessStep)
+            DrawCurrentPage()
         elif event.unicode in (u'-', u'9'):
             IncrementSpotSize(-8)
+        elif event.unicode in (u'+', u'0'):
+            IncrementSpotSize(+8)
         elif event.unicode == u'[':
             SetGamma(new_gamma=Gamma / GammaStep)
         elif event.unicode == u']':
