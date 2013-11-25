@@ -3,22 +3,16 @@
 import sys, re, subprocess
 
 if __name__ == "__main__":
-    info = dict(re.findall(r'^__(.*?)__\s*=\s*"(.*?)"', open(sys.argv[1]).read(), re.M))
+    info = dict((k, eval(v)) for k, v in re.findall(r'^__(.*?)__\s*=\s*(.*)', open(sys.argv[1]).read(), re.M))
     version = map(int, re.findall(r'\d+', info['version']))[:3]
     assert len(version) == 3
 
-    svn = 0
-    try:
-        svn_pid = subprocess.Popen(["svn", "info"], stdout=subprocess.PIPE)
-        versions = re.findall(r'^(revision|last changed rev.*?)\s*:\s*(\d+)', svn_pid.stdout.read(), re.I + re.M)
-        svn_pid.wait()
-        if versions:
-            svn = max(map(int, (v[1] for v in versions)))
-    except:
-        print >>sys.stderr, "Failed to get SVN revision!"
     fullversion = info['version']
-    if svn:
+    try:
+        svn = int(info['rev'])
         fullversion += " (SVN r%d)" % svn
+    except:
+        svn = 0
 
     print "VSVersionInfo("
     print "  ffi=FixedFileInfo("

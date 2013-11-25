@@ -22,12 +22,18 @@
 
 __title__   = "Impressive"
 __version__ = "0.10.4-WIP"
+__rev__     = None
 __author__  = "Martin J. Fiedler"
 __email__   = "martin.fiedler@gmx.net"
 __website__ = "http://impressive.sourceforge.net/"
+
 import sys
-def greet(): print >>sys.stderr, "Welcome to", __title__, "version", __version__
-if __name__ == "__main__": greet()
+if __rev__ and (("WIP" in __version__) or ("rc" in __version__) or ("alpha" in __version__) or ("beta" in __version__)):
+    __version__ += " (SVN r%s)" % __rev__
+def greet():
+    print >>sys.stderr, "Welcome to", __title__, "version", __version__
+if __name__ == "__main__":
+    greet()
 
 
 execfile("src/defaults.py", globals())
@@ -57,11 +63,11 @@ def run():
     except SystemExit, e:
         return e.code
 
-if __name__=="__main__":
+if __name__ == "__main__":
     try:
         ParseOptions(sys.argv[1:])
         run_main()
     finally:
         if not(CleanExit) and (os.name == 'nt') and getattr(sys, "frozen", False):
             print
-            raw_input("<-- press ENTER to close this window --> ")
+            raw_input("<-- press ENTER to quit the program --> ")

@@ -404,6 +404,7 @@ def run_main():
             print >>sys.stderr, "full output of the program, particularly the following lines. If possible,"
             print >>sys.stderr, "please also send the input files you used."
             print >>sys.stderr
+            print >>sys.stderr, "Impressive version:", __version__
             print >>sys.stderr, "Python version:", sys.version
             print >>sys.stderr, "PyGame version:", pygame.__version__
             print >>sys.stderr, "PIL version:", Image.VERSION

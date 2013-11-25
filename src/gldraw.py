@@ -203,7 +203,7 @@ def DrawLogo():
     glEnd()
     if OSDFont:
         OSDFont.Draw((int(ScreenWidth * x0), ScreenHeight / 2 + 48), \
-                     __version__, align=Center, alpha=0.25)
+                     __version__.split()[0], align=Center, alpha=0.25)
     glDisable(GL_TEXTURE_2D)
 
 # draw the prerender progress bar
