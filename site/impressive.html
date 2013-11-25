@@ -537,6 +537,13 @@ Alternatively, <code>AvailableTransitions</code> can be completely overwritten t
 
 <p>Another use of info scripts is overriding the default or command-line settings on a per-file basis. This can be done by simply overwriting one of the variables that are defined at the beginning of <code>impressive.py</code>. Each of these variables corresponds either to a command-line setting, or to some constant related to visual appearance or performance. So, for example, to force fullscreen mode for a presentation, write<br />
 <code class="pre">    Fullscreen = True</code></p>
+
+<h3>Working Directories</h3>
+
+<p>The working directory while executing the info scripts themselves is always the directory in which the info script is stored in.</p>
+
+<p>The base directory for external actions that originate from Page Properties or PDF hyperlinks is always the directory of the PDF or image file this page belongs to. In other words, if e.g. <code>'sound': "music.mp3"</code> is written in the info script for one page of <code>presentation.pdf</code>, the file <code>music.mp3</code> is expected to be located in the same directory as <code>presentation.pdf</code>.</p>
+
 <!--man:off-->
 
 <!-------------------------------------------------------------------------------->
