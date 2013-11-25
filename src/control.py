@@ -227,6 +227,8 @@ def TransitionTo(page, allow_transition=True):
 
     # backward motion? then swap page buffers now
     backward = (Pnext < Pcurrent)
+    if Wrap and (min(Pcurrent, Pnext) == 1) and (max(Pcurrent, Pnext) == PageCount):
+        backward = not(backward)  # special case: last<->first in wrap mode
     if backward:
         Pcurrent, Pnext = (Pnext, Pcurrent)
         Tcurrent, Tnext = (Tnext, Tcurrent)
