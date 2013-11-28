@@ -3,11 +3,12 @@
 \usepackage[english]{babel}
 \usepackage{helvet,listings}
 \usepackage{pgfpages}
+\usepackage{keystroke}
 
 \title{Introducing Impressive}
 \author{Martin J. Fiedler}
 %\institute{Dream Chip Technologies GmbH}
-\date{version 0.10.2 and up}
+\date{version 0.10.4}
 \subject{Impressive}
 \titlegraphic{\href{http://impressive.sourceforge.net/}{http://impressive.sourceforge.net/}}
 
@@ -30,7 +31,7 @@
     \begin{itemize}
         \item ... with some eye candy ;)
         \item uses OpenGL for display
-        \item uses Xpdf or GhostScript to render PDF files
+        \item uses Xpdf to render PDF files
         \item written in Python
         \item available for Unix-like and Windows operating systems
         \item Open Source (GPLv2)
@@ -41,12 +42,12 @@
 \begin{frame}{Software Requirements}
     Impressive requires a few libraries and helper applications:
     \begin{itemize}
-        \item Python 2.3 or newer
-        \item PyGame (SDL port for Python)
+        \item Python 2.5 or newer
+        \item PyGame (SDL bindings for Python)
         \item PyOpenGL
         \item Python Imaging Library (PIL)
-        \item Xpdf or GhostScript
-        \item pdftk \emph{(optional, but recommended)}
+        \item Xpdf-utils or Poppler-utils
+        \item pdftk
     \end{itemize}
     Packages for these dependencies should be available for almost every
     operating system. \\
@@ -60,8 +61,8 @@
         \item hardware accelerated OpenGL
             \begin{itemize}
                 \item every post-2000 graphics chip should do
-                \item Linux/BSD users need a driver that actually implements
-                      hardware acceleration!
+                \item on very fast systems, even a JIT-accelerated software
+                      renderer (e.g. Gallium LLVMpipe) might be sufficient
             \end{itemize}
         \item a fast CPU
             \begin{itemize}
@@ -79,11 +80,13 @@
         \item export them to a PDF file
         \item \texttt{impressive MySlides.pdf}
             \begin{itemize}
-                \item left mouse button, [PageDown] or [Space]: \\
-                      next slide
-                \item right mouse button, [PageUp] or [Backspace]: \\
-                      previous slide
-                \item {}[Q] or [Esc]: quit
+                \item left mouse button, mouse wheel down, \\
+                      \PgDown or \keystroke{Space}: \\
+                      \hspace{1cm} next slide
+                \item right mouse button, mouse wheel up, \\
+                      \PgUp or \keystroke{Backspace}: \\
+                      \hspace{1cm} previous slide
+                \item \keystroke{Q} or \Esc: quit
             \end{itemize}
     \end{enumerate}
 \end{frame}
@@ -97,10 +100,10 @@
     \vspace{0.5cm} \\
     \textbf{Option 1:} {\glqq}Spotlight{\grqq}
     \begin{itemize}
-        \item toggle with [Enter]
+        \item toggle with \Enter
         \item a bright circular spot follows the mouse cursor
         \item everything else gets dark and blurry
-        \item spot size adjustable with [+]/[-] or the mouse wheel
+        \item spot size adjustable with \keystroke{+}/\keystroke{--} or the mouse wheel
     \end{itemize}
 \end{frame}
 \begin{frame}{Highlight Boxes and Zoom}
@@ -114,21 +117,22 @@
     
     \textbf{Option 3:} Zoom
     \begin{itemize}
-        \item {}[Z] key toggles 2x zoom
-        \item visible image can be moved around with the right mouse button
+        \item \keystroke{Z} key toggles 2x zoom
+        \item visible part can be moved around
+              by dragging with the right mouse button
     \end{itemize}
 \end{frame}
 
 \subsection{Overview Page}
 \begin{frame}{Overview Page}
     \begin{itemize}
-        \item press the [Tab] key
+        \item press the \keystroke{Tab} key
         \item Impressive zooms back to an overview screen showing all pages
               of the presentation
         \item new page can be selected with mouse or keyboard
-        \item left mouse button or [Enter] zooms into selected page
-        \item right mouse button or [Tab] cancels and returns to the previously
-              shown page
+        \item left mouse button or \Enter zooms into selected page
+        \item right mouse button or \keystroke{Tab} cancels and returns
+              to the previously shown page
     \end{itemize}
 \end{frame}
 
@@ -172,25 +176,25 @@ PageProps = {
 \subsection{Other Features}
 \begin{frame}{Other Features}
     \begin{itemize}
-        \item support for PDF hyperlinks inside the document
+        \item clickable PDF hyperlinks inside the document
         \item page cache in RAM or on disk, temporary (default) or persistent
         \item background rendering
         \item fade to black or white
-        \item hide specific pages from the overview page
-        \item page bookmarks (keyboard shortcuts)
-        \item only show a subset of the presentation
-        \item rotation in 90-degree steps
         \item time display and measurement
+        \item automatic, timed presentations
+        \item automatic reloading of the input file(s) on change
+        \item playing sounds or videos or executing arbitrary Python code
+              when entering a page
     \end{itemize}
 \end{frame}
 \begin{frame}{Rarely Used Features}
     \begin{itemize}
-        \item automatic, timed presentations
+        \item rotation in 90-degree steps
+        \item page bookmarks (keyboard shortcuts)
+        \item only show a subset of the presentation
+        \item hide specific pages from the overview page
         \item customization of almost every timing or OSD parameter
-        \item automatic reloading of the input file(s) on change
         \item permanent storage of the highlight boxes
-        \item playing sounds or videos or executing arbitrary Python code
-              when entering a page
         \item {\glqq}Render Mode{\grqq}: doesn't show the presentation, but
               renders the input PDF file into a directory with one PNG file
               per page
@@ -219,8 +223,9 @@ PageProps = {
     \href{mailto:martin.fiedler@gmx.net}{martin.fiedler@gmx.net}
     \vspace{1.5cm} \\
     \textbf{Try Impressive!} \\
-    packages are available at \\
-    \href{http://impressive.sourceforge.net/}{http://impressive.sourceforge.net/}
+    downloads are available at \\
+    \href{http://impressive.sourceforge.net/}{http://impressive.sourceforge.net/} \\
+    and packages in most Linux distributions
 \end{center}
 \end{frame}
 

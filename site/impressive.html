@@ -12,12 +12,12 @@ code.pre { white-space:pre; }
 <!--VERSION-->
 <p style="text-indent:0;">
 <a href="http://impressive.sourceforge.net/">http://impressive.sourceforge.net/</a><br />
-<b>Version:</b> 0.10.4-WIP<br />
+<b>Version:</b> 0.10.4<br />
 <b>Author:</b> <a href="mailto:martin.fiedler@gmx.net">Martin J. Fiedler</a><br />
-<b>Last updated:</b> 2013-11-17</p>
+<b>Last updated:</b> 2013-11-28</p>
 <!--END-->
 <!--man
-.TH IMPRESSIVE 1 2012-02-19 "Martin J. Fiedler" "Impressive Documentation">
+.TH IMPRESSIVE 1 2013-11-28 "Martin J. Fiedler" "Impressive Documentation">
 .SH "NAME"
 Impressive \- presentation tool with eye candy
 .SH "SYNOPSIS"
@@ -66,7 +66,7 @@ A more comfortable method is installing Impressive in the &raquo;Send To&laquo; 
 
 <p>Another way to get Impressive is downloading the platform-independent source code version. The most important file in this archive is <code>impressive.py</code>, which contains all the code of Impressive and can be run like any executable on Unix-like systems. However, the following external libraries and utilities have to be installed as well for Impressive to work:</p>
 <ul>
-<li><strong>Python</strong> 2.3 to 2.7 &mdash; <a href="http://www.python.org/">www.python.org</a> <em>(required)</em> &ndash; Python 3.x will <em>not</em> work!</li>
+<li><strong>Python</strong> 2.5 to 2.7 &mdash; <a href="http://www.python.org/">www.python.org</a> <em>(required)</em> &ndash; Python 3.x will <em>not</em> work!</li>
 <li><strong>PyGame</strong> (the SDL binding for Python) &mdash; <a href="http://www.pygame.org/">www.pygame.org</a> <em>(required)</em></li>
 <li><strong>PyOpenGL</strong> (the OpenGL binding for Python) &mdash; <a href="http://pyopengl.sourceforge.net/">pyopengl.sourceforge.net</a> <em>(required)</em></li>
 <li><strong>PIL</strong>, the Python Imaging Library &mdash; <a href="http://www.pythonware.com/products/pil/">www.pythonware.com/products/pil</a> <em>(required)</em></li>
@@ -313,7 +313,7 @@ The new PDF file must have at least as much pages as the old one; also, it shoul
 </dl>
 <p>The position specifications are composed by one character that indicates whether the text shall be displayed at the top (<code>T</code>) or bottom (<code>B</code>) edge of the screen and one character that indicates whether it shall appear on the left (<code>L</code>), on the right (<code>R</code>) or centered (<code>C</code>).</p>
 <p>For example, the default OSD layout equals the following option string:<br />
-<code style="white-space:pre;">    -L margin=16,alpha=1,time=TR,title=BL,page=BR,status=TL</code></p>
+<code class="pre">    -L margin=16,alpha=1,time=TR,title=BL,page=BR,status=TL</code></p>
 <!--man:listspace-->
 
 <h3>Examples</h3>

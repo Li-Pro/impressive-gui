@@ -1,4 +1,47 @@
-0.10.3
+0.10.4 [2013-12-??]
+- changed Esc key behavior: doesn't quit immediately, leaves special modes first
+- middle mouse button in zoom mode now returns to normal mode (not overview)
+- mouse wheel can now be used to change pages (can be turned off with --nowheel)
+- info scripts now run from their (or the document's) directory
+- added 'C' key: clear all highlight boxes on current page
+- added --autoquit: quit Impressive at the end of the presentation
+- added --noclicks: don't change pages with mouse clicks
+- added --clock: display wall-clock time instead of elapsed time
+- added --half-screen: support for LaTeX-beamer's "show notes on second screen"
+- added --spotlight and '-'/'+'/'9'/'0' keys to set spotlight radius
+- added --invert and 'invert' PageProp: RGB-invert pages
+- added --auto-auto: determine page timeout automatically from target duration
+- added --auto-progress: per-page timeout progress bar
+- added --darkness and '7'/'8' keys: set spotlight/boxfade background darkness
+- added "fake fullscreen" (borderless window) mode
+- window positioning is now possible with the --geometry option
+- Alt+Tab always minimizes the application when in fullscreen mode
+- Ctrl+PgUp/PgDn (and some other) key combo switches pages without transition
+- 'video' PageProp now also accepts a list of multiple files to be played
+- added support for Launch actions and file: and run: URIs in PDF hyperlinks
+- minimum highlight box size is now configurable, and measured in pixels
+- overscan is now cropped before adding letterbox/pillarbox borders
+- added more system information to the crash reporter
+- last-to-first-page transitions in wrap mode are no longer reversed
+- option parser accepts resolutions of up to 32Kx32K now
+- fixed an issue with zooming in presentations with varying page sizes
+- fixed compatibility with pdftk 1.45 and the PIL fork "Pillow"
+- fixed behavior of .info file name generation (didn't match documentation)
+- crash fixes with zero times in animations (e.g. --boxfade)
+- fixed crash with very many pages on very small screens
+- fixed info script error handling (could accidentally break PageProps)
+- many fixes in the PDF parser, manpage generator, Makefile and build system
+- Win32: fixed video support
+- Win32: added "press ENTER to quit" wait phase to crash handler
+- Win32: external tools (pdftk, pdftoppm, mplayer) are now searched in PATH
+- Win32: binary build system switched from py2exe to python-installer
+- Win32: added icon and version info block to binary build
+- minimized PyGame initialization: only display is initialized, no audio
+- added a simple "smoke test" to Makefile (based on Xvfb)
+- various other fixes and dead code removal
+
+
+0.10.3 [2010-10-17]
 - fixed display problems when using odd window sizes
 - loading image data earlier so that no unhandled exceptions will be thrown
   when a file is broken

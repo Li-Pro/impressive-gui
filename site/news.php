@@ -1,5 +1,9 @@
 <?php include("menu.php"); ?>
 
+<h1><span class="date">2013-12-??</span>Surprise! 0.10.4 is alive and kicking!</h1>
+<p>Yes, it has been another really, really large gap between the previous release and this one &ndash; so large, in fact, that some people already think the project <a href="http://alternativeto.net/software/impressive/">has been discontinued</a>. The reports of Impressive's death are greatly exaggerated though. In fact, I'm planning to release a new major version soon(-ish), and 0.10.4 is an intermediate step before I start with the bigger (and compatibility-breaking) changes.</p>
+<p>0.10.4 has the longest changelog of any version to date, but it's mostly smaller changes. There are some bugfixes and compatibility improvements, and a couple of options that can be useful in certain situations, like Ignite-style quick talks or LaTeX slides with built-in presenter screens.</p>
+
 <h1><span class="date">2010-10-17</span>0.10.3 is out &mdash; finally a new release after a long time!</h1>
 <p>It has been over one and a half years since the last regular Impressive release. Development slowed down considerably since, but it didn't halt: A few changes were made in the Subversion repository. Most of these are bugfixes, stability fixes and compatibility fixes to make Impressive work with newer versions of the tools it relies on. There are a few new features, though these are just minor ones.</p>
 
@@ -25,7 +29,7 @@ The third feature is a new (optional) "persistent" cache mode, which can be usef
 <li>Transitions can now be turned off completely, either globally or on a per-page basis.</li>
 <li>The <code>PagePeel</code> transition is not longer part of the default set of transitions. This means that now all default (automatically assigned) transitions are of the non-intrusive Crossfade and Wipe kind. Note that any info scripts which do a <code>AvailableTransitions.remove(PagePeel)</code> will not work any longer!</li>
 <li>On the other hand, two new families of (rather intrusive) transitions have been added: <code>Slide</code> and <code>Squeeze</code>. Both come in variants for all four main directions, <code>Left</code>, <code>Right</code>, <code>Up</code> and <code>Down</code>.</li>
-<li>The OSD layout is now configurable on the command line.<li>
+<li>The OSD layout is now configurable on the command line.</li>
 <li>New page properties: <code>transtime</code> to set the transition duration for a single slide, <code>progress</code> to suppress display of the duration/progress indicator bar, <code>reset</code> to reset the timer after a page has been shown</li>
 <li>Added the possibility to execute any Python code before and after specific pages.</li>
 <li>Of course, there's a bunch of minor extensions and also bugfixes, most importantly the one for the supersample mode. (Which, on the other hand, is somewhat obsolete now that Xpdf is used for rendering :)</li>
