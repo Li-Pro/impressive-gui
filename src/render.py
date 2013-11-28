@@ -15,10 +15,15 @@ def RenderPDF(page, MayAdjustResolution, ZoomMode):
     # load props
     SourceFile = GetPageProp(page, '_file')
     RealPage = GetPageProp(page, '_page')
-    OutputSizes = GetFileProp(SourceFile, 'out', [(ScreenWidth + Overscan, ScreenHeight + Overscan), (ScreenWidth + Overscan, ScreenHeight + Overscan)])
-    Resolutions = GetFileProp(SourceFile, 'res', [(72.0, 72.0), (72.0, 72.0)])
-    rot = GetPageProp(page, 'rotate')
-    if rot is None: rot = Rotation
+    OutputSizes = GetPageProp(page, '_out')
+    if not OutputSizes:
+        OutputSizes = GetFileProp(SourceFile, 'out', [(ScreenWidth + Overscan, ScreenHeight + Overscan), (ScreenWidth + Overscan, ScreenHeight + Overscan)])
+        SetPageProp(page, '_out', OutputSizes)
+    Resolutions = GetPageProp(page, '_res')
+    if not Resolutions:
+        Resolutions = GetFileProp(SourceFile, 'res', [(72.0, 72.0), (72.0, 72.0)])
+        SetPageProp(page, '_res', Resolutions)
+    rot = GetPageProp(page, 'rotate', Rotation)
     out = OutputSizes[rot & 1]
     res = Resolutions[rot & 1]
     zscale = 1
@@ -122,10 +127,21 @@ def RenderPDF(page, MayAdjustResolution, ZoomMode):
             newres = (res[0] * rscale[1], res[1] * rscale[0])
         else:
             newres = (res[0] * rscale[0], res[1] * rscale[1])
+        # only modify anything if the resolution deviation is large enough
         if max(abs(1.0 - newres[0] / res[0]), abs(1.0 - newres[1] / res[1])) > 0.05:
-            # only modify anything if the resolution deviation is large enough
+            # create a copy of the old values: they are lists and thus stored
+            # in the PageProps as references; we don't want to influence other
+            # pages though
+            OutputSizes = OutputSizes[:]
+            Resolutions = Resolutions[:]
+            # modify the appropriate rotation slot
             OutputSizes[rot & 1] = newout
             Resolutions[rot & 1] = newres
+            # store the new values for this page ...
+            SetPageProp(page, '_out', OutputSizes)
+            SetPageProp(page, '_res', Resolutions)
+            # ... and as a default for the file as well (future pages are likely
+            # to have the same resolution)
             SetFileProp(SourceFile, 'out', OutputSizes)
             SetFileProp(SourceFile, 'res', Resolutions)
             return RenderPDF(page, False, ZoomMode)
