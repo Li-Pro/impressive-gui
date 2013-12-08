@@ -14,10 +14,10 @@ code.pre { white-space:pre; }
 <a href="http://impressive.sourceforge.net/">http://impressive.sourceforge.net/</a><br />
 <b>Version:</b> 0.10.4<br />
 <b>Author:</b> <a href="mailto:martin.fiedler@gmx.net">Martin J. Fiedler</a><br />
-<b>Last updated:</b> 2013-11-28</p>
+<b>Last updated:</b> 2013-12-08</p>
 <!--END-->
 <!--man
-.TH IMPRESSIVE 1 2013-11-28 "Martin J. Fiedler" "Impressive Documentation">
+.TH IMPRESSIVE 1 2013-12-08 "Martin J. Fiedler" "Impressive Documentation">
 .SH "NAME"
 Impressive \- presentation tool with eye candy
 .SH "SYNOPSIS"
@@ -399,8 +399,14 @@ If a page with highlight boxes is left, the boxes will be saved and restored the
 <dt><strong>+</strong> / <strong>&ndash;</strong> key, <strong>9</strong> / <strong>0</strong> key or mouse wheel in spotlight mode</dt>
 <dd>Adjust the spotlight radius.</dd>
 
+<dt><strong>Ctrl</strong>+<strong>9</strong> or <strong>Ctrl</strong>+<strong>0</strong> keys</dt>
+<dd>Resets the spotlight radius to the default value, i.e. the value that has been set up by the <code>radius</code> page property, the <code>--spot-radius</code> command-line option or Impressive's built-in default.</dd>
+
 <dt><strong>7</strong> / <strong>8</strong> key</dt>
 <dd>Adjust the amount of darkening applied to the page in spotlight or highlight box mode.</dd>
+
+<dt><strong>Ctrl</strong>+<strong>7</strong> or <strong>Ctrl</strong>+<strong>8</strong> keys</dt>
+<dd>Resets the amount of darkening in spotlight or highlight box mode to the default value, i.e. the value that has been set up by the <code>darkness</code> page property, the <code>--darkness</code> command-line option or Impressive's built-in default.</dd>
 
 <dt><strong>Z</strong> key</dt>
 <dd>Toggle zoom mode. When this key is first pressed, the current page will zoom in. The page will be displayed at double size, but in its original resolution (i.e. it will be blurry). Impressive will re-render the page at the new resolution if the graphics hardware supports it. During this time, Impressive will <strong>not</strong> accept any input, so don't even think about clicking the mouse or pressing keys before the image gets crisp again.<br />
@@ -474,6 +480,12 @@ In any case, the default file name can be overridden by the <code>-I</code> comm
 
 <dt><code>timeout</code></dt>
 <dd>If a <code>timeout</code> property is present and the page is shown, Impressive will automatically switch to the next page after the specified number of milliseconds. Normally, the timeout will only be effective the first time the page is shown unless wrap mode is used (command-line option <code>-w</code> or <code>--wrap</code>). This restriction makes it possible to create self-running presentations with individual per-page timeouts.</dd>
+
+<dt><code>radius</code></dt>
+<dd>This property takes an integer value that, if defined, will be used to set a new spotlight radius every time the page is entered. This overrides the current setting as defined by the <code>--spot-radius</code> command line option or run-time adjustments. Note that the value is <em>not</em> reset to the default value after the page has been left again.</dd>
+
+<dt><code>darkness</code></dt>
+<dd>This property takes an integer or floating-point percentage value that, if defined, will be used to set the background darkness in spotlight or highlight box mode each time the page is entered. This overrides the current setting as defined by the <code>--darkness</code> command line option or run-time adjustments. Note that the value is <em>not</em> reset to the default value after the page has been left again.</dd>
 
 <dt><code>comment</code></dt>
 <dd>This property can hold a string with a single line of text that will be displayed on screen while the page is shown. Display of this text can not be disabled.</dd>

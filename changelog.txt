@@ -8,11 +8,13 @@
 - added --noclicks: don't change pages with mouse clicks
 - added --clock: display wall-clock time instead of elapsed time
 - added --half-screen: support for LaTeX-beamer's "show notes on second screen"
-- added --spotlight and '-'/'+'/'9'/'0' keys to set spotlight radius
 - added --invert and 'invert' PageProp: RGB-invert pages
 - added --auto-auto: determine page timeout automatically from target duration
 - added --auto-progress: per-page timeout progress bar
-- added --darkness and '7'/'8' keys: set spotlight/boxfade background darkness
+- added command-line option (--spot-radius), PageProp ('radius'), keyboard
+  shortcuts ('9'/'0'/'-'/'+') and mouse wheel controls to set spotlight radius
+- added command-line option (--darkness), PageProp ('darkness') and keyboard
+  shortcuts ('7'/'8') to set spotlight / highlight box background darkness
 - added "fake fullscreen" (borderless window) mode
 - window positioning is now possible with the --geometry option
 - Alt+Tab always minimizes the application when in fullscreen mode

@@ -112,7 +112,21 @@ def PlayVideo(video):
     except OSError:
         MPlayerProcess = None
 
-# called each time a page is entered
+# called each time a page is entered, AFTER the transition, BEFORE entering box-fade mode
+def PreparePage():
+    global SpotRadius, SpotRadiusBase
+    global BoxFadeDarkness, BoxFadeDarknessBase
+    override = GetPageProp(Pcurrent, 'radius')
+    if override:
+        SpotRadius = override
+        SpotRadiusBase = override
+        GenerateSpotMesh()
+    override = GetPageProp(Pcurrent, 'darkness')
+    if override is not None:
+        BoxFadeDarkness = override * 0.01
+        BoxFadeDarknessBase = override * 0.01
+
+# called each time a page is entered, AFTER the transition, AFTER entering box-fade mode
 def PageEntered(update_time=True):
     global PageEnterTime, PageTimeout, MPlayerProcess, IsZoomed, WantStatus
     if update_time:
@@ -256,6 +270,9 @@ def TransitionTo(page, allow_transition=True):
     if not backward:
         Pcurrent, Pnext = (Pnext, Pcurrent)
         Tcurrent, Tnext = (Tnext, Tcurrent)
+
+    # prepare the page's changeable metadata
+    PreparePage()
 
     # box fade-in
     if not(skip) and GetPageProp(Pcurrent, 'boxes'): BoxFade(lambda t: t)

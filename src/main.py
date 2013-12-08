@@ -13,6 +13,7 @@ def main():
     global BackgroundRendering, FileStats, RTrunning, RTrestart, StartTime
     global CursorImage, CursorVisible, InfoScriptPath
     global HalfScreen, AutoAdvance, WindowPos
+    global BoxFadeDarknessBase, SpotRadiusBase
 
     # allocate temporary file
     TempFileName = tempfile.mktemp(prefix="impressive-", suffix="_tmp")
@@ -113,6 +114,10 @@ def main():
     if not InfoScriptPath:
         InfoScriptPath = FileName + ".info"
     LoadInfoScript()
+
+    # initialize some derived variables
+    BoxFadeDarknessBase = BoxFadeDarkness
+    SpotRadiusBase = SpotRadius
 
     # get the initial page number
     if not InitialPage:

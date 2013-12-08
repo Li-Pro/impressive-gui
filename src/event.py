@@ -157,10 +157,17 @@ def HandleEvent(event):
         elif event.unicode == u'8':
             BoxFadeDarkness = min(1.0, BoxFadeDarkness + BoxFadeDarknessStep)
             DrawCurrentPage()
+        elif (event.key in (ord('7'), ord('8'))) and not(no_ctrl):
+            BoxFadeDarkness = BoxFadeDarknessBase
+            DrawCurrentPage()
         elif event.unicode in (u'-', u'9'):
             IncrementSpotSize(-8)
         elif event.unicode in (u'+', u'0'):
             IncrementSpotSize(+8)
+        elif (event.key in (ord('9'), ord('0'))) and not(no_ctrl):
+            SpotRadius = SpotRadiusBase
+            GenerateSpotMesh()
+            DrawCurrentPage()
         elif event.unicode == u'[':
             SetGamma(new_gamma=Gamma / GammaStep)
         elif event.unicode == u']':
