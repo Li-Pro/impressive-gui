@@ -90,7 +90,7 @@ except (ValueError, ImportError), err:
  - PyGame   [python-pygame]   http://www.pygame.org/
  - PIL      [python-imaging]  http://www.pythonware.com/products/pil/
    or Pillow                  http://pypi.python.org/pypi/Pillow/
- - PyWin32  (OPTIONAL, Win32) http://starship.python.net/crew/mhammond/win32/
+ - PyWin32  (OPTIONAL, Win32) http://sourceforge.net/projects/pywin32/
 Additionally, please be sure to have pdftoppm or GhostScript installed if you
 intend to use PDF input."""
     sys.exit(1)
