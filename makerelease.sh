@@ -6,7 +6,11 @@ base=_releases
 dir=Impressive
 exe=impressive.py
 hlp=site/impressive.html
-ver=$(grep __version__ $exe | head -n 1 | cut -d'"' -f2)
+if [ -z "$1" ] ; then
+    ver=$(grep __version__ $exe | head -n 1 | cut -d'"' -f2)
+else
+    ver=$1
+fi
 dir=$dir-$ver
 
 mkdir -p $base/$dir
