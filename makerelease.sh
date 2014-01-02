@@ -7,11 +7,10 @@ dir=Impressive
 exe=impressive.py
 hlp=site/impressive.html
 if [ -z "$1" ] ; then
-    ver=$(grep __version__ $exe | head -n 1 | cut -d'"' -f2)
-else
-    ver=$1
+    dir=$dir-$(grep __version__ $exe | head -n 1 | cut -d'"' -f2)
+elif [ "$1" != "--noversion" ] ; then
+    dir=$dir-$1
 fi
-dir=$dir-$ver
 
 mkdir -p $base/$dir
 chmod -x demo.pdf
