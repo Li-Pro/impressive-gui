@@ -56,10 +56,12 @@ Display options:
        --invert           display slides in inverted colors
        --min-box-size <x> set minimum size of a highlight box, in pixels
        --darkness <p>     set highlight box mode darkness to <p> percent
+       --noblur           use legacy blur implementation
 
 Timing options:
   -M,  --minutes          display time in minutes, not seconds
        --clock            show current time instead of time elapsed
+       --tracking         enable time tracking mode
   -a,  --auto <seconds>   automatically advance to next page after some seconds
   -d,  --duration <time>  set the desired duration of the presentation and show
                           a progress bar at the bottom of the screen
@@ -73,22 +75,29 @@ Timing options:
   -q,  --page-progress    shows a progress bar based on the position in the
                           presentation (based on pages, not time)
 
+Control options:
+       --control-help     display help about control configuration and exit
+  -e,  --bind             set controls (modify event/action bindings)
+  -E,  --controls <file>  load control configuration from a file
+       --noclicks         disable page navigation via left/right mouse click
+  -W,  --nowheel          disable page navigation via mouse wheel
+       --evtest           run Impressive in event test mode
+
 Advanced options:
   -c,  --cache <mode>     set page cache mode:
                             -c none       = disable caching completely
-                            -c memory     = store cache in RAM
+                            -c memory     = store cache in RAM, uncompressed
+                            -c compressed = store cache in RAM, compressed
                             -c disk       = store cache on disk temporarily
                             -c persistent = store cache on disk persistently
        --cachefile <path> set the persistent cache file path (implies -cp)
   -b,  --noback           don't pre-render images in the background
-  -P,  --gspath <path>    set path to GhostScript or pdftoppm executable
-  -R,  --meshres <XxY>    set mesh resolution for effects (default: 48x36)
-  -e,  --noext            don't use OpenGL texture size extensions
+  -P,  --renderer <path>  set path to PDF renderer executable (GhostScript,
+                          Xpdf/Poppler pdftoppm, or MuPDF mudraw/pdfdraw)
   -V,  --overscan <px>    render PDF files <px> pixels larger than the screen
        --nologo           disable startup logo and version number display
-       --noclicks         disable page navigation via left/right mouse click
-  -W,  --nowheel          disable page navigation via mouse wheel
   -H,  --half-screen      show OSD on right half of the screen only
+  -v,  --verbose          (slightly) more verbose operation
 
 For detailed information, visit""", __website__
     sys.exit(code)
@@ -120,8 +129,10 @@ def ParseTime(s):
         or TryTime(s, r'([0-9]+)[h:]([0-9]+)[hm]?$', lambda m: m[0] * 3600 + m[1] * 60) \
         or TryTime(s, r'([0-9]+)[h:]([0-9]+)[m:]([0-9]+)s?$', lambda m: m[0] * 3600 + m[1] * 60 + m[2])
 
-def opterr(msg):
+def opterr(msg, extra_lines=[]):
     print >>sys.stderr, "command line parse error:", msg
+    for line in extra_lines:
+        print >>sys.stderr, line
     print >>sys.stderr, "use `%s -h' to get help" % sys.argv[0]
     print >>sys.stderr, "or visit", __website__, "for full documentation"
     sys.exit(2)
@@ -195,6 +206,8 @@ def ParseCacheMode(arg):
     if "none".startswith(arg): return NoCache
     if "off".startswith(arg): return NoCache
     if "memory".startswith(arg): return MemCache
+    if arg == 'z': return CompressedCache
+    if "compressed".startswith(arg): return CompressedCache
     if "disk".startswith(arg): return FileCache
     if "file".startswith(arg): return FileCache
     if "persistent".startswith(arg): return PersistentCache
@@ -214,31 +227,33 @@ def ParseAutoOverview(arg):
 def ParseOptions(argv):
     global FileName, FileList, Fullscreen, Scaling, Supersample, CacheMode
     global TransitionDuration, MouseHideDelay, BoxFadeDuration, ZoomDuration
-    global ScreenWidth, ScreenHeight, MeshResX, MeshResY, InitialPage, Wrap
-    global AutoAdvance, RenderToDirectory, Rotation, AllowExtensions, DAR
+    global ScreenWidth, ScreenHeight, InitialPage, Wrap, TimeTracking
+    global AutoAdvance, RenderToDirectory, Rotation, DAR, Verbose
     global BackgroundRendering, UseAutoScreenSize, PollInterval, CacheFileName
     global PageRangeStart, PageRangeEnd, FontList, FontSize, Gamma, BlackLevel
     global EstimatedDuration, CursorImage, CursorHotspot, MinutesOnly, Overscan
-    global GhostScriptPath, pdftoppmPath, UseGhostScript, InfoScriptPath
+    global PDFRendererPath, InfoScriptPath, EventTestMode
     global AutoOverview, ZoomFactor, FadeInOut, ShowLogo, Shuffle, PageProgress
-    global QuitAtEnd, PageClicks, ShowClock, HalfScreen, SpotRadius, InvertPages
+    global QuitAtEnd, ShowClock, HalfScreen, SpotRadius, InvertPages
     global MinBoxSize, AutoAutoAdvance, AutoAdvanceProgress, BoxFadeDarkness
-    global PageWheel, WindowPos, FakeFullscreen
+    global WindowPos, FakeFullscreen, UseBlurShader
+    DefaultControls = True
 
-    try:  # unused short options: jnvEJKNUY
+    try:  # unused short options: jnJKNRUY
         opts, args = getopt.getopt(argv, \
-            "hfg:sc:i:wa:t:lo:r:T:D:B:Z:P:R:eA:mbp:u:F:S:G:d:C:ML:I:O:z:xXqV:QHykW", \
+            "vhfg:sc:i:wa:t:lo:r:T:D:B:Z:P:A:mbp:u:F:S:G:d:C:ML:I:O:z:xXqV:QHykWe:E:", \
            ["help", "fullscreen", "geometry=", "scale", "supersample", \
             "nocache", "initialpage=", "wrap", "auto", "listtrans", "output=", \
             "rotate=", "transition=", "transtime=", "mousedelay=", "boxfade=", \
-            "zoom=", "gspath=", "meshres=", "noext", "aspect=", "memcache", \
+            "zoom=", "gspath=", "renderer=", "aspect=", "memcache", \
             "noback", "pages=", "poll=", "font=", "fontsize=", "gamma=",
             "duration=", "cursor=", "minutes", "layout=", "script=", "cache=",
             "cachefile=", "autooverview=", "zoomtime=", "fade", "nologo",
             "shuffle", "page-progress", "overscan", "autoquit", "noclicks",
             "clock", "half-screen", "spot-radius=", "invert", "min-box-size=",
             "auto-auto", "auto-progress", "darkness=", "no-clicks", "nowheel",
-            "no-wheel", "fake-fullscreen", "windowed"])
+            "no-wheel", "fake-fullscreen", "windowed", "verbose", "noblur",
+            "tracking", "bind=", "controls=", "control-help", "evtest"])
     except getopt.GetoptError, message:
         opterr(message)
 
@@ -247,6 +262,8 @@ def ParseOptions(argv):
             HelpExit()
         if opt in ("-l", "--listtrans"):
             ListTransitions()
+        if opt in ("-v", "--verbose"):
+            Verbose = not(Verbose)
         if opt == "--fullscreen":      Fullscreen, FakeFullscreen = True,  False
         if opt == "--fake-fullscreen": Fullscreen, FakeFullscreen = True,  True
         if opt == "--windowed":        Fullscreen, FakeFullscreen = False, False
@@ -254,8 +271,6 @@ def ParseOptions(argv):
             if FakeFullscreen: Fullscreen, FakeFullscreen = True,  False
             elif   Fullscreen: Fullscreen, FakeFullscreen = False, False
             else:              Fullscreen, FakeFullscreen = True,  True
-        if opt in ("-e", "--noext"):
-            AllowExtensions = not(AllowExtensions)
         if opt in ("-s", "--scale"):
             Scaling = not(Scaling)
         if opt in ("-s", "--supersample"):
@@ -294,11 +309,28 @@ def ParseOptions(argv):
         if opt == "--nologo":
             ShowLogo = not(ShowLogo)
         if opt in ("--noclicks", "--no-clicks"):
-            PageClicks = not(PageClicks)
+            if not DefaultControls:
+                print >>sys.stderr, "Note: The default control settings have been modified, the `--noclicks' option might not work as expected."
+            BindEvent("lmb, rmb, ctrl+lmb, ctrl+rmb -= goto-next, goto-prev, goto-next-notrans, goto-prev-notrans")
         if opt in ("-W", "--nowheel", "--no-wheel"):
-            PageWheel = not(PageWheel)
+            if not DefaultControls:
+                print >>sys.stderr, "Note: The default control settings have been modified, the `--nowheel' option might not work as expected."
+            BindEvent("wheelup, wheeldown, ctrl+wheelup, ctrl+wheeldown -= goto-next, goto-prev, goto-next-notrans, goto-prev-notrans, overview-next, overview-prev")
+        if opt in ("-e", "--bind"):
+            BindEvent(arg, error_prefix="--bind")
+            DefaultControls = False
+        if opt in ("-E", "--controls"):
+            ParseInputBindingFile(arg)
+            DefaultControls = False
+        if opt == "--control-help":
+            EventHelp()
+            sys.exit(0)
+        if opt == "--evtest":
+            EventTestMode = not(EventTestMode)
         if opt == "--clock":
             ShowClock = not(ShowClock)
+        if opt == "--tracking":
+            TimeTracking = not(TimeTracking)
         if opt in ("-X", "--shuffle"):
             Shuffle = not(Shuffle)
         if opt in ("-Q", "--autoquit"):
@@ -315,12 +347,13 @@ def ParseOptions(argv):
                 ZoomDuration = 0
         if opt == "--invert":
             InvertPages = not(InvertPages)
-        if opt in ("-P", "--gspath"):
-            UseGhostScript = (arg.replace("\\", "/").split("/")[-1].lower().find("pdftoppm") < 0)
-            if UseGhostScript:
-                GhostScriptPath = arg
+        if opt in ("-P", "--gspath", "--renderer"):
+            if any(r.supports(arg) for r in AvailableRenderers):
+                PDFRendererPath = arg
             else:
-                pdftoppmPath = arg
+                opterr("unrecognized --renderer",
+                    ["supported renderer binaries are:"] +
+                    ["- %s (%s)" % (", ".join(r.binaries), r.name) for r in AvailableRenderers])
         if opt in ("-S", "--fontsize"):
             try:
                 FontSize = int(arg)
@@ -406,13 +439,6 @@ def ParseOptions(argv):
                 UseAutoScreenSize = False
             except:
                 opterr("invalid parameter for --geometry")
-        if opt in ("-R", "--meshres"):
-            try:
-                MeshResX, MeshResY = map(int, arg.split("x"))
-                assert (MeshResX > 0) and (MeshResX <= ScreenWidth)
-                assert (MeshResY > 0) and (MeshResY <= ScreenHeight)
-            except:
-                opterr("invalid parameter for --meshres")
         if opt in ("-p", "--pages"):
             try:
                 PageRangeStart, PageRangeEnd = map(int, arg.split("-"))
@@ -469,8 +495,10 @@ def ParseOptions(argv):
                 BoxFadeDarkness = float(arg) * 0.01
             except:
                 opterr("invalid parameter for --darkness")
+        if opt == "--noblur":
+            UseBlurShader = not(UseBlurShader)
 
     for arg in args:
         AddFile(arg)
-    if not FileList:
+    if not(FileList) and not(EventTestMode):
         opterr("no playable files specified")

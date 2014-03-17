@@ -1,5 +1,254 @@
 ##### PAGE RENDERING ###########################################################
 
+class RenderError(RuntimeError):
+    pass
+class RendererUnavailable(RenderError):
+    pass
+
+class PDFRendererBase(object):
+    name = None
+    binaries = []
+    test_run_args = []
+    supports_anamorphic = False
+    required_options = []
+
+    @classmethod
+    def supports(self, binary):
+        if not binary:
+            return True
+        binary = os.path.basename(binary).lower()
+        if binary.endswith(".exe"):
+            binary = binary[:-4]
+        return (binary in self.binaries)
+
+    def __init__(self, binary=None):
+        # search for a working binary and run it to get a list of its options
+        self.binary = None
+        for test_binary in ([binary] if binary else self.binaries):
+            test_binary = FindBinary(test_binary)
+            try:
+                p = subprocess.Popen([test_binary] + self.test_run_args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                data = p.stdout.read()
+                p.wait()
+            except OSError:
+                continue
+            self.binary = test_binary
+            break
+        if not self.binary:
+            raise RendererUnavailable("program not found")
+
+        # parse the output into an option list
+        data = [line.strip().replace('\t', ' ') for line in data.split('\n')]
+        self.options = set([line.split(' ', 1)[0].split('=', 1)[0].strip('-,') for line in data if line.startswith('-')])
+        if not(set(self.required_options) <= self.options):
+            raise RendererUnavailable("%s does not support all required options" % os.path.basename(self.binary))
+
+    def render(self, filename, page, res, antialias=True):
+        raise RenderError()
+
+    def execute(self, args, wait=True):
+        args = [self.binary] + args
+        if get_thread_id() == RTrunning:
+            args = Nice + args
+        try:
+            process = subprocess.Popen(args)
+            if not wait:
+                return process
+            if process.wait() != 0:
+                raise RenderError("rendering failed")
+        except OSError, e:
+            raise RenderError("could not start renderer - %s" % e)
+
+    def load(self, imgfile, autoremove=False):
+        try:
+            img = Image.open(imgfile)
+            img.load()
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except IOError, e:
+            raise RenderError("could not read image file - %s" % e)
+        if autoremove:
+            self.remove(imgfile)
+        return img
+
+    def remove(self, tmpfile):
+        try:
+            os.unlink(tmpfile)
+        except OSError:
+            pass
+
+class MuPDFRenderer(PDFRendererBase):
+    name = "MuPDF"
+    binaries = ["mudraw", "pdfdraw"]
+    test_run_args = []
+    required_options = ["o", "r", "b"]
+
+    # helper object for communication with the reader thread
+    class ThreadComm(object):
+        def __init__(self, imgfile):
+            self.imgfile = imgfile
+            self.buffer = None
+            self.error = None
+            self.cancel = False
+
+        def getbuffer(self):
+            if self.buffer:
+                return self.buffer
+            # the reader thread might still be busy reading the last
+            # chunks of the data and converting them into a StringIO;
+            # let's give it some time
+            maxwait = time.time() + (0.1 if self.error else 0.5)
+            while not(self.buffer) and (time.time() < maxwait):
+                print ".",
+                time.sleep(0.01)
+            return self.buffer
+
+    @staticmethod
+    def ReaderThread(comm):
+        try:
+            f = open(comm.imgfile, 'rb')
+            comm.buffer = cStringIO.StringIO(f.read())
+            f.close()
+        except IOError, e:
+            comm.error = "could not open FIFO for reading - %s" % e
+
+    def render(self, filename, page, res, antialias=True):
+        imgfile = TempFileName + ".ppm"
+        fifo = False
+        if HaveThreads:
+            self.remove(imgfile)
+            try:
+                os.mkfifo(imgfile)
+                fifo = True
+                comm = self.ThreadComm(imgfile)
+                thread.start_new_thread(self.ReaderThread, (comm, ))
+            except (OSError, IOError, AttributeError):
+                pass
+        if not antialias:
+            aa_opts = ["-b", "0"]
+        else:
+            aa_opts = []
+        try:
+            self.execute([
+                "-o", imgfile,
+                "-r", str(res[0]),
+                ] + aa_opts + [
+                filename,
+                str(page)
+            ])
+            if fifo:
+                if comm.error:
+                    raise RenderError(comm.error)
+                if not comm.getbuffer():
+                    raise RenderError("could not read from FIFO")
+                return self.load(comm.buffer, autoremove=False)
+            else:
+                return self.load(imgfile)
+        finally:
+            if fifo:
+                comm.error = True
+                if not comm.getbuffer():
+                    # if rendering failed and the client process didn't write
+                    # to the FIFO at all, the reader thread would block in
+                    # read() forever; so let's open+close the FIFO to
+                    # generate an EOF and thus wake the thead up
+                    try:
+                        f = open(imgfile, "w")
+                        f.close()
+                    except IOError:
+                        pass
+            self.remove(imgfile)
+AvailableRenderers.append(MuPDFRenderer)
+
+class XpdfRenderer(PDFRendererBase):
+    name = "Xpdf/Poppler"
+    binaries = ["pdftoppm"]
+    test_run_args = ["-h"]
+    required_options = ["q", "f", "l", "r"]
+
+    def __init__(self, binary=None):
+        PDFRendererBase.__init__(self, binary)
+        self.supports_anamorphic = ('rx' in self.options) and ('ry' in self.options)
+
+    def render(self, filename, page, res, antialias=True):
+        if self.supports_anamorphic:
+            args = ["-rx", str(res[0]), "-ry", str(res[1])]
+        else:
+            args = ["-r", str(res[0])]
+        if not antialias:
+            for arg in ("aa", "aaVector"):
+                if arg in self.options:
+                    args += ['-'+arg, 'no']
+        self.execute([
+            "-q",
+            "-f", str(page),
+            "-l", str(page)
+            ] + args + [
+            filename,
+            TempFileName
+        ])
+        digits = GetFileProp(filename, 'digits', 6)
+        try_digits = range(6, 0, -1)
+        try_digits.sort(key=lambda n: abs(n - digits))
+        try_digits = [(n, TempFileName + ("-%%0%dd.ppm" % n) % page) for n in try_digits]
+        for digits, imgfile in try_digits:
+            if not os.path.exists(imgfile):
+                continue
+            SetFileProp(filename, 'digits', digits)
+            return self.load(imgfile, autoremove=True)
+        raise RenderError("could not find generated image file")
+AvailableRenderers.append(XpdfRenderer)
+
+class GhostScriptRenderer(PDFRendererBase):
+    name = "GhostScript"
+    binaries = ["gs", "gswin32c"]
+    test_run_args = ["--version"]
+    supports_anamorphic = True
+
+    def render(self, filename, page, res, antialias=True):
+        imgfile = TempFileName + ".tif"
+        aa_bits = (4 if antialias else 1)
+        try:
+            self.execute(["-q"] + GhostScriptPlatformOptions + [
+                "-dBATCH", "-dNOPAUSE",
+                "-sDEVICE=tiff24nc",
+                "-dUseCropBox",
+                "-sOutputFile=" + imgfile,
+                "-dFirstPage=%d" % page,
+                "-dLastPage=%d" % page,
+                "-r%dx%d" % res,
+                "-dTextAlphaBits=%d" % aa_bits,
+                "-dGraphicsAlphaBits=%s" % aa_bits,
+                filename
+            ])
+            return self.load(imgfile)
+        finally:
+            self.remove(imgfile)
+AvailableRenderers.append(GhostScriptRenderer)
+
+def InitPDFRenderer():
+    global PDFRenderer
+    if PDFRenderer:
+        return PDFRenderer
+    fail_reasons = []
+    for r_class in AvailableRenderers:
+        if not r_class.supports(PDFRendererPath):
+            continue
+        try:
+            PDFRenderer = r_class(PDFRendererPath)
+            print >>sys.stderr, "PDF renderer:", PDFRenderer.name
+            return PDFRenderer
+        except RendererUnavailable, e:
+            if Verbose:
+                print >>sys.stderr, "Not using %s for PDF rendering:" % r_class.name, e
+            else:
+                fail_reasons.append((r_class.name, str(e)))
+    print >>sys.stderr, "ERROR: PDF renderer initialization failed."
+    for item in fail_reasons:
+        print >>sys.stderr, "       - %s: %s" % item
+    print >>sys.stderr, "       Display of PDF files will not be supported."
+
+
 # generate a dummy image
 def DummyPage():
     img = Image.new('RGB', (ScreenWidth, ScreenHeight))
@@ -9,8 +258,8 @@ def DummyPage():
 
 # load a page from a PDF file
 def RenderPDF(page, MayAdjustResolution, ZoomMode):
-    global UseGhostScript
-    UseGhostScriptOnce = False
+    if not PDFRenderer:
+        return DummyPage()
 
     # load props
     SourceFile = GetPageProp(page, '_file')
@@ -29,10 +278,7 @@ def RenderPDF(page, MayAdjustResolution, ZoomMode):
     zscale = 1
 
     # handle supersample and zoom mode
-    if Supersample and not(ZoomMode):
-        AlphaBits = 1
-    else:
-        AlphaBits = 4
+    use_aa = True
     if ZoomMode:
         res = (ZoomFactor * res[0], ZoomFactor * res[1])
         out = (ZoomFactor * out[0], ZoomFactor * out[1])
@@ -40,72 +286,25 @@ def RenderPDF(page, MayAdjustResolution, ZoomMode):
     elif Supersample:
         res = (Supersample * res[0], Supersample * res[1])
         out = (Supersample * out[0], Supersample * out[1])
-    parscale = False
+        use_aa = False
 
-    # call pdftoppm to generate the page image
-    if not UseGhostScript:
-        renderer = "pdftoppm"
-        try:
-            useres = max(res[0], res[1])
-            assert 0 == subprocess.Popen([pdftoppmPath, "-q", \
-                "-f", str(RealPage), "-l", str(RealPage),
-                "-r", str(int(useres + 0.5)),
-                SourceFile, TempFileName]).wait()
-            if abs(1.0 - PAR) > 0.01:
-                parscale = True
-            res = (useres, useres)
-            # determine output filename
-            digits = GetFileProp(SourceFile, 'digits', 6)
-            imgfile = TempFileName + ("-%%0%dd.ppm" % digits) % RealPage
-            if not os.path.exists(imgfile):
-                for digits in xrange(6, 0, -1):
-                    imgfile = TempFileName + ("-%%0%dd.ppm" % digits) % RealPage
-                    if os.path.exists(imgfile): break
-                SetFileProp(SourceFile, 'digits', digits)
-        except OSError, (errcode, errmsg):
-            print >>sys.stderr, "Warning: Cannot start pdftoppm -", errmsg
-            print >>sys.stderr, "Falling back to GhostScript (permanently)."
-            UseGhostScript = True
-        except AssertionError:
-            print >>sys.stderr, "There was an error while rendering page %d" % page
-            print >>sys.stderr, "Falling back to GhostScript for this page."
-            UseGhostScriptOnce = True
+    # prepare the renderer options
+    if PDFRenderer.supports_anamorphic:
+        parscale = False
+        useres = (int(res[0] + 0.5), int(res[1] + 0.5))
+    else:
+        parscale = (abs(1.0 - PAR) > 0.01)
+        useres = max(res[0], res[1])
+        res = (useres, useres)
+        useres = int(useres + 0.5)
+        useres = (useres, useres)
 
-    # fallback to GhostScript
-    if UseGhostScript or UseGhostScriptOnce:
-        imgfile = TempFileName + ".tif"
-        renderer = "GhostScript"
-        try:
-            assert 0 == subprocess.Popen([GhostScriptPath, "-q"] + GhostScriptPlatformOptions + [ \
-                "-dBATCH", "-dNOPAUSE", "-sDEVICE=tiff24nc", "-dUseCropBox",
-                "-sOutputFile=" + imgfile, \
-                "-dFirstPage=%d" % RealPage, "-dLastPage=%d" % RealPage,
-                "-r%dx%d" % (int(res[0] + 0.5), int(res[1] + 0.5)), \
-                "-dTextAlphaBits=%d" % AlphaBits, \
-                "-dGraphicsAlphaBits=%s" % AlphaBits, \
-                SourceFile]).wait()
-        except OSError, (errcode, errmsg):
-            print >>sys.stderr, "Error: Cannot start GhostScript -", errmsg
-            return DummyPage()
-        except AssertionError:
-            print >>sys.stderr, "There was an error while rendering page %d" % page
-            return DummyPage()
-
-    # open the page image file with PIL
+    # call the renderer
     try:
-        img = Image.open(imgfile)
-        img.load()
-    except (KeyboardInterrupt, SystemExit):
-        raise
-    except:
-        print >>sys.stderr, "Error: %s produced an unreadable file (page %d)" % (renderer, page)
+        img = PDFRenderer.render(SourceFile, RealPage, useres, use_aa)
+    except RenderError, e:
+        print >>sys.stderr, "ERROR: failed to render page %d:" % page, e
         return DummyPage()
-
-    # try to delete the file again (this constantly fails on Win32 ...)
-    try:
-        os.remove(imgfile)
-    except OSError:
-        pass
 
     # apply rotation
     if rot: img = img.rotate(90 * (4 - rot))
@@ -220,7 +419,7 @@ def LoadImage(page, ZoomMode):
 
 # render a page to an OpenGL texture
 def PageImage(page, ZoomMode=False, RenderMode=False):
-    global OverviewNeedUpdate
+    global OverviewNeedUpdate, HighQualityOverview
     EnableCacheRead = not(ZoomMode or RenderMode)
     EnableCacheWrite = EnableCacheRead and \
                        (page >= PageRangeStart) and (page <= PageRangeEnd)
@@ -278,9 +477,18 @@ def PageImage(page, ZoomMode=False, RenderMode=False):
                 # then, scale down the original image and paste it
                 if HalfScreen:
                     img = img.crop((0, 0, img.size[0] / 2, img.size[1]))
-                img.thumbnail((OverviewCellX - 2 * OverviewBorder, \
-                               OverviewCellY - 2 * OverviewBorder), \
-                               Image.ANTIALIAS)
+                sx = OverviewCellX - 2 * OverviewBorder
+                sy = OverviewCellY - 2 * OverviewBorder
+                if HighQualityOverview:
+                    t0 = time.time()
+                    img.thumbnail((sx, sy), Image.ANTIALIAS)
+                    if (time.time() - t0) > 0.5:
+                        print >>sys.stderr, "Note: Your system seems to be quite slow; falling back to a faster,"
+                        print >>sys.stderr, "      but slightly lower-quality overview page rendering mode"
+                        HighQualityOverview = False
+                else:
+                    img.thumbnail((sx * 2, sy * 2), Image.NEAREST)
+                    img.thumbnail((sx, sy), Image.BILINEAR)
                 OverviewImage.paste(img, \
                    (pos[0] + (OverviewCellX - img.size[0]) / 2, \
                     pos[1] + (OverviewCellY - img.size[1]) / 2))
@@ -293,7 +501,7 @@ def PageImage(page, ZoomMode=False, RenderMode=False):
         # return texture data
         if RenderMode:
             return TextureImage
-        data=TextureImage.tostring()
+        data = TextureImage.tostring()
         del TextureImage
     finally:
       Lrender.release()
@@ -305,11 +513,11 @@ def PageImage(page, ZoomMode=False, RenderMode=False):
 
 # render a page to an OpenGL texture
 def RenderPage(page, target):
-    glBindTexture(TextureTarget, target)
-    try:
-        glTexImage2D(TextureTarget, 0, 3, TexWidth, TexHeight, 0,\
-                     GL_RGB, GL_UNSIGNED_BYTE, PageImage(page))
-    except GLerror:
+    gl.BindTexture(gl.TEXTURE_2D, target)
+    while gl.GetError():
+        pass  # clear all OpenGL errors
+    gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGB, TexWidth, TexHeight, 0, gl.RGB, gl.UNSIGNED_BYTE, PageImage(page))
+    if gl.GetError():
         print >>sys.stderr, "I'm sorry, but your graphics card is not capable of rendering presentations"
         print >>sys.stderr, "in this resolution. Either the texture memory is exhausted, or there is no"
         print >>sys.stderr, "support for large textures (%dx%d). Please try to run Impressive in a" % (TexWidth, TexHeight)
@@ -319,7 +527,7 @@ def RenderPage(page, target):
 # background rendering thread
 def RenderThread(p1, p2):
     global RTrunning, RTrestart
-    RTrunning = True
+    RTrunning = get_thread_id() or True
     RTrestart = True
     while RTrestart:
         RTrestart = False
@@ -337,6 +545,9 @@ def RenderThread(p1, p2):
     if CacheMode >= FileCache:
         print >>sys.stderr, "Background rendering finished, used %.1f MiB of disk space." %\
               (CacheFilePos / 1048576.0)
+    elif CacheMode >= MemCache:
+        print >>sys.stderr, "Background rendering finished, using %.1f MiB of memory." %\
+              (sum(map(len, PageCache.itervalues())) / 1048576.0)
 
 
 ##### RENDER MODE ##############################################################

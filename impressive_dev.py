@@ -2,9 +2,7 @@
 # -*- coding: iso-8859-1 -*-
 #
 # Impressive, a fancy presentation tool
-# Copyright (C) 2005-2010 Martin J. Fiedler <martin.fiedler@gmx.net>
-# portions Copyright (C) 2005 Rob Reid <rreid@drao.nrc.ca>
-# portions Copyright (C) 2006 Ronan Le Hy <rlehy@free.fr>
+# Copyright (C) 2005-2014 Martin J. Fiedler <martin.fiedler@gmx.net>
 # portions Copyright (C) 2007 Luke Campagnola <luke.campagnola@gmail.com>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -21,7 +19,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 __title__   = "Impressive"
-__version__ = "0.10.4"
+__version__ = "0.11.0-WIP"
 __rev__     = None
 __author__  = "Martin J. Fiedler"
 __email__   = "martin.fiedler@gmx.net"
@@ -39,7 +37,10 @@ if __name__ == "__main__":
 execfile("src/defaults.py", globals())
 execfile("src/init.py", globals())
 execfile("src/globals.py", globals())
+execfile("src/platform.py", globals())
 execfile("src/tools.py", globals())
+execfile("src/glcore.py", globals())
+execfile("src/shaders.py", globals())
 execfile("src/gltools.py", globals())
 execfile("src/transitions.py", globals())
 execfile("src/osdfont.py", globals())
@@ -49,6 +50,7 @@ execfile("src/render.py", globals())
 execfile("src/scriptwriter.py", globals())
 execfile("src/gldraw.py", globals())
 execfile("src/control.py", globals())
+execfile("src/evcore.py", globals())
 execfile("src/overview.py", globals())
 execfile("src/event.py", globals())
 execfile('src/filelist.py', globals())

@@ -1,19 +1,23 @@
 ##### INITIALIZATION ###########################################################
 
+LoadDefaultBindings()
+
 def main():
-    global ScreenWidth, ScreenHeight, TexWidth, TexHeight, TexSize, LogoImage
-    global TexMaxS, TexMaxT, MeshStepX, MeshStepY, EdgeX, EdgeY, PixelX, PixelY
-    global OverviewGridSize, OverviewCellX, OverviewCellY, HaveNPOT
+    global gl, ScreenWidth, ScreenHeight, TexWidth, TexHeight, TexSize
+    global TexMaxS, TexMaxT, EdgeX, EdgeY, PixelX, PixelY, LogoImage
+    global OverviewGridSize, OverviewCellX, OverviewCellY
     global OverviewOfsX, OverviewOfsY, OverviewBorder, OverviewImage, OverviewPageCount
     global OverviewPageMap, OverviewPageMapInv, FileName, FileList, PageCount
     global DocumentTitle, PageProps, LogoTexture, OSDFont
     global Pcurrent, Pnext, Tcurrent, Tnext, InitialPage
-    global CacheFile, CacheFileName, BaseWorkingDir
-    global Extensions, AllowExtensions, TextureTarget, PAR, DAR, TempFileName
+    global CacheFile, CacheFileName, BaseWorkingDir, RenderToDirectory
+    global PAR, DAR, TempFileName
     global BackgroundRendering, FileStats, RTrunning, RTrestart, StartTime
     global CursorImage, CursorVisible, InfoScriptPath
     global HalfScreen, AutoAdvance, WindowPos
     global BoxFadeDarknessBase, SpotRadiusBase
+    global GLVendor, GLRenderer, GLVersion
+    global BoxIndexBuffer, UseBlurShader
 
     # allocate temporary file
     TempFileName = tempfile.mktemp(prefix="impressive-", suffix="_tmp")
@@ -27,19 +31,28 @@ def main():
     if FileName:
         DocumentTitle = os.path.splitext(os.path.split(FileName)[1])[0]
 
-    # initialize PyGame
-    pygame.display.init()
+    # early graphics initialization
+    Platform.Init()
 
     # detect screen size and compute aspect ratio
-    if Fullscreen and UseAutoScreenSize:
-        size = GetScreenSize()
+    if Fullscreen and (UseAutoScreenSize or not(Platform.allow_custom_fullscreen_res)):
+        size = Platform.GetScreenSize()
         if size:
             ScreenWidth, ScreenHeight = size
             print >>sys.stderr, "Detected screen size: %dx%d pixels" % (ScreenWidth, ScreenHeight)
     if DAR is None:
-        PAR = 1
+        PAR = 1.0
+        DAR = float(ScreenWidth) / float(ScreenHeight)
     else:
         PAR = DAR / float(ScreenWidth) * float(ScreenHeight)
+
+    # override some irrelevant settings in event test mode
+    if EventTestMode:
+        FileList = ["XXX.EventTestDummy.XXX"]
+        InfoScriptPath = None
+        RenderToDirectory = False
+        InitialPage = None
+        HalfScreen = False
 
     # fill the page list
     if Shuffle:
@@ -48,7 +61,12 @@ def main():
     for name in FileList:
         ispdf = name.lower().endswith(".pdf")
         if ispdf:
-            # PDF input -> try to pre-parse the PDF file
+            # PDF input -> initialize renderers and if none available, reject
+            if not InitPDFRenderer():
+                print >>sys.stderr, "Ignoring unrenderable input file '%s'." % name
+                continue
+
+            # try to pre-parse the PDF file
             pages = 0
             out = [(ScreenWidth + Overscan, ScreenHeight + Overscan),
                    (ScreenWidth + Overscan, ScreenHeight + Overscan)]
@@ -83,7 +101,7 @@ def main():
 
         # validity check
         if not pages:
-            print >>sys.stderr, "Warning: The input file `%s' could not be analyzed." % name
+            print >>sys.stderr, "WARNING: The input file `%s' could not be analyzed." % name
             continue
 
         # add pages and files into PageProps and FileProps
@@ -128,85 +146,85 @@ def main():
         sys.exit(1)
 
     # initialize graphics
-    pygame.display.set_caption(__title__)
-    flags = OPENGL | DOUBLEBUF
-    if Fullscreen:
-        if FakeFullscreen:
-            print >>sys.stderr, "Using \"fake-fullscreen\" mode."
-            flags |= NOFRAME
-            if not WindowPos:
-                WindowPos = (0,0)
-        else:
-            flags |= FULLSCREEN
-    if WindowPos:
-        os.environ["SDL_VIDEO_WINDOW_POS"] = ','.join(map(str, WindowPos))
     try:
-        pygame.display.set_mode((ScreenWidth, ScreenHeight), flags)
+        Platform.StartDisplay()
     except:
-        print >>sys.stderr, "FATAL: cannot create rendering surface in the desired resolution (%dx%d)" % (ScreenWidth, ScreenHeight)
+        print >>sys.stderr, "FATAL: failed to create rendering surface in the desired resolution (%dx%d)" % (ScreenWidth, ScreenHeight)
         sys.exit(1)
-    pygame.key.set_repeat(500, 30)
     if Fullscreen:
-        pygame.mouse.set_visible(False)
+        Platform.SetMouseVisible(False)
         CursorVisible = False
-    glOrtho(0.0, 1.0,  1.0, 0.0,  -10.0, 10.0)
     if (Gamma <> 1.0) or (BlackLevel <> 0):
         SetGamma(force=True)
 
-    # check if graphics are unaccelerated
-    renderer = glGetString(GL_RENDERER)
-    print >>sys.stderr, "OpenGL renderer:", renderer
-    renderer = renderer.lower()
-    if (renderer in ("mesa glx indirect", "gdi generic")) \
-    or renderer.startswith("software"):
-        print >>sys.stderr, "WARNING: Using an OpenGL software renderer. Impressive will work, but it will"
-        print >>sys.stderr, "         very likely be too slow to be usable."
+    # initialize OpenGL
+    try:
+        gl = Platform.LoadOpenGL()
+        GLVendor = gl.GetString(gl.VENDOR)
+        GLRenderer = gl.GetString(gl.RENDERER)
+        GLVersion = gl.GetString(gl.VERSION)
+        print >>sys.stderr, "OpenGL renderer:", GLRenderer
 
-    # setup the OpenGL texture mode
-    Extensions = dict([(ext.split('_', 2)[-1], None) for ext in \
-                 glGetString(GL_EXTENSIONS).split()])
-    if AllowExtensions and ("texture_non_power_of_two" in Extensions):
-        print >>sys.stderr, "Using GL_ARB_texture_non_power_of_two."
-        HaveNPOT = True
-        TextureTarget = GL_TEXTURE_2D
-        TexWidth  = (ScreenWidth + 3) & (-4)
-        TexHeight = (ScreenHeight + 3) & (-4)
-        TexMaxS = float(ScreenWidth) / TexWidth
-        TexMaxT = float(ScreenHeight) / TexHeight
-    elif AllowExtensions and ("texture_rectangle" in Extensions):
-        print >>sys.stderr, "Using GL_ARB_texture_rectangle."
-        HaveNPOT = True
-        TextureTarget = 0x84F5  # GL_TEXTURE_RECTANGLE_ARB
-        TexWidth  = (ScreenWidth + 3) & (-4)
-        TexHeight = (ScreenHeight + 3) & (-4)
-        TexMaxS = ScreenWidth
-        TexMaxT = ScreenHeight
-    else:
-        print >>sys.stderr, "Using conventional power-of-two textures with padding."
-        HaveNPOT = False
-        TextureTarget = GL_TEXTURE_2D
-        TexWidth  = npot(ScreenWidth)
-        TexHeight = npot(ScreenHeight)
-        TexMaxS = ScreenWidth  * 1.0 / TexWidth
-        TexMaxT = ScreenHeight * 1.0 / TexHeight
+        # check if graphics are unaccelerated
+        renderer = GLRenderer.lower().replace(' ', '').replace('(r)', '')
+        if (renderer in ("mesaglxindirect", "gdigeneric")) \
+        or renderer.startswith("software") \
+        or ("llvmpipe" in renderer):
+            print >>sys.stderr, "WARNING: Using an OpenGL software renderer. Impressive will work, but it will"
+            print >>sys.stderr, "         very likely be too slow to be usable."
+
+        # check for old hardware that can't deal with the blur shader
+        for substr in ("i915", "intel915", "intel945", "intelq3", "intelg3", "inteligd", "gma900", "gma950", "gma3000", "gma3100", "gma3150"):
+            if substr in renderer:
+                UseBlurShader = False
+
+        # check the OpenGL version (2.0 needed to ensure NPOT texture support)
+        glver = gl.GetString(gl.VERSION)
+        extensions = set(gl.GetString(gl.EXTENSIONS).split())
+        if (glver < "2") and (not("GL_ARB_shader_objects" in extensions) or not("GL_ARB_texture_non_power_of_two" in extensions)):
+            raise ImportError("OpenGL version %r is below 2.0 and the necessary extensions are unavailable" % glver)
+    except ImportError, e:
+        print >>sys.stderr, "FATAL:", e
+        print >>sys.stderr, "This likely means that your graphics driver or hardware is too old."
+        sys.exit(1)
+
+    # some further OpenGL configuration
+    if Verbose:
+        GLShader.LOG_DEFAULT = GLShader.LOG_IF_NOT_EMPTY
+    for shader in RequiredShaders:
+        shader.get_instance()
+    if UseBlurShader:
+        try:
+            BlurShader.get_instance()
+        except GLShaderCompileError:
+            UseBlurShader = False
+    if Verbose:
+        if UseBlurShader:
+            print >>sys.stderr, "Using blur-and-desaturate shader for highlight box and spotlight mode."
+        else:
+            print >>sys.stderr, "Using legacy multi-pass blur for highlight box and spotlight mode."
+    gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+    BoxIndexBuffer = HighlightIndexBuffer(4)
+
+    # setup the OpenGL texture size
+    TexWidth  = (ScreenWidth + 3) & (-4)
+    TexHeight = (ScreenHeight + 3) & (-4)
+    TexMaxS = float(ScreenWidth) / TexWidth
+    TexMaxT = float(ScreenHeight) / TexHeight
     TexSize = TexWidth * TexHeight * 3
 
     # set up some variables
-    MeshStepX = 1.0 / MeshResX
-    MeshStepY = 1.0 / MeshResY
     PixelX = 1.0 / ScreenWidth
     PixelY = 1.0 / ScreenHeight
-    EdgeX = BoxEdgeSize * 1.0 / ScreenWidth
-    EdgeY = BoxEdgeSize * 1.0 / ScreenHeight
+    ScreenAspect = float(ScreenWidth) / float(ScreenHeight)
+    EdgeX = BoxEdgeSize * PixelX
+    EdgeY = BoxEdgeSize * PixelY
 
     # prepare logo image
-    LogoImage = Image.open(StringIO.StringIO(LOGO))
-    LogoTexture = glGenTextures(1)
-    glBindTexture(GL_TEXTURE_2D, LogoTexture)
-    glTexImage2D(GL_TEXTURE_2D, 0, 1, 256, 64, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, LogoImage.tostring())
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+    LogoImage = Image.open(cStringIO.StringIO(LOGO.decode('base64')))
+    LogoTexture = gl.make_texture(gl.TEXTURE_2D, filter=gl.NEAREST, img=LogoImage)
     DrawLogo()
-    pygame.display.flip()
+    Platform.SwapBuffers()
 
     # initialize OSD font
     try:
@@ -224,13 +242,21 @@ def main():
     except (NameError, AttributeError, TypeError):
         print >>sys.stderr, "Your version of PIL is too old or incomplete, disabling OSD."
 
+    # handle event test mode
+    if EventTestMode:
+        DoEventTestMode()
+
     # initialize mouse cursor
-    if CursorImage:
-        try:
-            CursorImage = PrepareCustomCursor(Image.open(CursorImage))
-        except:
-            print >>sys.stderr, "Could not open the mouse cursor image, using standard cursor."
-            CursorImage = False
+    if CursorImage or not(Platform.has_hardware_cursor):
+        img = None
+        if CursorImage and not(CursorImage.lower() in ("-", "default")):
+            try:
+                img = Image.open(CursorImage).convert('RGBA')
+                img.load()
+            except:
+                print >>sys.stderr, "Could not open the mouse cursor image, using standard cursor."
+                img = None
+        CursorImage = PrepareCustomCursor(img)
 
     # set up page cache
     if CacheMode == PersistentCache:
@@ -309,50 +335,42 @@ def main():
             print >>sys.stderr, "Warning: Could not determine auto-advance timeout automatically."
 
     # set up background rendering
-    if not EnableBackgroundRendering:
-        print >>sys.stderr, "Background rendering isn't available on this platform."
+    if not HaveThreads:
+        print >>sys.stderr, "Note: Background rendering isn't available on this platform."
         BackgroundRendering = False
 
     # if caching is enabled, pre-render all pages
     if CacheMode and not(BackgroundRendering):
         DrawLogo()
         DrawProgress(0.0)
-        pygame.display.flip()
+        Platform.SwapBuffers()
         for pdf in FileProps:
             if pdf.lower().endswith(".pdf"):
                 ParsePDF(pdf)
         stop = False
         progress = 0.0
+        def prerender_action_handler(action):
+            if action in ("$quit", "*quit"):
+                Quit()
         for page in range(InitialPage, PageCount + 1) + range(1, InitialPage):
-            event = pygame.event.poll()
-            while event.type != NOEVENT:
-                if event.type == KEYDOWN:
-                    if (event.key == K_ESCAPE) or (event.unicode == u'q'):
-                        Quit()
+            while True:
+                ev = Platform.GetEvent(poll=True)
+                if not ev: break
+                ProcessEvent(ev, prerender_action_handler)
+                if ev.startswith('*'):
                     stop = True
-                elif event.type == MOUSEBUTTONUP:
-                    stop = True
-                event = pygame.event.poll()
             if stop: break
             if (page >= PageRangeStart) and (page <= PageRangeEnd):
                 PageImage(page)
             DrawLogo()
-            progress += 1.0 / PageCount;
+            progress += 1.0 / PageCount
             DrawProgress(progress)
-            pygame.display.flip()
+            Platform.SwapBuffers()
 
     # create buffer textures
     DrawLogo()
-    pygame.display.flip()
-    glEnable(TextureTarget)
-    Tcurrent = glGenTextures(1)
-    Tnext = glGenTextures(1)
-    for T in (Tcurrent, Tnext):
-        glBindTexture(TextureTarget, T)
-        glTexParameteri(TextureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-        glTexParameteri(TextureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-        glTexParameteri(TextureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP)
-        glTexParameteri(TextureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP)
+    Platform.SwapBuffers()
+    Tcurrent, Tnext = [gl.make_texture(gl.TEXTURE_2D, gl.CLAMP_TO_EDGE, gl.LINEAR) for dummy in (1,2)]
 
     # prebuffer current and next page
     Pnext = 0
@@ -364,7 +382,7 @@ def main():
     PrepareTransitions()
     GenerateSpotMesh()
     if PollInterval:
-        pygame.time.set_timer(USEREVENT_POLL_FILE, PollInterval * 1000)
+        Platform.ScheduleEvent("$poll-file", PollInterval * 1000, periodic=True)
 
     # start the background rendering thread
     if CacheMode and BackgroundRendering:
@@ -378,17 +396,58 @@ def main():
                 SafeCall(ParsePDF, [pdf])
 
     # start output and enter main loop
-    StartTime = pygame.time.get_ticks()
-    pygame.time.set_timer(USEREVENT_TIMER_UPDATE, 100)
+    StartTime = Platform.GetTicks()
+    if TimeTracking:
+        EnableTimeTracking(True)
+    Platform.ScheduleEvent("$timer-update", 100, periodic=True)
     if not(Fullscreen) and CursorImage:
-        pygame.mouse.set_visible(False)
+        Platform.SetMouseVisible(False)
     if FadeInOut:
         LeaveFadeMode()
     else:
         DrawCurrentPage()
     UpdateCaption(Pcurrent)
+    EventHandlerLoop()  # never returns
+
+
+# event test mode implementation
+def DoEventTestMode():
+    last_event = "(None)"
+    need_redraw = True
+    cx = ScreenWidth / 2
+    y1 = ScreenHeight / 5
+    y2 = (ScreenHeight * 4) / 5
+    if OSDFont:
+        dy = OSDFont.GetLineHeight()
+    Platform.ScheduleEvent('$dummy', 1000)  # required to ensure that time measurement works :(
+    print >>sys.stderr, "Entering Event Test Mode."
+    print " timestamp | delta-time | event"
+    t0 = Platform.GetTicks()
     while True:
-        HandleEvent(pygame.event.wait())
+        if need_redraw:
+            DrawLogo()
+            if OSDFont:
+                gl.Enable(gl.BLEND)
+                OSDFont.BeginDraw()
+                OSDFont.Draw((cx, y1 - dy), "Event Test Mode", align=Center, beveled=False, bold=True)
+                OSDFont.Draw((cx, y1), "press Alt+F4 to quit", align=Center, beveled=False)
+                OSDFont.Draw((cx, y2 - dy), "Last Event:", align=Center, beveled=False, bold=True)
+                OSDFont.Draw((cx, y2), last_event, align=Center, beveled=False)
+                OSDFont.EndDraw()
+                gl.Disable(gl.BLEND)
+            Platform.SwapBuffers()
+            need_redraw = False
+        ev = Platform.GetEvent()
+        if ev == '$expose':
+            need_redraw = True
+        elif ev == '$quit':
+            Quit()
+        elif ev and ev.startswith('*'):
+            now = Platform.GetTicks()
+            print "%7d ms | %7d ms | %s" % (int(now), int(now - t0), ev[1:])
+            t0 = now
+            last_event = ev[1:]
+            need_redraw = True
 
 
 # wrapper around main() that ensures proper uninitialization
@@ -413,7 +472,13 @@ def run_main():
             print >>sys.stderr, "Python version:", sys.version
             print >>sys.stderr, "PyGame version:", pygame.__version__
             print >>sys.stderr, "PIL version:", Image.VERSION
-            print >>sys.stderr, "PyOpenGL version:", OpenGL.__version__
+            if PDFRenderer:
+                print >>sys.stderr, "PDF renderer:", PDFRenderer.name
+            else:
+                print >>sys.stderr, "PDF renderer: None"
+            if GLVendor: print >>sys.stderr, "OpenGL vendor:", GLVendor
+            if GLRenderer: print >>sys.stderr, "OpenGL renderer:", GLRenderer
+            if GLVersion: print >>sys.stderr, "OpenGL version:", GLVersion
             if hasattr(os, 'uname'):
                 uname = os.uname()
                 print >>sys.stderr, "Operating system: %s %s (%s)" % (uname[0], uname[2], uname[4])
@@ -438,7 +503,7 @@ def run_main():
                 os.remove(tmp)
             except OSError:
                 pass
-        pygame.quit()
+        Platform.Quit()
 
     # release all locks
     try:

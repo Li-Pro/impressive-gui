@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys, re, optparse, os, HTMLParser
-__version__ = "0.1"
+__version__ = "0.1.1"
 
 DEBUG = False
 
@@ -94,7 +94,7 @@ class Converter(HTMLParser.HTMLParser):
         if DEBUG: print "endtag:", tag
         tag = tag.lower()
         if not(self.stack) or (self.stack[-1] != tag):
-            raise HTMLParser.HTMLParseError("start/end tag mismatch\nstack is %r, got %r" % (self.stack, tag))
+            raise HTMLParser.HTMLParseError("line %s: start/end tag mismatch\nstack is %r, got %r" % (self.getpos()[0], self.stack, tag))
         del self.stack[-1]
         if not self.enabled: return
         if tag == "p":
@@ -166,10 +166,10 @@ class Converter(HTMLParser.HTMLParser):
             elif cmd == "listspace":
                 self.listspace = True
             elif cmd == "head":
-                self.data = arg
+                self.data = arg.replace('_', ' ')
                 self.endheading("Header")
             elif cmd == "subhead":
-                self.data = arg
+                self.data = arg.replace('_', ' ')
                 self.endheading("Subsection", 4)
             elif cmd != "man":
                 print >>sys.stderr, "unknown command `%s'" % cmd

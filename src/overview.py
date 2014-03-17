@@ -2,11 +2,9 @@
 
 def UpdateOverviewTexture():
     global OverviewNeedUpdate
-    glBindTexture(TextureTarget, Tnext)
     Loverview.acquire()
     try:
-        glTexImage2D(TextureTarget, 0, 3, TexWidth, TexHeight, 0, \
-                     GL_RGB, GL_UNSIGNED_BYTE, OverviewImage.tostring())
+        gl.load_texture(gl.TEXTURE_2D, Tnext, OverviewImage)
     finally:
         Loverview.release()
     OverviewNeedUpdate = False
@@ -14,31 +12,33 @@ def UpdateOverviewTexture():
 # draw the overview page
 def DrawOverview():
     if VideoPlaying: return
-    glClear(GL_COLOR_BUFFER_BIT)
-    glDisable(GL_BLEND)
-    glEnable(TextureTarget)
-    glBindTexture(TextureTarget, Tnext)
-    glColor3ub(192, 192, 192)
-    DrawFullQuad()
+    gl.Clear(gl.COLOR_BUFFER_BIT)
+    TexturedRectShader.get_instance().draw(
+        0.0, 0.0, 1.0, 1.0,
+        s1=TexMaxS, t1=TexMaxT,
+        tex=Tnext, color=0.75
+    )
 
     pos = OverviewPos(OverviewSelection)
     X0 = PixelX *  pos[0]
     Y0 = PixelY *  pos[1]
     X1 = PixelX * (pos[0] + OverviewCellX)
     Y1 = PixelY * (pos[1] + OverviewCellY)
-    glColor3d(1.0, 1.0, 1.0)
-    glBegin(GL_QUADS)
-    DrawPoint(X0, Y0)
-    DrawPoint(X1, Y0)
-    DrawPoint(X1, Y1)
-    DrawPoint(X0, Y1)
-    glEnd()
+    TexturedRectShader.get_instance().draw(
+        X0, Y0, X1, Y1,
+        X0 * TexMaxS, Y0 * TexMaxT,
+        X1 * TexMaxS, Y1 * TexMaxT,
+        color=1.0
+    )
 
+    gl.Enable(gl.BLEND)
+    OSDFont.BeginDraw()
     DrawOSDEx(OSDTitlePos,  CurrentOSDCaption)
     DrawOSDEx(OSDPagePos,   CurrentOSDPage)
     DrawOSDEx(OSDStatusPos, CurrentOSDStatus)
+    OSDFont.EndDraw()
     DrawOverlays()
-    pygame.display.flip()
+    Platform.SwapBuffers()
 
 # overview zoom effect, time mapped through func
 def OverviewZoom(func):
@@ -51,10 +51,11 @@ def OverviewZoom(func):
     X1 = PixelX * (pos[0] - OverviewBorder + OverviewCellX)
     Y1 = PixelY * (pos[1] - OverviewBorder + OverviewCellY)
 
+    shader = TexturedRectShader.get_instance()
     TransitionRunning = True
-    t0 = pygame.time.get_ticks()
+    t0 = Platform.GetTicks()
     while not(VideoPlaying):
-        t = (pygame.time.get_ticks() - t0) * 1.0 / ZoomDuration
+        t = (Platform.GetTicks() - t0) * 1.0 / ZoomDuration
         if t >= 1.0: break
         t = func(t)
         t1 = t*t
@@ -66,37 +67,34 @@ def OverviewZoom(func):
         OX = t * X0 - zoom * X0
         OY = t * Y0 - zoom * Y0
 
-        glDisable(GL_BLEND)
-        glEnable(TextureTarget)
-        glBindTexture(TextureTarget, Tnext)
-        glBegin(GL_QUADS)
-        glColor3ub(192, 192, 192)
-        glTexCoord2d(    0.0,     0.0);  glVertex2d(OX,        OY)
-        glTexCoord2d(TexMaxS,     0.0);  glVertex2d(OX + zoom, OY)
-        glTexCoord2d(TexMaxS, TexMaxT);  glVertex2d(OX + zoom, OY + zoom)
-        glTexCoord2d(    0.0, TexMaxT);  glVertex2d(OX,        OY + zoom)
-        glColor3ub(255, 255, 255)
-        glTexCoord2d(X0 * TexMaxS, Y0 * TexMaxT);  glVertex2d(OX + X0*zoom, OY + Y0 * zoom)
-        glTexCoord2d(X1 * TexMaxS, Y0 * TexMaxT);  glVertex2d(OX + X1*zoom, OY + Y0 * zoom)
-        glTexCoord2d(X1 * TexMaxS, Y1 * TexMaxT);  glVertex2d(OX + X1*zoom, OY + Y1 * zoom)
-        glTexCoord2d(X0 * TexMaxS, Y1 * TexMaxT);  glVertex2d(OX + X0*zoom, OY + Y1 * zoom)
-        glEnd()
+        gl.Clear(gl.COLOR_BUFFER_BIT)
+        shader.draw(  # base overview page
+            OX, OY, OX + zoom, OY + zoom,
+            s1=TexMaxS, t1=TexMaxT,
+            tex=Tnext, color=0.75
+        )
+        shader.draw(  # highlighted part
+            OX + X0 * zoom, OY + Y0 * zoom,
+            OX + X1 * zoom, OY + Y1 * zoom,
+            X0 * TexMaxS, Y0 * TexMaxT,
+            X1 * TexMaxS, Y1 * TexMaxT,
+            color=1.0
+        )
+        gl.Enable(gl.BLEND)
+        shader.draw(  # overlay of the original high-res page
+            t * X0,      t * Y0,
+            t * X1 + t1, t * Y1 + t1,
+            s1=TexMaxS, t1=TexMaxT,
+            tex=Tcurrent, color=(1.0, 1.0, 1.0, 1.0 - t * t * t)
+        )
 
-        EnableAlphaBlend()
-        glBindTexture(TextureTarget, Tcurrent)
-        glColor4d(1.0, 1.0, 1.0, 1.0 - t * t * t)
-        glBegin(GL_QUADS)
-        glTexCoord2d(    0.0,     0.0);  glVertex2d(t * X0,      t * Y0)
-        glTexCoord2d(TexMaxS,     0.0);  glVertex2d(t * X1 + t1, t * Y0)
-        glTexCoord2d(TexMaxS, TexMaxT);  glVertex2d(t * X1 + t1, t * Y1 + t1)
-        glTexCoord2d(    0.0, TexMaxT);  glVertex2d(t * X0,      t * Y1 + t1)
-        glEnd()
-
+        OSDFont.BeginDraw()
         DrawOSDEx(OSDTitlePos,  CurrentOSDCaption, alpha_factor=t)
         DrawOSDEx(OSDPagePos,   CurrentOSDPage,    alpha_factor=t)
         DrawOSDEx(OSDStatusPos, CurrentOSDStatus,  alpha_factor=t)
+        OSDFont.EndDraw()
         DrawOverlays()
-        pygame.display.flip()
+        Platform.SwapBuffers()
     TransitionRunning = False
 
 # overview keyboard navigation
@@ -107,7 +105,7 @@ def OverviewKeyboardNav(delta):
         return
     OverviewSelection = dest
     x, y = OverviewPos(OverviewSelection)
-    pygame.mouse.set_pos((x + (OverviewCellX / 2), y + (OverviewCellY / 2)))
+    Platform.SetMousePos((x + (OverviewCellX / 2), y + (OverviewCellY / 2)))
 
 # overview mode PageProp toggle
 def OverviewTogglePageProp(prop, default):
@@ -118,105 +116,98 @@ def OverviewTogglePageProp(prop, default):
     UpdateCaption(page, force=True)
     DrawOverview()
 
-# overview event handler
-def HandleOverviewEvent(event):
-    global OverviewSelection, TimeDisplay
+class ExitOverview(Exception):
+    pass
 
-    if event.type == QUIT:
-        PageLeft(overview=True)
-        Quit()
-    elif event.type == VIDEOEXPOSE:
-        DrawOverview()
-
-    elif event.type == KEYDOWN:
-        if event.key == K_ESCAPE:
-            OverviewSelection = -1
-            return 0
-        if event.unicode == u'q':
-            pygame.event.post(pygame.event.Event(QUIT))
-        elif event.unicode == u'f':
-            SetFullscreen(not Fullscreen)
-        elif (event.key == K_TAB) and (event.mod & KMOD_ALT) and Fullscreen:
-            SetFullscreen(False)
-            pygame.display.iconify()
-        elif event.unicode == u't':
-            TimeDisplay = not(TimeDisplay)
-            DrawOverview()
-        elif event.unicode == u'r':
-            ResetTimer()
-            if TimeDisplay: DrawOverview()
-        elif event.unicode == u's':
-            SaveInfoScript(InfoScriptPath)
-        elif event.unicode == u'o':
-            OverviewTogglePageProp('overview', GetPageProp(Pcurrent, '_overview', True))
-        elif event.unicode == u'i':
-            OverviewTogglePageProp('skip', False)
-        elif event.key == K_UP:    OverviewKeyboardNav(-OverviewGridSize)
-        elif event.key == K_LEFT:  OverviewKeyboardNav(-1)
-        elif event.key == K_RIGHT: OverviewKeyboardNav(+1)
-        elif event.key == K_DOWN:  OverviewKeyboardNav(+OverviewGridSize)
-        elif event.key == K_TAB:
-            OverviewSelection = -1
-            return 0
-        elif event.key in (K_RETURN, K_KP_ENTER):
-            return 0
-        elif IsValidShortcutKey(event.key):
-            if event.mod & KMOD_SHIFT:
-                try:
-                    AssignShortcut(OverviewPageMap[OverviewSelection], event.key)
-                except IndexError:
-                    pass   # no valid page selected
-            else:
-                # load shortcut
-                page = FindShortcut(event.key)
-                if page:
-                    OverviewSelection = OverviewPageMapInv[page]
-                    x, y = OverviewPos(OverviewSelection)
-                    pygame.mouse.set_pos((x + (OverviewCellX / 2), \
-                                          y + (OverviewCellY / 2)))
-                    DrawOverview()
-
-    elif event.type == MOUSEBUTTONUP:
-        if event.button == 1:
-            return 0
-        elif event.button in (2, 3):
-            OverviewSelection = -1
-            return 0
-        elif (event.button == 4) and PageWheel:
-            OverviewKeyboardNav(-1)
-        elif (event.button == 5) and PageWheel:
-            OverviewKeyboardNav(+1)
-
-    elif event.type == MOUSEMOTION:
-        pygame.event.clear(MOUSEMOTION)
-        # mouse move in fullscreen mode -> show mouse cursor and reset mouse timer
-        if Fullscreen:
-            pygame.time.set_timer(USEREVENT_HIDE_MOUSE, MouseHideDelay)
-            SetCursor(True)
+# action implementation for overview mode
+class OverviewActions(BaseActions):
+    def _X_move(self):
+        global OverviewSelection
+        BaseActions._X_move(self)
         # determine highlighted page
+        x, y = Platform.GetMousePos()
         OverviewSelection = \
-             int((event.pos[0] - OverviewOfsX) / OverviewCellX) + \
-             int((event.pos[1] - OverviewOfsY) / OverviewCellY) * OverviewGridSize
+             int((x - OverviewOfsX) / OverviewCellX) + \
+             int((y - OverviewOfsY) / OverviewCellY) * OverviewGridSize
         if (OverviewSelection < 0) or (OverviewSelection >= len(OverviewPageMap)):
             UpdateCaption(0)
         else:
             UpdateCaption(OverviewPageMap[OverviewSelection])
         DrawOverview()
 
-    elif event.type == USEREVENT_HIDE_MOUSE:
+    def _X_quit(self):
+        PageLeft(overview=True)
+        Quit()
+
+    def _X_expose(self):
+        DrawOverview()
+
+    def _X_hide_mouse(self):
         # mouse timer event -> hide fullscreen cursor
-        pygame.time.set_timer(USEREVENT_HIDE_MOUSE, 0)
         SetCursor(False)
         DrawOverview()
 
-    return 1
+    def _X_timer_update(self):
+        force_update = OverviewNeedUpdate
+        if OverviewNeedUpdate:
+            UpdateOverviewTexture()
+        if TimerTick() or force_update:
+            DrawOverview()
+
+    def _overview_exit(self):
+        "exit overview mode and return to the last page"
+        global OverviewSelection
+        OverviewSelection = -1
+        raise ExitOverview
+    def _overview_confirm(self):
+        "exit overview mode and go to the selected page"
+        raise ExitOverview
+
+    def _fullscreen(self):
+        SetFullscreen(not(Fullscreen))
+
+    def _save(self):
+        SaveInfoScript(InfoScriptPath)
+
+    def _fade_to_black(self):
+        FadeMode(0.0)
+    def _fade_to_white(self):
+        FadeMode(1.0)
+
+    def _time_toggle(self):
+        global TimeDisplay
+        TimeDisplay = not(TimeDisplay)
+        DrawOverview()
+    def _time_reset(self):
+        ResetTimer()
+        if TimeDisplay:
+            DrawOverview()
+
+    def _toggle_skip(self):
+        TogglePageProp('skip', False)
+    def _toggle_overview(self):
+        TogglePageProp('overview', GetPageProp(Pcurrent, '_overview', True))
+
+    def _overview_up(self):
+        "move the overview selection upwards"
+        OverviewKeyboardNav(-OverviewGridSize)
+    def _overview_prev(self):
+        "select the previous page in overview mode"
+        OverviewKeyboardNav(-1)
+    def _overview_next(self):
+        "select the next page in overview mode"
+        OverviewKeyboardNav(+1)
+    def _overview_down(self):
+        "move the overview selection downwards"
+        OverviewKeyboardNav(+OverviewGridSize)
+OverviewActions = OverviewActions()
 
 # overview mode entry/loop/exit function
 def DoOverview():
     global Pcurrent, Pnext, Tcurrent, Tnext, Tracing, OverviewSelection
     global PageEnterTime, OverviewMode
 
-    pygame.time.set_timer(USEREVENT_PAGE_TIMEOUT, 0)
+    Platform.ScheduleEvent("$page-timeout", 0)
     PageLeft()
     UpdateOverviewTexture()
 
@@ -228,19 +219,27 @@ def DoOverview():
     OverviewMode = True
     OverviewZoom(lambda t: 1.0 - t)
     DrawOverview()
-    PageEnterTime = pygame.time.get_ticks() - StartTime
-    while True:
-        event = pygame.event.poll()
-        if event.type == NOEVENT:
-            force_update = OverviewNeedUpdate
-            if OverviewNeedUpdate:
-                UpdateOverviewTexture()
-            if TimerTick() or force_update:
-                DrawOverview()
-            pygame.time.wait(20)
-        elif not HandleOverviewEvent(event):
-            break
-    PageLeft(overview=True)
+    PageEnterTime = Platform.GetTicks() - StartTime
+
+    try:
+        while True:
+            ev = Platform.GetEvent()
+            if not ev:
+                continue
+            if not ProcessEvent(ev, OverviewActions):
+                try:
+                    page = OverviewPageMap[OverviewSelection]
+                except IndexError:
+                    page = 0
+                page = HandleShortcutKey(ev, page)
+                if page:
+                    OverviewSelection = OverviewPageMapInv[page]
+                    x, y = OverviewPos(OverviewSelection)
+                    Platform.SetMousePos((x + (OverviewCellX / 2), \
+                                          y + (OverviewCellY / 2)))
+                    DrawOverview()
+    except ExitOverview:
+        PageLeft(overview=True)
 
     if (OverviewSelection < 0) or (OverviewSelection >= OverviewPageCount):
         OverviewSelection = OverviewPageMapInv[Pcurrent]

@@ -15,7 +15,7 @@ def UpdateCaption(page=0, force=False):
         CurrentOSDPage = ""
         CurrentOSDStatus = ""
         CurrentOSDComment = ""
-        pygame.display.set_caption(caption, __title__)
+        Platform.SetWindowTitle(caption)
         return
     CurrentOSDPage = "%d/%d" % (page, PageCount)
     caption = "%s (%s)" % (caption, CurrentOSDPage)
@@ -32,7 +32,7 @@ def UpdateCaption(page=0, force=False):
         status.append("on overview page: no")
     CurrentOSDStatus = ", ".join(status)
     CurrentOSDComment = GetPageProp(page, 'comment')
-    pygame.display.set_caption(caption, __title__)
+    Platform.SetWindowTitle(caption)
 
 # get next/previous page
 def GetNextPage(page, direction):
@@ -64,10 +64,10 @@ def PreloadNextPage(page):
 
 # perform box fading; the fade animation time is mapped through func()
 def BoxFade(func):
-    t0 = pygame.time.get_ticks()
+    t0 = Platform.GetTicks()
     while BoxFadeDuration > 0:
-        if pygame.event.get([KEYDOWN,MOUSEBUTTONUP]): break
-        t = (pygame.time.get_ticks() - t0) * 1.0 / BoxFadeDuration
+        if Platform.CheckAnimationCancelEvent(): break
+        t = (Platform.GetTicks() - t0) * 1.0 / BoxFadeDuration
         if t >= 1.0: break
         DrawCurrentPage(func(t))
     DrawCurrentPage(func(1.0))
@@ -78,7 +78,7 @@ def ResetTimer():
     global StartTime, PageEnterTime
     if TimeTracking and not(FirstPage):
         print "--- timer was reset here ---"
-    StartTime = pygame.time.get_ticks()
+    StartTime = Platform.GetTicks()
     PageEnterTime = 0
 
 # start video playback
@@ -94,7 +94,7 @@ def PlayVideo(video):
         opts += ["-fs"]
     else:
         try:
-            opts += ["-wid", str(pygame.display.get_wm_info()['window'])]
+            opts += ["-wid", str(Platform.GetWindowID())]
         except KeyError:
             print >>sys.stderr, "Sorry, but Impressive only supports video on your operating system if fullscreen"
             print >>sys.stderr, "mode is used."
@@ -106,8 +106,8 @@ def PlayVideo(video):
     try:
         MPlayerProcess = subprocess.Popen([MPlayerPath] + opts + video, stdin=subprocess.PIPE)
         if MPlayerColorKey:
-            glClear(GL_COLOR_BUFFER_BIT)
-            pygame.display.flip()
+            gl.Clear(gl.COLOR_BUFFER_BIT)
+            Platform.SwapBuffers()
         VideoPlaying = True
     except OSError:
         MPlayerProcess = None
@@ -130,7 +130,7 @@ def PreparePage():
 def PageEntered(update_time=True):
     global PageEnterTime, PageTimeout, MPlayerProcess, IsZoomed, WantStatus
     if update_time:
-        PageEnterTime = pygame.time.get_ticks() - StartTime
+        PageEnterTime = Platform.GetTicks() - StartTime
     IsZoomed = False  # no, we don't have a pre-zoomed image right now
     WantStatus = False  # don't show status unless it's changed interactively
     PageTimeout = AutoAdvance
@@ -156,13 +156,13 @@ def PageEntered(update_time=True):
         SafeCall(GetPageProp(Pcurrent, 'OnEnterOnce'))
     SafeCall(GetPageProp(Pcurrent, 'OnEnter'))
     if PageTimeout:
-        pygame.time.set_timer(USEREVENT_PAGE_TIMEOUT, PageTimeout)
+        Platform.ScheduleEvent("$page-timeout", PageTimeout)
     SetPageProp(Pcurrent, '_shown', shown + 1)
 
 # called each time a page is left
 def PageLeft(overview=False):
     global FirstPage, LastPage, WantStatus, PageLeaveTime
-    PageLeaveTime = pygame.time.get_ticks() - StartTime
+    PageLeaveTime = Platform.GetTicks() - StartTime
     WantStatus = False
     if not overview:
         if GetTristatePageProp(Pcurrent, 'reset'):
@@ -173,7 +173,7 @@ def PageLeft(overview=False):
             SafeCall(GetPageProp(Pcurrent, 'OnLeaveOnce'))
         SafeCall(GetPageProp(Pcurrent, 'OnLeave'))
     if TimeTracking:
-        t1 = pygame.time.get_ticks() - StartTime
+        t1 = Platform.GetTicks() - StartTime
         dt = (t1 - PageEnterTime + 500) / 1000
         if overview:
             p = "over"
@@ -182,6 +182,16 @@ def PageLeft(overview=False):
         print "%s%9s%9s%9s" % (p, FormatTime(dt), \
                                   FormatTime(PageEnterTime / 1000), \
                                   FormatTime(t1 / 1000))
+
+# create an instance of a transition class
+def InstantiateTransition(trans_class):
+    try:
+        return trans_class()
+    except GLInvalidShaderError:
+        return None
+    except GLShaderCompileError:
+        print >>sys.stderr, "Note: all %s transitions will be disabled" % trans_class.__name__
+        return None
 
 # perform a transition to a specified page
 def TransitionTo(page, allow_transition=True):
@@ -192,7 +202,7 @@ def TransitionTo(page, allow_transition=True):
     # first, stop video and kill the auto-timer
     if VideoPlaying:
         StopMPlayer()
-    pygame.time.set_timer(USEREVENT_PAGE_TIMEOUT, 0)
+    Platform.ScheduleEvent("$page-timeout", 0)
 
     # invalid page? go away
     if not PreloadNextPage(page):
@@ -222,22 +232,22 @@ def TransitionTo(page, allow_transition=True):
     UpdateCaption(page)
 
     # check if the transition is valid
-    tpage = min(Pcurrent, Pnext)
+    tpage = max(Pcurrent, Pnext)
     trans = None
     if allow_transition:
         trans = GetPageProp(tpage, 'transition', GetPageProp(tpage, '_transition'))
     else:
         trans = None
-    if trans is None:
-        transtime = 0
-    else:
+    if trans is not None:
         transtime = GetPageProp(tpage, 'transtime', TransitionDuration)
         try:
             dummy = trans.__class__
         except AttributeError:
             # ah, gotcha! the transition is not yet instantiated!
-            trans = trans()
+            trans = InstantiateTransition(trans)
             PageProps[tpage][tkey] = trans
+    if trans is None:
+        transtime = 0
 
     # backward motion? then swap page buffers now
     backward = (Pnext < Pcurrent)
@@ -251,19 +261,20 @@ def TransitionTo(page, allow_transition=True):
     if not(skip) and transtime:
         transtime = 1.0 / transtime
         TransitionRunning = True
-        t0 = pygame.time.get_ticks()
+        trans.start()
+        t0 = Platform.GetTicks()
         while not(VideoPlaying):
-            if pygame.event.get([KEYDOWN,MOUSEBUTTONUP]):
+            if Platform.CheckAnimationCancelEvent():
                 skip = 1
                 break
-            t = (pygame.time.get_ticks() - t0) * transtime
+            t = (Platform.GetTicks() - t0) * transtime
             if t >= 1.0: break
             TransitionPhase = t
             if backward: t = 1.0 - t
-            glEnable(TextureTarget)
+            gl.Clear(gl.COLOR_BUFFER_BIT)
             trans.render(t)
             DrawOverlays(t)
-            pygame.display.flip()
+            Platform.SwapBuffers()
         TransitionRunning = False
 
     # forward motion => swap page buffers now
@@ -287,14 +298,14 @@ def TransitionTo(page, allow_transition=True):
 # zoom mode animation
 def ZoomAnimation(targetx, targety, func, duration_override=None):
     global ZoomX0, ZoomY0, ZoomArea
-    t0 = pygame.time.get_ticks()
+    t0 = Platform.GetTicks()
     if duration_override is None:
         duration = ZoomDuration
     else:
         duration = duration_override
     while duration > 0:
-        if pygame.event.get([KEYDOWN,MOUSEBUTTONUP]): break
-        t = (pygame.time.get_ticks() - t0) * 1.0 / duration
+        if Platform.CheckAnimationCancelEvent(): break
+        t = (Platform.GetTicks() - t0) * 1.0 / duration
         if t >= 1.0: break
         t = func(t)
         t = (2.0 - t) * t
@@ -311,40 +322,21 @@ def ZoomAnimation(targetx, targety, func, duration_override=None):
 
 # enter zoom mode
 def EnterZoomMode(targetx, targety):
-    global ZoomMode, IsZoomed, ZoomWarningIssued
+    global ZoomMode, IsZoomed, HighResZoomFailed
     ZoomAnimation(targetx, targety, lambda t: t)
     ZoomMode = True
-    if TextureTarget != GL_TEXTURE_2D:
-        if not ZoomWarningIssued:
-            print >>sys.stderr, "Sorry, but I can't increase the detail level in zoom mode any further when"
-            print >>sys.stderr, "GL_ARB_texture_rectangle is used. Please try running Impressive with the"
-            print >>sys.stderr, "'-e' parameter. If a modern nVidia or ATI graphics card is used, a driver"
-            print >>sys.stderr, "update may also fix the problem."
-            ZoomWarningIssued = True
+    if IsZoomed or HighResZoomFailed:
         return
-    if not(HaveNPOT) and (npot(ZoomFactor) != ZoomFactor):
-        if not ZoomWarningIssued:
-            print >>sys.stderr, "Sorry, but I can't increase the detail level in zoom mode any further when"
-            print >>sys.stderr, "conventional power-of-two textures are used and the zoom factor is not a"
-            print >>sys.stderr, "power of two. Please use another zoom factor or a current graphics card"
-            print >>sys.stderr, "with current drivers."
-            ZoomWarningIssued = True
-        return        
-    if IsZoomed:
-        return
-    glBindTexture(TextureTarget, Tcurrent)
-    try:
-        glTexImage2D(TextureTarget, 0, 3, ZoomFactor * TexWidth, ZoomFactor * TexHeight, 0, \
-                     GL_RGB, GL_UNSIGNED_BYTE, PageImage(Pcurrent, True))
-    except GLerror:
-        if not ZoomWarningIssued:
-            print >>sys.stderr, "Sorry, but I can't increase the detail level in zoom mode any further, because"
-            print >>sys.stderr, "your OpenGL implementation does not support that. Either the texture memory is"
-            print >>sys.stderr, "exhausted, or there is no support for large textures (%dx%d). If you really" \
-                  % (ZoomFactor * TexWidth, ZoomFactor * TexHeight)
-            print >>sys.stderr, "need high-res zooming, please try to run Impressive in a smaller resolution"
-            print >>sys.stderr, "or use a lower zoom factor."
-            ZoomWarningIssued = True
+    gl.BindTexture(gl.TEXTURE_2D, Tcurrent)
+    while gl.GetError():
+        pass  # clear all OpenGL errors
+    gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGB, ZoomFactor * TexWidth, ZoomFactor * TexHeight, 0, gl.RGB, gl.UNSIGNED_BYTE, PageImage(Pcurrent, True))
+    if gl.GetError():
+        print >>sys.stderr, "I'm sorry, but your graphics card is not capable of rendering presentations"
+        print >>sys.stderr, "in this resolution. Either the texture memory is exhausted, or there is no"
+        print >>sys.stderr, "support for large textures (%dx%d). Please try to run Impressive in a" % (TexWidth, TexHeight)
+        print >>sys.stderr, "smaller resolution using the -g command-line option."
+        HighResZoomFailed = True
         return
     DrawCurrentPage()
     IsZoomed = True
@@ -384,13 +376,13 @@ def PrepareTransitions():
                 continue
             trans = PageProps[page][key]
             if trans is not None:
-                PageProps[page][key] = trans()
+                PageProps[page][key] = InstantiateTransition(trans)
 
 # update timer values and screen timer
 def TimerTick():
     global CurrentTime, ProgressBarPos
     redraw = False
-    newtime = (pygame.time.get_ticks() - StartTime) * 0.001
+    newtime = (Platform.GetTicks() - StartTime) * 0.001
     if EstimatedDuration:
         newpos = int(ScreenWidth * newtime / EstimatedDuration)
         if newpos != ProgressBarPos:
@@ -404,41 +396,43 @@ def TimerTick():
     CurrentTime = newtime
     return redraw
 
+# enables time tracking mode (if not already done so)
+def EnableTimeTracking(force=False):
+    global TimeTracking
+    if force or (TimeDisplay and not(TimeTracking) and not(ShowClock) and FirstPage):
+        print >>sys.stderr, "Time tracking mode enabled."
+        TimeTracking = True
+        print "page duration    enter    leave"
+        print "---- -------- -------- --------"
+
 # set cursor visibility
 def SetCursor(visible):
     global CursorVisible
     CursorVisible = visible
     if not CursorImage:
-        pygame.mouse.set_visible(visible)
+        Platform.SetMouseVisible(visible)
 
-# shortcut handling
-def IsValidShortcutKey(key):
-    return ((key >= K_a)  and (key <= K_z)) \
-        or ((key >= K_0)  and (key <= K_9)) \
-        or ((key >= K_F1) and (key <= K_F12))
-def FindShortcut(shortcut):
-    for page, props in PageProps.iteritems():
-        try:
-            check = props['shortcut']
-            if type(check) != types.StringType:
-                check = int(check)
-            elif (len(check) > 1) and (check[0] in "Ff"):
-                check = K_F1 - 1 + int(check[1:])
-            else:
-                check = ord(check.lower())
-        except (KeyError, TypeError, ValueError):
-            continue
-        if check == shortcut:
+# handle a shortcut key event: store it (if shifted) or return the
+# page number to navigate to (if not)
+def HandleShortcutKey(key, current=0):
+    if not(key) or (key[0] != '*'):
+        return None
+    shift = key.startswith('*shift+')
+    if shift:
+        key = key[7:]
+    else:
+        key = key[1:]
+    if (len(key) == 1) or ((key >= "f1") and (key <= "f9")):
+        # Note: F10..F12 are implicitly included due to lexicographic sorting
+        page = None
+        for check_page, props in PageProps.iteritems():
+            if props.get('shortcut') == key:
+                page = check_page
+                break
+        if shift:
+            if page:
+                DelPageProp(page, 'shortcut')
+            SetPageProp(current, 'shortcut', key)
+        elif page and (page != current):
             return page
     return None
-def AssignShortcut(page, key):
-    old_page = FindShortcut(key)
-    if old_page:
-        del PageProps[old_page]['shortcut']
-    if key < 127:
-        shortcut = chr(key)
-    elif (key >= K_F1) and (key <= K_F15):
-        shortcut = "F%d" % (key - K_F1 + 1)
-    else:
-        shortcut = int(key)
-    SetPageProp(page, 'shortcut', shortcut)

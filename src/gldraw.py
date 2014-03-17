@@ -2,7 +2,9 @@
 
 # draw OSD overlays
 def DrawOverlays(trans_time=0.0):
-    reltime = pygame.time.get_ticks() - StartTime
+    reltime = Platform.GetTicks() - StartTime
+    gl.Enable(gl.BLEND)
+
     if (EstimatedDuration or PageProgress or (PageTimeout and AutoAdvanceProgress)) \
     and (OverviewMode or GetPageProp(Pcurrent, 'progress', True)):
         r, g, b = ProgressBarColorPage
@@ -34,19 +36,14 @@ def DrawOverlays(trans_time=0.0):
             rel = 0.5 + 0.5 * rel
         else:
             zero = 0.0
-        glDisable(TextureTarget)
-        glDisable(GL_TEXTURE_2D)
-        glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        glBegin(GL_QUADS)
-        glColor4ub(r, g, b, 0)
-        glVertex2d(zero, 1.0 - ProgressBarSizeFactor)
-        glVertex2d(rel, 1.0 - ProgressBarSizeFactor)
-        glColor4ub(r, g, b, a)
-        glVertex2d(rel, 1.0)
-        glVertex2d(zero, 1.0)
-        glEnd()
-        glDisable(GL_BLEND)
+        ProgressBarShader.get_instance().draw(
+            zero, 1.0 - ProgressBarSizeFactor,
+            rel,  1.0,
+            color0=(r, g, b, 0.0),
+            color1=(r, g, b, a)
+        )
+
+    OSDFont.BeginDraw()
     if WantStatus:
         DrawOSDEx(OSDStatusPos, CurrentOSDStatus)
     if TimeDisplay:
@@ -59,156 +56,169 @@ def DrawOverlays(trans_time=0.0):
         DrawOSD(ScreenWidth/2, \
                 ScreenHeight - 3*OSDMargin - FontSize, \
                 CurrentOSDComment, Center, Up)
+    OSDFont.EndDraw()
+
     if CursorImage and CursorVisible:
-        x, y = pygame.mouse.get_pos()
+        x, y = Platform.GetMousePos()
         x -= CursorHotspot[0]
         y -= CursorHotspot[1]
         X0 = x * PixelX
         Y0 = y * PixelY
         X1 = X0 + CursorSX
         Y1 = Y0 + CursorSY
-        glDisable(TextureTarget)
-        glEnable(GL_TEXTURE_2D)
-        glBindTexture(GL_TEXTURE_2D, CursorTexture)
-        glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        glColor4ub(255, 255, 255, 255)
-        glBegin(GL_QUADS)
-        glTexCoord2d(0.0,      0.0);       glVertex2d(X0, Y0)
-        glTexCoord2d(CursorTX, 0.0);       glVertex2d(X1, Y0)
-        glTexCoord2d(CursorTX, CursorTY);  glVertex2d(X1, Y1)
-        glTexCoord2d(0.0,      CursorTY);  glVertex2d(X0, Y1)
-        glEnd()
-        glDisable(GL_BLEND)
-        glDisable(GL_TEXTURE_2D)
+        TexturedRectShader.get_instance().draw(
+            X0, Y0, X1, Y1,
+            s1=CursorTX, t1=CursorTY,
+            tex=CursorTexture
+        )
+
+    gl.Disable(gl.BLEND)
+
 
 # draw the complete image of the current page
 def DrawCurrentPage(dark=1.0, do_flip=True):
+    global ScreenTransform
     if VideoPlaying: return
     boxes = GetPageProp(Pcurrent, 'boxes')
-    glClear(GL_COLOR_BUFFER_BIT)
+    gl.Clear(gl.COLOR_BUFFER_BIT)
 
     # pre-transform for zoom
-    glLoadIdentity()
-    glOrtho(ZoomX0, ZoomX0 + ZoomArea,  ZoomY0 + ZoomArea, ZoomY0,  -10.0, 10.0)
+    if ZoomArea != 1.0:
+        ScreenTransform = (
+            -2.0 * ZoomX0 / ZoomArea - 1.0,
+            +2.0 * ZoomY0 / ZoomArea + 1.0,
+            +2.0 / ZoomArea,
+            -2.0 / ZoomArea
+        )
 
     # background layer -- the page's image, darkened if it has boxes
-    glDisable(GL_BLEND)
-    glEnable(TextureTarget)
-    glBindTexture(TextureTarget, Tcurrent)
-    if boxes or Tracing:
-        light = 1.0 - BoxFadeDarkness * dark
+    is_dark = (boxes or Tracing) and (dark > 0.001)
+    if not is_dark:
+        # standard mode
+        TexturedRectShader.get_instance().draw(
+            0.0, 0.0, 1.0, 1.0,
+            s1=TexMaxS, t1=TexMaxT,
+            tex=Tcurrent
+        )
+    elif UseBlurShader:
+        # blurred background (using shader)
+        blur_scale = BoxFadeBlur * ZoomArea * dark
+        BlurShader.get_instance().draw(
+            PixelX * blur_scale,
+            PixelY * blur_scale,
+            1.0 - BoxFadeDarkness * dark,
+            tex=Tcurrent
+        )
+        gl.Enable(gl.BLEND)
+        # note: BLEND stays enabled during the rest of this function;
+        # it will be disabled at the end of DrawOverlays()
     else:
-        light = 1.0
-    glColor3d(light, light, light)
-    DrawFullQuad()
+        # blurred background (using oldschool multi-pass blend fallback)
+        intensity = 1.0 - BoxFadeDarkness * dark
+        for dx, dy, alpha in (
+            (0.0,  0.0, 1.0),
+            (-ZoomArea, 0.0, dark / 2),
+            (+ZoomArea, 0.0, dark / 3),
+            (0.0, -ZoomArea, dark / 4),
+            (0.0, +ZoomArea, dark / 5),
+        ):
+            TexturedRectShader.get_instance().draw(
+                0.0, 0.0, 1.0, 1.0,
+                TexMaxS *  PixelX * dx,
+                TexMaxT *  PixelY * dy,
+                TexMaxS * (PixelX * dx + 1.0),
+                TexMaxT * (PixelY * dy + 1.0),
+                tex=Tcurrent,
+                color=(intensity, intensity, intensity, alpha)
+            )
+            gl.Enable(gl.BLEND)
+        
 
-    if boxes or Tracing:
-        # alpha-blend the same image some times to blur it
-        EnableAlphaBlend()
-        DrawTranslatedFullQuad(+PixelX * ZoomArea, 0.0, light, dark / 2)
-        DrawTranslatedFullQuad(-PixelX * ZoomArea, 0.0, light, dark / 3)
-        DrawTranslatedFullQuad(0.0, +PixelY * ZoomArea, light, dark / 4)
-        DrawTranslatedFullQuad(0.0, -PixelY * ZoomArea, light, dark / 5)
-
-    if boxes:
-        # draw outer box fade
-        EnableAlphaBlend()
+    if boxes and is_dark:
+        TexturedMeshShader.get_instance().setup(
+            0.0, 0.0, 1.0, 1.0,
+            s1=TexMaxS, t1=TexMaxT
+            # tex is already set
+        )
         for X0, Y0, X1, Y1 in boxes:
-            glBegin(GL_QUAD_STRIP)
-            DrawPointEx(X0, Y0, 1);  DrawPointEx(X0 - EdgeX, Y0 - EdgeY, 0)
-            DrawPointEx(X1, Y0, 1);  DrawPointEx(X1 + EdgeX, Y0 - EdgeY, 0)
-            DrawPointEx(X1, Y1, 1);  DrawPointEx(X1 + EdgeX, Y1 + EdgeY, 0)
-            DrawPointEx(X0, Y1, 1);  DrawPointEx(X0 - EdgeX, Y1 + EdgeY, 0)
-            DrawPointEx(X0, Y0, 1);  DrawPointEx(X0 - EdgeX, Y0 - EdgeY, 0)
-            glEnd()
+            vertices = (c_float * 27)(
+                X0, Y0, 1.0,  # note: this produces two degenerate triangles
+                X0,         Y0,         1.0,
+                X0 - EdgeX, Y0 - EdgeY, 0.0,
+                X1,         Y0,         1.0,
+                X1 + EdgeX, Y0 - EdgeY, 0.0,
+                X1,         Y1,         1.0,
+                X1 + EdgeX, Y1 + EdgeY, 0.0,
+                X0,         Y1,         1.0,
+                X0 - EdgeX, Y1 + EdgeY, 0.0,
+            )
+            gl.BindBuffer(gl.ARRAY_BUFFER, 0)
+            gl.VertexAttribPointer(0, 3, gl.FLOAT, False, 0, vertices)
+            BoxIndexBuffer.draw()
 
-        # draw boxes
-        glDisable(GL_BLEND)
-        glBegin(GL_QUADS)
-        for X0, Y0, X1, Y1 in boxes:
-            DrawPoint(X0, Y0)
-            DrawPoint(X1, Y0)
-            DrawPoint(X1, Y1)
-            DrawPoint(X0, Y1)
-        glEnd()
-
-    if Tracing:
-        x, y = MouseToScreen(pygame.mouse.get_pos())
-        # outer spot fade
-        EnableAlphaBlend()
-        glBegin(GL_TRIANGLE_STRIP)
-        for x0, y0, x1, y1 in SpotMesh:
-            DrawPointEx(x + x0, y + y0, 1)
-            DrawPointEx(x + x1, y + y1, 0)
-        glEnd()
-        # inner spot
-        glDisable(GL_BLEND)
-        glBegin(GL_TRIANGLE_FAN)
-        DrawPoint(x, y)
-        for x0, y0, x1, y1 in SpotMesh:
-            DrawPoint(x + x0, y + y0)
-        glEnd()
+    if Tracing and is_dark:
+        x, y = MouseToScreen(Platform.GetMousePos())
+        TexturedMeshShader.get_instance().setup(
+            x, y, x + 1.0, y + 1.0,
+            x * TexMaxS, y * TexMaxT,
+            (x + 1.0) * TexMaxS, (y + 1.0) * TexMaxT
+            # tex is already set
+        )
+        gl.BindBuffer(gl.ARRAY_BUFFER, SpotVertices)
+        gl.VertexAttribPointer(0, 3, gl.FLOAT, False, 0, 0)
+        SpotIndices.draw()
 
     if Marking:
-        # soft alpha-blended rectangle
-        glDisable(TextureTarget)
-        glColor4d(*MarkColor)
-        EnableAlphaBlend()
-        glBegin(GL_QUADS)
-        glVertex2d(MarkUL[0], MarkUL[1])
-        glVertex2d(MarkLR[0], MarkUL[1])
-        glVertex2d(MarkLR[0], MarkLR[1])
-        glVertex2d(MarkUL[0], MarkLR[1])
-        glEnd()
-        # bright red frame
-        glDisable(GL_BLEND)
-        glBegin(GL_LINE_STRIP)
-        glVertex2d(MarkUL[0], MarkUL[1])
-        glVertex2d(MarkLR[0], MarkUL[1])
-        glVertex2d(MarkLR[0], MarkLR[1])
-        glVertex2d(MarkUL[0], MarkLR[1])
-        glVertex2d(MarkUL[0], MarkUL[1])
-        glEnd()
-        glEnable(TextureTarget)
+        x0 = min(MarkUL[0], MarkLR[0])
+        y0 = min(MarkUL[1], MarkLR[1])
+        x1 = max(MarkUL[0], MarkLR[0])
+        y1 = max(MarkUL[1], MarkLR[1])
+        # red frame (misusing the progress bar shader as a single-color shader)
+        color = (MarkColor[0], MarkColor[1], MarkColor[2], 1.0)
+        ProgressBarShader.get_instance().draw(
+            x0 - PixelX * ZoomArea, y0 - PixelY * ZoomArea,
+            x1 + PixelX * ZoomArea, y1 + PixelY * ZoomArea,
+            color0=color, color1=color
+        )
+        # semi-transparent inner area
+        gl.Enable(gl.BLEND)
+        TexturedRectShader.get_instance().draw(
+            x0, y0, x1, y1,
+            x0 * TexMaxS, y0 * TexMaxT,
+            x1 * TexMaxS, y1 * TexMaxT,
+            tex=Tcurrent, color=(1.0, 1.0, 1.0, 1.0 - MarkColor[3])
+        )
 
     # unapply the zoom transform
-    glLoadIdentity()
-    glOrtho(0.0, 1.0,  1.0, 0.0,  -10.0, 10.0)
+    ScreenTransform = DefaultScreenTransform
 
     # Done.
     DrawOverlays()
     if do_flip:
-        pygame.display.flip()
+        Platform.SwapBuffers()
 
 # draw a black screen with the Impressive logo at the center
 def DrawLogo():
-    glClear(GL_COLOR_BUFFER_BIT)
-    glColor3ub(255, 255, 255)
+    gl.Clear(gl.COLOR_BUFFER_BIT)
     if not ShowLogo:
         return
     if HalfScreen:
         x0 = 0.25
     else:
         x0 = 0.5
-    if TextureTarget != GL_TEXTURE_2D:
-        glDisable(TextureTarget)
-    glEnable(GL_TEXTURE_2D)
-    glBindTexture(GL_TEXTURE_2D, LogoTexture)
-    glBegin(GL_QUADS)
-    glTexCoord2d(0, 0);  glVertex2d(x0 - 128.0 / ScreenWidth, 0.5 - 32.0 / ScreenHeight)
-    glTexCoord2d(1, 0);  glVertex2d(x0 + 128.0 / ScreenWidth, 0.5 - 32.0 / ScreenHeight)
-    glTexCoord2d(1, 1);  glVertex2d(x0 + 128.0 / ScreenWidth, 0.5 + 32.0 / ScreenHeight)
-    glTexCoord2d(0, 1);  glVertex2d(x0 - 128.0 / ScreenWidth, 0.5 + 32.0 / ScreenHeight)
-    glEnd()
+    TexturedRectShader.get_instance().draw(
+        x0 - 128.0 / ScreenWidth,  0.5 - 32.0 / ScreenHeight,
+        x0 + 128.0 / ScreenWidth,  0.5 + 32.0 / ScreenHeight,
+        tex=LogoTexture
+    )
     if OSDFont:
+        gl.Enable(gl.BLEND)
         OSDFont.Draw((int(ScreenWidth * x0), ScreenHeight / 2 + 48), \
-                     __version__.split()[0], align=Center, alpha=0.25)
-    glDisable(GL_TEXTURE_2D)
+                     __version__.split()[0], align=Center, alpha=0.25, beveled=False)
+        gl.Disable(gl.BLEND)
 
 # draw the prerender progress bar
 def DrawProgress(position):
-    glDisable(TextureTarget)
     x0 = 0.1
     x2 = 1.0 - x0
     x1 = position * x2 + (1.0 - position) * x0
@@ -218,59 +228,65 @@ def DrawProgress(position):
         x0 *= 0.5
         x1 *= 0.5
         x2 *= 0.5
-    glBegin(GL_QUADS)
-    glColor3ub( 64,  64,  64);  glVertex2d(x0, y0);  glVertex2d(x2, y0)
-    glColor3ub(128, 128, 128);  glVertex2d(x2, y1);  glVertex2d(x0, y1)
-    glColor3ub( 64, 128, 255);  glVertex2d(x0, y0);  glVertex2d(x1, y0)
-    glColor3ub(  8,  32, 128);  glVertex2d(x1, y1);  glVertex2d(x0, y1)
-    glEnd()
-    glEnable(TextureTarget)
+    ProgressBarShader.get_instance().draw(
+        x0, y0, x2, y1,
+        color0=(0.25, 0.25, 0.25, 1.0),
+        color1=(0.50, 0.50, 0.50, 1.0)
+    )
+    ProgressBarShader.get_instance().draw(
+        x0, y0, x1, y1,
+        color0=(0.25, 0.50, 1.00, 1.0),
+        color1=(0.03, 0.12, 0.50, 1.0)
+    )
 
 # fade mode
 def DrawFadeMode(intensity, alpha):
     if VideoPlaying: return
     DrawCurrentPage(do_flip=False)
-    glDisable(TextureTarget)
-    EnableAlphaBlend()
-    glColor4d(intensity, intensity, intensity, alpha)
-    DrawFullQuad()
-    glEnable(TextureTarget)
-    pygame.display.flip()
+    gl.Enable(gl.BLEND)
+    color = (intensity, intensity, intensity, alpha)
+    ProgressBarShader.get_instance().draw(
+        0.0, 0.0, 1.0, 1.0,
+        color0=color, color1=color
+    )
+    gl.Disable(gl.BLEND)
+    Platform.SwapBuffers()
 
 def EnterFadeMode(intensity=0.0):
-    t0 = pygame.time.get_ticks()
+    t0 = Platform.GetTicks()
     while True:
-        if pygame.event.get([KEYDOWN,MOUSEBUTTONUP]): break
-        t = (pygame.time.get_ticks() - t0) * 1.0 / BlankFadeDuration
+        if Platform.CheckAnimationCancelEvent(): break
+        t = (Platform.GetTicks() - t0) * 1.0 / BlankFadeDuration
         if t >= 1.0: break
         DrawFadeMode(intensity, t)
     DrawFadeMode(intensity, 1.0)
 
 def LeaveFadeMode(intensity=0.0):
-    t0 = pygame.time.get_ticks()
+    t0 = Platform.GetTicks()
     while True:
-        if pygame.event.get([KEYDOWN,MOUSEBUTTONUP]): break
-        t = (pygame.time.get_ticks() - t0) * 1.0 / BlankFadeDuration
+        if Platform.CheckAnimationCancelEvent(): break
+        t = (Platform.GetTicks() - t0) * 1.0 / BlankFadeDuration
         if t >= 1.0: break
         DrawFadeMode(intensity, 1.0 - t)
     DrawCurrentPage()
 
 def FadeMode(intensity):
     EnterFadeMode(intensity)
-    while True:
-        event = pygame.event.wait()
-        if event.type == QUIT:
+    def fade_action_handler(action):
+        if action == "$quit":
             PageLeft()
             Quit()
-        elif event.type == VIDEOEXPOSE:
+        elif action == "$expose":
             DrawFadeMode(intensity, 1.0)
-        elif event.type == MOUSEBUTTONUP:
+        elif action == "*quit":
+            Platform.PostQuitEvent()
+        else:
+            return False
+        return True
+    while True:
+        ev = Platform.GetEvent()
+        if ev and not(ProcessEvent(ev, fade_action_handler)) and ev.startswith('*'):
             break
-        elif event.type == KEYDOWN:
-            if event.unicode == u'q':
-                pygame.event.post(pygame.event.Event(QUIT))
-            else:
-                break
     LeaveFadeMode(intensity)
 
 # gamma control
@@ -286,14 +302,14 @@ def SetGamma(new_gamma=None, new_black=None, force=False):
         return
     Gamma = new_gamma
     BlackLevel = new_black
-    scale = 1.0 / (255 - BlackLevel)
-    power = 1.0 / Gamma
-    ramp = [int(65535.0 * ((max(0, x - BlackLevel) * scale) ** power)) for x in range(256)]
-    return pygame.display.set_gamma_ramp(ramp, ramp, ramp)
+    return Platform.SetGammaRamp(new_gamma, new_black)
 
 # cursor image
 def PrepareCustomCursor(cimg):
-    global CursorTexture, CursorSX, CursorSY, CursorTX, CursorTY
+    global CursorTexture, CursorHotspot, CursorSX, CursorSY, CursorTX, CursorTY
+    if not cimg:
+        CursorHotspot = (1,0)
+        cimg = Image.open(cStringIO.StringIO(DEFAULT_CURSOR.decode('base64')))
     w, h = cimg.size
     tw, th = map(npot, cimg.size)
     if (tw > 256) or (th > 256):
@@ -301,10 +317,8 @@ def PrepareCustomCursor(cimg):
         return False
     img = Image.new('RGBA', (tw, th))
     img.paste(cimg, (0, 0))
-    CursorTexture = glGenTextures(1)
-    glBindTexture(GL_TEXTURE_2D, CursorTexture)
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tw, th, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.tostring())
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+    CursorTexture = gl.make_texture(gl.TEXTURE_2D, gl.CLAMP_TO_EDGE, gl.NEAREST)
+    gl.load_texture(gl.TEXTURE_2D, img)
     CursorSX = w * PixelX
     CursorSY = h * PixelY
     CursorTX = w / float(tw)

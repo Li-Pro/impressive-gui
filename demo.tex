@@ -8,7 +8,7 @@
 \title{Introducing Impressive}
 \author{Martin J. Fiedler}
 %\institute{Dream Chip Technologies GmbH}
-\date{version 0.10.4}
+\date{version 0.11.0}
 \subject{Impressive}
 \titlegraphic{\href{http://impressive.sourceforge.net/}{http://impressive.sourceforge.net/}}
 
@@ -31,7 +31,7 @@
     \begin{itemize}
         \item ... with some eye candy ;)
         \item uses OpenGL for display
-        \item uses Xpdf to render PDF files
+        \item uses MuPDF or Xpdf to render PDF files
         \item written in Python
         \item available for Unix-like and Windows operating systems
         \item Open Source (GPLv2)
@@ -46,7 +46,7 @@
         \item PyGame (SDL bindings for Python)
         \item PyOpenGL
         \item Python Imaging Library (PIL)
-        \item Xpdf-utils or Poppler-utils
+        \item MuPDF or Poppler-utils
         \item pdftk
     \end{itemize}
     Packages for these dependencies should be available for almost every
@@ -58,17 +58,16 @@
 \subsection{Hardware Requirements}
 \begin{frame}{Hardware Requirements}
     \begin{itemize}
-        \item hardware accelerated OpenGL
+        \item hardware accelerated OpenGL~2.0 or OpenGL~ES~2.0
             \begin{itemize}
-                \item every post-2000 graphics chip should do
-                \item on very fast systems, even a JIT-accelerated software
-                      renderer (e.g. Gallium LLVMpipe) might be sufficient
+                \item any GPU from 2005 or later should do
+                \item integrated graphics or mobile GPUs are fine
+                \item on fast CPUs, even a JIT-accelerated software
+                      renderer (e.g. Gallium LLVMpipe) is sufficient
             \end{itemize}
-        \item a fast CPU
+        \item CPU performance generally not very important
             \begin{itemize}
-                \item some transitions are quite CPU-intensive
-                \item rule of thumb: the faster the better!
-                \item absolute minimum is at about 700 MHz
+                \item runs OK on Raspberry Pi
             \end{itemize}
     \end{itemize}
 \end{frame}
@@ -164,9 +163,9 @@
 DocumentTitle = "Example Presentation"
 
 PageProps = {
-    1: { 'title': 'Title Page',
+    1: { 'title': 'Title Page' },
+    2: { 'title': 'Introduction',
          'transition': PagePeel },
-    2: { 'title': 'Introduction' },
     5: { 'timeout': 3500 },
     8: { 'overview': False }
 }
@@ -179,23 +178,24 @@ PageProps = {
         \item clickable PDF hyperlinks inside the document
         \item page cache in RAM or on disk, temporary (default) or persistent
         \item background rendering
-        \item fade to black or white
         \item time display and measurement
         \item automatic, timed presentations
         \item automatic reloading of the input file(s) on change
         \item playing sounds or videos or executing arbitrary Python code
               when entering a page
+        \item fully customizable keyboard and mouse controls
     \end{itemize}
 \end{frame}
 \begin{frame}{Rarely Used Features}
     \begin{itemize}
+        \item fade to black or white
         \item rotation in 90-degree steps
         \item page bookmarks (keyboard shortcuts)
         \item only show a subset of the presentation
         \item hide specific pages from the overview page
         \item customization of almost every timing or OSD parameter
         \item permanent storage of the highlight boxes
-        \item {\glqq}Render Mode{\grqq}: doesn't show the presentation, but
+        \item ``Render Mode'': doesn't show the presentation, but
               renders the input PDF file into a directory with one PNG file
               per page
     \end{itemize}
@@ -208,6 +208,7 @@ PageProps = {
     \begin{itemize}
         \item painting and annotations
         \item multi-monitor support
+        \item ``Presenter Screen'' with notes etc.
         \item support for embedded videos
         \item integration into (or cooperation with) latex-beamer
               and OpenOffice.org Impress

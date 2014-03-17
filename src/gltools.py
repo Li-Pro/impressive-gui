@@ -1,69 +1,61 @@
 ##### RENDERING TOOL CODE ######################################################
 
-# draw a fullscreen quad
-def DrawFullQuad():
-    glBegin(GL_QUADS)
-    glTexCoord2d(    0.0,     0.0);  glVertex2i(0, 0)
-    glTexCoord2d(TexMaxS,     0.0);  glVertex2i(1, 0)
-    glTexCoord2d(TexMaxS, TexMaxT);  glVertex2i(1, 1)
-    glTexCoord2d(    0.0, TexMaxT);  glVertex2i(0, 1)
-    glEnd()
+# meshes for highlight boxes and the spotlight are laid out in the same manner:
+# - vertex 0 is the center vertex
+# - for each slice, there are two further vertices:
+#   - vertex 2*i+1 is the "inner" vertex with full alpha
+#   - vertex 2*i+2 is the "outer" vertex with zero alpha
 
-# draw a generic 2D quad
-def DrawQuad(x0=0.0, y0=0.0, x1=1.0, y1=1.0):
-    glBegin(GL_QUADS)
-    glTexCoord2d(    0.0,     0.0);  glVertex2d(x0, y0)
-    glTexCoord2d(TexMaxS,     0.0);  glVertex2d(x1, y0)
-    glTexCoord2d(TexMaxS, TexMaxT);  glVertex2d(x1, y1)
-    glTexCoord2d(    0.0, TexMaxT);  glVertex2d(x0, y1)
-    glEnd()
+class HighlightIndexBuffer(object):
+    def __init__(self, npoints, reuse_buf=None, dynamic=False):
+        if not reuse_buf:
+            self.buf = gl.GenBuffers()
+        elif isinstance(reuse_buf, HighlightIndexBuffer):
+            self.buf = reuse_buf.buf
+        else:
+            self.buf = reuse_buf
+        data = []
+        for i in xrange(npoints):
+            if i:
+                b0 = 2 * i - 1
+            else:
+                b0 = 2 * npoints - 1
+            b1 = 2 * i + 1
+            data.extend([
+                0, b1, b0,
+                b1, b1+1, b0,
+                b1+1, b0+1, b0
+            ])
+        self.vertices = 9 * npoints
+        if dynamic:
+            usage = gl.DYNAMIC_DRAW
+        else:
+            usage = gl.STATIC_DRAW
+        gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, self.buf)
+        gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, data=data, type=gl.UNSIGNED_SHORT, usage=usage)
 
-# helper function: draw a translated fullscreen quad
-def DrawTranslatedFullQuad(dx, dy, i, a):
-    glColor4d(i, i, i, a)
-    glPushMatrix()
-    glTranslated(dx, dy, 0.0)
-    DrawFullQuad()
-    glPopMatrix()
+    def draw(self):
+        gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, self.buf)
+        gl.DrawElements(gl.TRIANGLES, self.vertices, gl.UNSIGNED_SHORT, 0)
 
-# draw a vertex in normalized screen coordinates,
-# setting texture coordinates appropriately
-def DrawPoint(x, y):
-    glTexCoord2d(x *TexMaxS, y * TexMaxT)
-    glVertex2d(x, y)
-def DrawPointEx(x, y, a):
-    glColor4d(1.0, 1.0, 1.0, a)
-    glTexCoord2d(x * TexMaxS, y * TexMaxT)
-    glVertex2d(x, y)
-
-# a mesh transformation function: it gets the relative transition time (in the
-# [0.0,0.1) interval) and the normalized 2D screen coordinates, and returns a
-# 7-tuple containing the desired 3D screen coordinates, 2D texture coordinates,
-# and intensity/alpha color values.
-def meshtrans_null(t, u, v):
-    return (u, v, 0.0, u, v, 1.0, t)
-         # (x, y, z,   s, t, i,   a)
-
-# draw a quad, applying a mesh transformation function
-def DrawMeshQuad(time=0.0, f=meshtrans_null):
-    line0 = [f(time, u * MeshStepX, 0.0) for u in xrange(MeshResX + 1)]
-    for v in xrange(1, MeshResY + 1):
-        line1 = [f(time, u * MeshStepX, v * MeshStepY) for u in xrange(MeshResX + 1)]
-        glBegin(GL_QUAD_STRIP)
-        for col in zip(line0, line1):
-            for x, y, z, s, t, i, a in col:
-                glColor4d(i, i, i, a)
-                glTexCoord2d(s * TexMaxS, t * TexMaxT)
-                glVertex3d(x, y, z)
-        glEnd()
-        line0 = line1
 
 def GenerateSpotMesh():
-    global SpotMesh
+    global SpotVertices, SpotIndices
     rx0 = SpotRadius * PixelX
     ry0 = SpotRadius * PixelY
     rx1 = (SpotRadius + BoxEdgeSize) * PixelX
     ry1 = (SpotRadius + BoxEdgeSize) * PixelY
-    steps = max(MinSpotDetail, int(2.0 * pi * SpotRadius / SpotDetail / ZoomArea))
-    SpotMesh=[(rx0 * sin(a), ry0 * cos(a), rx1 * sin(a), ry1 * cos(a)) for a in \
-             [i * 2.0 * pi / steps for i in range(steps + 1)]]
+    slices = max(MinSpotDetail, int(2.0 * pi * SpotRadius / SpotDetail / ZoomArea))
+    SpotIndices = HighlightIndexBuffer(slices, reuse_buf=SpotIndices, dynamic=True)
+
+    vertices = [0.0, 0.0, 1.0]
+    for i in xrange(slices):
+        a = i * 2.0 * pi / slices
+        vertices.extend([
+            rx0 * sin(a), ry0 * cos(a), 1.0,
+            rx1 * sin(a), ry1 * cos(a), 0.0
+        ])
+    if not SpotVertices:
+        SpotVertices = gl.GenBuffers()
+    gl.BindBuffer(gl.ARRAY_BUFFER, SpotVertices)
+    gl.BufferData(gl.ARRAY_BUFFER, data=vertices, usage=gl.DYNAMIC_DRAW)

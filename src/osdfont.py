@@ -79,14 +79,20 @@ class GLFont:
         self.alpha = Image.new('L', (width, height))
         self.extend = ImageFilter.MaxFilter()
         self.blur = ImageFilter.Kernel((3, 3), [1,2,1,2,4,2,1,2,1])
-        self.tex = glGenTextures(1)
-        glBindTexture(GL_TEXTURE_2D, self.tex)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+        self.tex = gl.make_texture(gl.TEXTURE_2D, filter=gl.NEAREST)
         self.AddString(range(32, 128))
+        self.vertices = None
+        self.index_buffer = None
+        self.index_buffer_capacity = 0
 
     def AddCharacter(self, c):
         w, h = self.font.getsize(c)
+        try:
+            ox, oy = self.font.getoffset(c)
+            w += ox
+            h += oy
+        except AttributeError:
+            pass
         self.line_height = max(self.line_height, h)
         size = (w + 2 * self.feather, h + 2 * self.feather)
         glyph = Image.new('L', size)
@@ -120,10 +126,7 @@ class GLFont:
                 raise
         if not update_count: return
         self.img.putalpha(self.alpha)
-        glBindTexture(GL_TEXTURE_2D, self.tex)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE_ALPHA, \
-                     self.width, self.height, 0, \
-                     GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, self.img.tostring())
+        gl.load_texture(gl.TEXTURE_2D, self.tex, self.img)
 
     def AllocateGlyphBox(self, w, h):
         if self.current_x + w > self.width:
@@ -178,43 +181,99 @@ class GLFont:
         if not align: return x
         return x - (self.GetTextWidthEx(u) / align)
 
-    def Draw(self, origin, text, charset=None, align=Left, color=(1.0, 1.0, 1.0), alpha=1.0, beveled=True):
-        lines = self.SplitText(text, charset)
-        x0, y0 = origin
-        x0 -= self.feather
-        y0 -= self.feather
-        glEnable(GL_TEXTURE_2D)
-        glEnable(GL_BLEND)
-        glBindTexture(GL_TEXTURE_2D, self.tex)
-        if beveled:
-            glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA)
-            glColor4d(0.0, 0.0, 0.0, alpha)
-            self.DrawLinesEx(x0, y0, lines, align)
-        glBlendFunc(GL_ONE, GL_ONE)
-        glColor3d(color[0] * alpha, color[1] * alpha, color[2] * alpha)
-        self.DrawLinesEx(x0, y0, lines, align)
-        glDisable(GL_BLEND)
-        glDisable(GL_TEXTURE_2D)
+    class FontShader(GLShader):
+        vs = """
+            attribute highp vec4 aPosAndTexCoord;
+            varying mediump vec2 vTexCoord;
+            void main() {
+                gl_Position = vec4(vec2(-1.0, 1.0) + aPosAndTexCoord.xy * vec2(2.0, -2.0), 0.0, 1.0);
+                vTexCoord = aPosAndTexCoord.zw;
+            }
+        """
+        fs = """
+            uniform lowp sampler2D uTex;
+            uniform lowp vec4 uColor;
+            varying mediump vec2 vTexCoord;
+            void main() {
+                gl_FragColor = uColor * texture2D(uTex, vTexCoord);
+            }
+        """
+        attributes = { 0: 'aPosAndTexCoord' }
+        uniforms = ['uColor']
 
-    def DrawLinesEx(self, x0, y, lines, align=Left):
-        global PixelX, PixelY
-        glBegin(GL_QUADS)
+    def BeginDraw(self):
+        self.vertices = []
+
+    def EndDraw(self, color=(1.0, 1.0, 1.0), alpha=1.0, beveled=True):
+        if not self.vertices:
+            self.vertices = None
+            return
+        char_count = len(self.vertices) / 16
+        if char_count > 16383:
+            print >>sys.stderr, "Internal Error: too many characters (%d) to display in one go, truncating." % char_count
+            char_count = 16383
+
+        # create an index buffer large enough for the text
+        if not(self.index_buffer) or (self.index_buffer_capacity < char_count):
+            self.index_buffer_capacity = (char_count + 63) & (~63)
+            data = []
+            for b in xrange(0, self.index_buffer_capacity * 4, 4):
+                data.extend([b+0, b+2, b+1, b+1, b+2, b+3])
+            if not self.index_buffer:
+                self.index_buffer = gl.GenBuffers()
+            gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, self.index_buffer)
+            gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, data=data, type=gl.UNSIGNED_SHORT, usage=gl.DYNAMIC_DRAW)
+        else:
+            gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, self.index_buffer)
+
+        # set the vertex buffer
+        vbuf = (c_float * len(self.vertices))(*self.vertices)
+        gl.BindBuffer(gl.ARRAY_BUFFER, 0)
+        gl.set_enabled_attribs(0)
+        gl.VertexAttribPointer(0, 4, gl.FLOAT, False, 0, vbuf)
+
+        # draw it
+        shader = self.FontShader.get_instance().use()
+        gl.BindTexture(gl.TEXTURE_2D, self.tex)
+        if beveled:
+            gl.BlendFunc(gl.ZERO, gl.ONE_MINUS_SRC_ALPHA)
+            gl.Uniform4f(shader.uColor, 0.0, 0.0, 0.0, alpha)
+            gl.DrawElements(gl.TRIANGLES, char_count * 6, gl.UNSIGNED_SHORT, 0)
+        gl.BlendFunc(gl.ONE, gl.ONE)
+        gl.Uniform4f(shader.uColor, color[0] * alpha, color[1] * alpha, color[2] * alpha, 1.0)
+        gl.DrawElements(gl.TRIANGLES, char_count * 6, gl.UNSIGNED_SHORT, 0)
+        gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+        self.vertices = None
+
+    def Draw(self, origin, text, charset=None, align=Left, color=(1.0, 1.0, 1.0), alpha=1.0, beveled=True, bold=False):
+        own_draw = (self.vertices is None)
+        if own_draw:
+            self.BeginDraw()
+        lines = self.SplitText(text, charset)
+        x0, y = origin
+        x0 -= self.feather
+        y -= self.feather
         for line in lines:
             sy = y * PixelY
             x = self.AlignTextEx(x0, line, align)
             for c in line:
                 if not c in self.widths: continue
-                self.boxes[c].render(x * PixelX, sy)
+                self.boxes[c].add_vertices(self.vertices, x * PixelX, sy)
                 x += self.widths[c]
             y += self.line_height
-        glEnd()
+        if bold and not(beveled):
+            self.Draw((origin[0] + 1, origin[1]), text, charset=charset, align=align, color=color, alpha=alpha, beveled=False, bold=False)
+        if own_draw:
+            self.EndDraw(color, alpha, beveled)
 
     class GlyphBox:
-        def render(self, sx=0.0, sy=0.0):
-            glTexCoord2d(self.x0, self.y0); glVertex2d(sx,          sy)
-            glTexCoord2d(self.x0, self.y1); glVertex2d(sx,          sy+self.dsy)
-            glTexCoord2d(self.x1, self.y1); glVertex2d(sx+self.dsx, sy+self.dsy)
-            glTexCoord2d(self.x1, self.y0); glVertex2d(sx+self.dsx, sy)
+        def add_vertices(self, vertex_list, sx=0.0, sy=0.0):
+            vertex_list.extend([
+                sx,            sy,            self.x0, self.y0,
+                sx + self.dsx, sy,            self.x1, self.y0,
+                sx,            sy + self.dsy, self.x0, self.y1,
+                sx + self.dsx, sy + self.dsy, self.x1, self.y1,
+            ])
 
 # high-level draw function
 def DrawOSD(x, y, text, halign=Auto, valign=Auto, alpha=1.0):
@@ -236,8 +295,6 @@ def DrawOSD(x, y, text, halign=Auto, valign=Auto, alpha=1.0):
             valign = Down
         if valign != Down:
             y -= OSDFont.GetLineHeight() / valign
-    if TextureTarget != GL_TEXTURE_2D:
-        glDisable(TextureTarget)
     OSDFont.Draw((x, y), text, align=halign, alpha=alpha)
 
 # very high-level draw function
@@ -251,3 +308,5 @@ def DrawOSDEx(position, text, alpha_factor=1.0):
         x = ScreenWidth / 2
         halign = Center
     DrawOSD(x, y, text, halign, alpha = OSDAlpha * alpha_factor)
+
+RequiredShaders.append(GLFont.FontShader)

@@ -12,12 +12,12 @@ code.pre { white-space:pre; }
 <!--VERSION-->
 <p style="text-indent:0;">
 <a href="http://impressive.sourceforge.net/">http://impressive.sourceforge.net/</a><br />
-<b>Version:</b> 0.10.4<br />
+<b>Version:</b> 0.11.0-WIP+gl2<br />
 <b>Author:</b> <a href="mailto:martin.fiedler@gmx.net">Martin J. Fiedler</a><br />
-<b>Last updated:</b> 2013-12-29</p>
+<b>Last updated:</b> 2014-03-08</p>
 <!--END-->
 <!--man
-.TH IMPRESSIVE 1 2013-12-29 "Martin J. Fiedler" "Impressive Documentation">
+.TH IMPRESSIVE 1 2014-03-08 "Martin J. Fiedler" "Impressive Documentation">
 .SH "NAME"
 Impressive \- presentation tool with eye candy
 .SH "SYNOPSIS"
@@ -33,6 +33,7 @@ Impressive \- presentation tool with eye candy
 <li><a href="#install">Installation</a></li>
 <li><a href="#cli">Command Line Parameters</a></li>
 <li><a href="#usage">Usage</a></li>
+<li><a href="#controls">Control Configuration</a></li>
 <li><a href="#scripts">Info Scripts</a></li>
 <li><a href="#misc">Other Useful Information</a></li>
 </ol>
@@ -43,6 +44,8 @@ Impressive \- presentation tool with eye candy
 <h2><a name="desc"></a>Description</h2>
 
 <p>Impressive is a simple presentation program that displays slideshows of image files (JPEG, PNG, TIFF and BMP) or PDF documents. Rendering is done via OpenGL, which allows for some &ldquo;eye candy&rdquo; effects.</p>
+
+<p>A somewhat-modern GPU (graphics processing unit) supporting OpenGL 2.0 or OpenGL ES 2.0 and appropriate drivers is required to run Impressive.</p>
 <!--man:off-->
 
 <!-------------------------------------------------------------------------------->
@@ -68,11 +71,11 @@ A more comfortable method is installing Impressive in the &raquo;Send To&laquo; 
 <ul>
 <li><strong>Python</strong> 2.5 to 2.7 &mdash; <a href="http://www.python.org/">www.python.org</a> <em>(required)</em> &ndash; Python 3.x will <em>not</em> work!</li>
 <li><strong>PyGame</strong> (the SDL binding for Python) &mdash; <a href="http://www.pygame.org/">www.pygame.org</a> <em>(required)</em></li>
-<li><strong>PyOpenGL</strong> (the OpenGL binding for Python) &mdash; <a href="http://pyopengl.sourceforge.net/">pyopengl.sourceforge.net</a> <em>(required)</em></li>
 <li><strong>PIL</strong>, the Python Imaging Library &mdash; <a href="http://www.pythonware.com/products/pil/">www.pythonware.com/products/pil</a> <em>(required)</em></li>
 <li><strong>pdftk</strong> 1.44 or 1.45 for retrieving PDF metadata (page titles, hyperlinks) &mdash; <a href="http://www.accesspdf.com/pdftk/">www.accesspdf.com/pdftk</a> <em>(required)</em></li>
-<li><strong>Xpdf</strong> or the <strong>Poppler utilties</strong> for PDF rendering &mdash; <a href="http://www.foolabs.com/xpdf/">www.foolabs.com/xpdf/</a> or <a href="http://poppler.freedesktop.org/">http://poppler.freedesktop.org/</a> <em>(required)</em></li>
-<li><strong>GhostScript</strong> for alternate PDF rendering &mdash; <a href="http://www.cs.wisc.edu/~ghost/">www.cs.wisc.edu/~ghost</a> <em>(required if neither Xpdf nor the Poppler utilities are available; optional otherwise)</em></li>
+<li>the <strong>MuPDF utilities</strong> for PDF rendering &mdash; <a href="http://www.mupdf.com/">www.mupdf.com</a> <em>(required)</em></li>
+<li><strong>Xpdf</strong> or the <strong>Poppler utilities</strong> for alternate PDF rendering &mdash; <a href="http://www.foolabs.com/xpdf/">www.foolabs.com/xpdf/</a> or <a href="http://poppler.freedesktop.org/">http://poppler.freedesktop.org/</a> <em>(required if MuPDF not available, optional otherwise)</em></li>
+<li><strong>GhostScript</strong> for alternate PDF rendering &mdash; <a href="http://www.cs.wisc.edu/~ghost/">www.cs.wisc.edu/~ghost</a> <em>(required if neither MuPDF nor Xpdf/Poppler utilities are available; optional otherwise)</em></li>
 <li><strong>xdg-utils</strong> for starting web or e-mail hyperlinks from PDF documents &mdash; <a href="http://portland.freedesktop.org/">portland.freedesktop.org</a> <em>(optional, not applicable on Win32)</em></li>
 <li><strong>PyWin32</strong>, the Python for Windows extensions &mdash; <a href="http://sourceforge.net/projects/pywin32/">pywin32.sourceforge.net</a> <em>(optional, applicable on Win32 only)</em></li>
 <li><strong>MPlayer</strong> for sound and video playback &mdash; <a href="http://www.mplayerhq.hu/">www.mplayerhq.hu</a> <em>(optional)</em></li>
@@ -80,10 +83,10 @@ A more comfortable method is installing Impressive in the &raquo;Send To&laquo; 
 
 <p>On Unix-like systems, these dependencies are typically available in the major distributions' package repositories and can be installed easily with the package managers, e.g.:</p>
 <ul>
-<li><strong>Debian</strong>/<strong>Ubuntu</strong>: <code>aptitude install python-pygame python-opengl python-imaging pdftk poppler-utils xdg-utils mplayer</code></li>
-<li><strong>Fedora</strong>: <code>yum -i pygame PyOpenGL python-pillow pdftk poppler-utils xdg-utils mplayer</code></li>
-<li><strong>Arch Linux</strong> with AUR: <code>pacman -S python2-pygame python2-opengl python2-pillow pdftk poppler xdg-utils mplayer</code></li>
-<li>Mac OS X with <strong>MacPorts</strong>: <code>port install py27-game py27-opengl py27-pil pdftk poppler xdg-utils mplayer</code></li>
+<li><strong>Debian</strong>/<strong>Ubuntu</strong>: <code>aptitude install python-pygame python-imaging pdftk mupdf-tools xdg-utils mplayer</code></li>
+<li><strong>Fedora</strong>: <code>yum -i pygame python-pillow pdftk mupdf xdg-utils mplayer</code></li>
+<li><strong>Arch Linux</strong> with AUR: <code>pacman -S python2-pygame python2-pillow pdftk mupdf xdg-utils mplayer</code></li>
+<li>Mac OS X with <strong>MacPorts</strong>: <code>port install py27-game py27-pil pdftk mupdf xdg-utils mplayer</code></li>
 </ul>
 
 <h3>Using the latest version from SVN</h3>
@@ -111,7 +114,7 @@ Regarding external dependencies, the section above applies as well; in addition,
 <dd>Specifies the display aspect ratio. Normally, Impressive assumes that the pixel aspect ratio is 1:1 (square pixels), regardless of the display resolution that has been set up. If a resolution has been selected that doesn't match the display's aspect ratio, the screen will be distorted. To overcome this, this option may be used to manually specify the display aspect ratio, e.g. &raquo;-A 16:9&laquo;. Note that this option has no effect if Xpdf is used for rendering.</dd>
 
 <dt><code>-b</code> or <code>--noback</code></dt>
-<dd>Disabled background rendering. By default, Impressive will pre-render all pages in a separate background thread while the presentation runs. If this option is specified, it will instead render all pages immediately on startup. This option has no effect if caching is disabled (<code>--cache none</code>, see below).</dd>
+<dd>Disables background rendering. By default, Impressive will pre-render all pages in a separate background thread while the presentation runs. If this option is specified, it will instead render all pages immediately on startup. This option has no effect if caching is disabled (<code>--cache none</code>, see below).</dd>
 
 <dt><code>-B <em>&lt;ms&gt;</em></code> or <code>--boxfade <em>&lt;ms&gt;</em></code></dt>
 <dd>Sets the duration (in milliseconds) of the highlight box fade-in/fade-out animation. Default value: 100 ms.</dd>
@@ -120,15 +123,20 @@ Regarding external dependencies, the section above applies as well; in addition,
 <dd>Specifies the page cache mode to use. Valid options are:<dl>
 <dt><code>none</code></dt><dd>Disables page caching altogether, only the current and the following page will be kept in RAM. Jumping between pages will be very slow, because Impressive will need to render the requested pages on the fly. In addition, the overview page won't be complete until every page has been shown at least once.</dd>
 <dt><code>memory</code></dt><dd>Caches all page images in memory. This is the fastest method, but it requires very large amounts of memory (about 3 MiB per page at 1024x768 resolution).</dd>
-<dt><code>disk</code></dt><dd>Like above, but uses a temporary file rather than memory for storage. This is the default.</dd>
+<dt><code>compressed</code> or <code>z</code></dt><dd>Caches all page images in memory as well, but in compressed form. This will be a little slower than <code>memory</code> mode, but on pages with uniform backgrounds, this will easily reduce the required amount of RAM by a factor of 20.</dd>
+<dt><code>disk</code></dt><dd>Like <code>memory</code>, but uses a temporary file rather than memory for storage. This is the default.</dd>
 <dt><code>persistent</code></dt><dd>Uses a permanent cache file for caching. This file will not be deleted when Impressive quits and will be reused on subsequent invocations. The default name for the cache file is derived like the names for Info Scripts (see below for an explanation), but with a <code>.cache</code> file name extension instead of <code>.info</code>. This method is a little bit slower than <code>disk</code> mode, but the time span until the overview page is fully populated will be significantly decreased if Impressive is ran again with the same input files and options.</dd>
 </dl>The mode name may be abbreviated at will, down to one character. Thus, <code>--cache persistent</code>, <code>-c persist</code> and even <code>-cp</code> are all synonyms.</dd>
 
 <dt><code>-C <em>&lt;filename&gt;</em>[:<em>&lt;X&gt;</em>,<em>&lt;Y&gt;</em>]</code> or <code>--cursor <em>&lt;filename&gt;</em>[:<em>&lt;X&gt;</em>,<em>&lt;Y&gt;</em>]</code></dt>
-<dd>This option can be used to specify the path to an image file (typically a transparent .png) that shall be used as the mouse cursor instead of the default one. Optionally, the hotspot may be specified (this is the position inside the cursor image where the real mouse position is located). Example: <code>--cursor mycursor.png:2,4</code></dd>
+<dd>This option can be used to specify an image that shall be used as a (software) mouse cursor instead of the normal (hardware) one. It can either be a name of an image file (typically a transparent .png) or one of the special values &raquo;<code>-</code>&laquo; (dash) or &raquo;<code>default</code>&laquo;, both of which select a built-in cursor image. On platforms that do not support a hardware cursor, this default cursor will also be used as a default if this option is not used.<br />
+If the name of an external file is specified, the position of the hotspot (the pixel inside the cursor where the actual mouse position is located) can be specified as well, for example: <code>--cursor mycursor.png:2,4</code>.</dd>
 
 <dt><code>--clock</code></dt>
-<dd>If this option is enabled, the current time will be shown instead of the elapsed time if time display is activated with the <strong>T</strong> key. Compatible with the <code>-M</code> option.</dd>
+<dd>If this option is enabled, the current time will be shown instead of the elapsed time if time display is activated (with the <strong>T</strong> key in the default control configuration). Compatible with the <code>-M</code> option.</dd>
+
+<dt><code>--control-help</code></dt>
+<dd>This option will output a short help screen of how the control configuration (keyboard and mouse bindings) work, along with a list of all recognized events and actions and a dump of the current bindings (which is the default configuration if no other <code>-e</code>/<code>--bind</code> or <code>-E</code>/<code>--controls</code> options precede this option). After that, Impressive will exit; no presentation will be started.</dd>
 
 <dt><code>-d <em>&lt;time&gt;</em></code> or <code>--duration <em>&lt;time&gt;</em></code></dt>
 <dd>Specifies the expected run time of the presentation. The <em>time</em> parameter can be either a number of seconds or a human-readable time like <code>1:23</code> (1 minute and 23 seconds), <code>4:56h</code> (4 hours and 56 minutes), <code>3m45s</code> (3 minutes and 45 seconds), <code>5m</code> (5 minutes) or <code>1:23:45</code> (1 hour, 23 minutes and 45 seconds).<br />
@@ -138,10 +146,16 @@ If an expected duration is specified, Impressive will show a semi-transparent gr
 <dd>Sets the time (in milliseconds) the mouse cursor is shown in fullscreen mode if it is not moved. Default value: 3000 ms.</dd>
 
 <dt><code>--darkness <em>&lt;percentage&gt;</em></code></dt>
-<dd>Specifies how much the screen shall become darker when using highlight boxes or spotlight mode. The value is specified in percent, with 25 being the default. A value of zero would mean no darkening at all (the screen would just be blurred slightly), and a value of 100 would make everything but the highlighted parts of the screen black.</dd>
+<dd>Specifies how much the screen shall become darker when using highlight boxes or spotlight mode. The value is specified in percent, with 25 being the default. A value of zero would mean no darkening at all (the screen would just be blurred slightly, and desaturated if the graphics hardware supports it), and a value of 100 would make everything but the highlighted parts of the screen black.</dd>
 
-<dt><code>-e</code> or <code>--noext</code></dt>
-<dd>OpenGL normally only supports textures with power-of-two dimensions. This means that for a 1024x768 screen, the actual texture size will be 1024x1024, for 1600x1200 it will even be 2048x2048. To overcome this limit and save texture memory, Impressive will automatically use the OpenGL extensions <code>GL_ARB_texture_rectangle</code> (available on most graphics cards) or <code>GL_ARB_texture_non_power_of_two</code> (available on modern graphics cards with current drivers). If these cause any trouble, the <code>-e</code> option may be used to prevent Impressive from using the problematic extensions.</dd>
+<dt><code>-e <em>&lt;bindings&gt;</em></code> or <code>--bind <em>&lt;bindings&gt;</em></code></dt>
+<dd>Configures keyboard or mouse bindings. For the syntax of the argument, refer to the <a href="#controls">Control Configuration</a> section of the manual.</dd>
+
+<dt><code>-E <em>&lt;filename&gt;</em></code> or <code>--controls <em>&lt;filename&gt;</em></code></dt>
+<dd>Loads a configuration file for keyboard and mouse bindings. For the syntax of these files, refer to the <a href="#controls">Control Configuration</a> section of the manual.</dd>
+
+<dt><code>--evtest</code></dt>
+<dd>If this option is specified, Impressive will not start a normal presentation, but instead enter the so-called &raquo;Event Test Mode&laquo; after the display has been initialized. In this mode, Impressive will simply capture all keyboard and mouse events and display the name of the last event on the screen. In addition, events will be logged to standard output. This mode helps with determining the event names for each key when creating a custom control configuration (see the <a href="#controls">Control Configuration</a> section).</dd>
 
 <dt><code>-f</code></dt>
 <dd>Sets the window/fullscreen mode Impressive shall start up with. This option can be specified multiple times; each times it is found, the next of the three options is selected, in the follwing order:<ul style="margin-top:0; margin-bottom:0;">
@@ -203,11 +217,15 @@ The progress bar shown by this option takes precedence over the <code>--duration
 <dt><code>-M</code> or <code>--minutes</code></dt>
 <dd>If this option is set, Impressive will show the on-screen timer (activated with the [T] key) only with 1 minute resolution. By default, it will show a timer with 1 second resolution.</dd>
 
-<dt><code>--nologo</code></dt>
-<dd>This option disables the Impressive logo and version number display. Instead, the loading screen will be just black or, if background rendering is disabled, only the progress bar will be visible.</dd>
+<dt><code>--noblur</code></dt>
+<dd>By default, Impressive uses a fragment shader to blur and desaturate the image when in highlight box or spotlight mode. This is usually the faster and nicer-looking method; however, some very old hardware implementations can't deal with that shader and fall back to an unusably slow software implementation. Impressive tries to detect scenarios where this would happen and automatically falls back to a different implementation.<br />
+There might be situations where this machanism fails and Impressive tries to use the non-functional shader anyway. In these cases, the <code>--noblur</code> option can be used to enforce the fallback implementation.</dd>
 
 <dt><code>--noclicks</code></dt>
 <dd>If this option is enabled, switching to the previous or next page with the left and right mouse buttons is deactivated. The keyboard shortcuts are unaffected from this.</dd>
+
+<dt><code>--nologo</code></dt>
+<dd>This option disables the Impressive logo and version number display. Instead, the loading screen will be just black or, if background rendering is disabled, only the progress bar will be visible.</dd>
 
 <dt><code>-o <em>&lt;directory&gt;</em></code> or <code>--output <em>&lt;directory&gt;</em></code></dt>
 <dd>Do not display the presentation, but render it into a series of PNG image files inside the specified directory. The images will be generated in the current resolution as specified by the <code>-g</code> option. This option is useful if the presentation is to be given on on a foreign PC with an old, broken or otherwise problematic Xpdf installation: By generating images of the PDF pages, is is made sure that no rendering bugs will happen on the target system.</dd>
@@ -236,9 +254,6 @@ This option does not have any effect if <code>--wrap</code> is used.</dd>
 <dt><code>-r <em>&lt;n&gt;</em></code> or <code>--rotate <em>&lt;n&gt;</em></code></dt>
 <dd>Display all pages rotated by <em>n</em>&times;90 degrees clockwise. Try <code>-r 1</code> or <code>-r 3</code> if there are problems with PDFs generated by LaTeX on some Xpdf or GhostScript versions.</dd>
 
-<dt><code>-R <em>&lt;X&gt;</em>x<em>&lt;Y&gt;</em></code> or <code>--meshres <em>&lt;X&gt;</em>x<em>&lt;Y&gt;</em></code></dt>
-<dd>Most effects subdivide the visible screen into a mesh of rectangular or quadratic pieces, each with its own coordinates and alpha blend values. Using this parameter, the resolution of the subdivision mesh can be defined. The default value is 48x36. On slow machines, lower values like 24x18 or 12x9 can heavily speed up transition rendering at the cost of visual quality. On the other hand, higher values like 64x48 or 96x72 improve quality, but use much more CPU cycles.</dd>
-
 <dt><code>-s</code> or <code>--scale</code> <em>(image input only)</em></dt>
 <dd>If a directory with image files is used as input, Impressive will scale down images that are too big for the screen. But by default, it will not scale up smaller images to fit the screen; it will leave a black border instead. This option overrides this setting and enables upscaling of smaller images.</dd>
 
@@ -257,9 +272,15 @@ This option does not have any effect if <code>--wrap</code> is used.</dd>
 <dt><code>-T <em>&lt;ms&gt;</em></code> or <code>--transtime <em>&lt;ms&gt;</em></code></dt>
 <dd>Sets the duration (in milliseconds) of page transitions. 0 (zero) disables transitions altogether. Default value: 1000 ms.</dd>
 
+<dt><code>--tracking</code></dt>
+<dd>This option enables time tracking mode. In this mode, a report of all pages visited with their display duration, enter and leave times will be written to standard output. This can be very useful when preparing presentations.</dd>
+
 <dt><code>-u <em>&lt;seconds&gt;</em></code> or <code>--poll <em>&lt;seconds&gt;</em></code></dt>
 <dd>If this option is specified, the source file or directory will be checked for changes regularly. If a change in the input PDF file or any of the image files in the input image directory is detected, the page cache will be flushed and the current page as well as the info script will be reloaded. The current page's transition will be shown between the old and the new version of the page.<br />
 The new PDF file must have at least as much pages as the old one; also, it should have the same aspect ratio. If the input is a directory, image files must not have disappeared.</dd>
+
+<dt><code>-v</code> or <code>--verbose</code></dt>
+<dd>This option makes Impressive more verbose, i.e. it will print slightly more informational messages than usual.</dd>
 
 <dt><code>-V <em>&lt;pixels&gt;</em></code> or <code>--overscan <em>&lt;pixels&gt;</em></code></dt>
 <dd>PDF files often contain tiny amounts of white borders around the edges which look bad in screen presentations. To eliminate this problem, Impressive uses &raquo;overscan&laquo;: PDF files will not be rendered to fit the screen size exactly, but they will be rendered a bit larger so that the (possibly broken) borders can be cropped off. The amount of overscan, in screen pixels, can be set with this option. The default value is 3 pixels, which should remove borders in most presentations at most common screen resolutions without cropping the pages too much.</dd>
@@ -334,18 +355,17 @@ The new PDF file must have at least as much pages as the old one; also, it shoul
 
 <h2><a name="usage"></a>Usage</h2>
 
-<p>On startup, Impressive will display a black screen with the program logo at the center. If caching is enabled, but background rendering is disabled, all pages of the presentation will then be rendered once. A bar in the lower half of the screen displays the progress of this operation. Any key (except for Q and Esc) or mouse click skips this process, with the effect that Impressive will render the remaining pages on demand. Please note that the overview page will not be complete until every page has been rendered at least once. In other words, if the precaching process was skipped, placeholders will be displayed for all pages that have not been rendered yet. By default, Impressive will build up the cache in the background while the presentation runs. Thus, the progress bar will not appear and the preparation will only take the amount of time required to render the first two pages of the presentation.</p>
+<p>On startup, Impressive will display a black screen with the program logo at the center. If caching is enabled, but background rendering is disabled, all pages of the presentation will then be rendered once. A bar in the lower half of the screen displays the progress of this operation. Any key or mouse click (except for those that quit Impressive, typically Q and Esc) skips this process, with the effect that Impressive will render the remaining pages on demand. Please note that the overview page will not be complete until every page has been rendered at least once. In other words, if the precaching process was skipped, placeholders will be displayed for all pages that have not been rendered yet. By default, Impressive will build up the cache in the background while the presentation runs. Thus, the progress bar will not appear and the preparation will only take the amount of time required to render the first two pages of the presentation. After this initialization process, Impressive will switch to the first page directly and without any transition.</p>
 
-<p>After this initialization process, Impressive will switch to the first page directly and without any transition.<!--man:off-->
-The following keyboard and mouse operations are available from this moment on:</p>
+<!--man:head="Default_Controls"-->
+<p>The keyboard and mouse controls used by Impressive are configurable (with very few exceptions). The default controls are as follows:</p>
 
 <dl>
 
-<!--man:on:head="Controls"-->
 <dt><strong>Esc</strong> key</dt>
 <dd>Return from the currently active special mode (zoom, overview, spotlight, highlight boxes); if no such special mode is active, quit Impressive altogether.</dd>
 
-<dt><strong>Q</strong> key</dt>
+<dt><strong>Q</strong> key or <strong>Alt</strong>+<strong>F4</strong></dt>
 <dd>Quit Impressive immediately.</dd>
 
 <dt><strong>LMB</strong> (left mouse button), mouse wheel down, <strong>Page Down</strong> key, <strong>Cursor Down</strong> key, <strong>Cursor Right</strong> key or <strong>Spacebar</strong></dt>
@@ -376,7 +396,7 @@ The following keyboard and mouse operations are available from this moment on:</
 <dd>Jump to the page referenced by the hyperlink. Two types of hyperlinks are supported: Links that point to some other page of the same document, and URL hyperlinks like Web links and e-mail addresses. This feature is only available if <code>pdftk</code> is installed. Furthermore, <code>xdg-open</code> from the freedesktop.org Portland project is required for URL links <!--man to work.--><!--man:off-->on non-Win32 platforms.<!--man:on--> Please note that the hyperlink feature will not work properly when pages are rotated.</dd>
 
 <dt>click&amp;drag with <strong>LMB</strong> (left mouse button)</dt>
-<dd>Create a new highlight box. While at least one highlight box is defined on the current page, the page itself will be shown in a darker and blurry rendition. Only the highlight boxes will be displayed in their original lightness and sharpness.<br />
+<dd>Create a new highlight box. While at least one highlight box is defined on the current page, the page itself will be shown in a darker, blurry and (if supported by the graphics hardware) desaturated rendition. Only the highlight boxes will be displayed in their original lightness, sharpness and color saturation.<br />
 If a page with highlight boxes is left, the boxes will be saved and restored the next time this page is shown again.</dd>
 
 <dt><strong>RMB</strong> (right mouse button) over a highlight box</dt>
@@ -386,7 +406,7 @@ If a page with highlight boxes is left, the boxes will be saved and restored the
 <dd>Save the info script associated with the current presentation. The main purpose for this is to permanently save highlight boxes or keyboard shortcuts, so they will be restored the next time this presentation is started.</dd>
 
 <dt><strong>T</strong> key</dt>
-<dd>Activate or deactivate the time display at the upper-right corner of the screen. If the timer is activated while the very first page of the presentation is shown, it activates &raquo;time tracking&raquo; mode. In this mode, a report of all pages visited with their display duration, enter and leave times will be written to standard output. This can be very useful when preparing presentations.</dd>
+<dd>Activate or deactivate the time display at the upper-right corner of the screen. If the timer is activated while the very first page of the presentation is shown, it activates time tracking mode, just as if the command-line option <code>--tracking</code> had been specified.</dd>
 
 <dt><strong>R</strong> key</dt>
 <dd>Reset the presentation timer.</dd>
@@ -443,12 +463,212 @@ In zoom mode, all other functions will work as normal. Any operations that leave
 </dl>
 
 <!--man .PP-->
-<p>Any other alphanumeric (A-z, 0-9) or function key (F1-F12) can be used to assign shortcuts to pages that require quick access. If one of the keys is pressed together with <strong>Shift</strong>, the currently displayed page is associated with this key. To recall the page later, it is sufficient to press the shortcut key again. Shortcuts can be permanently stored with the <strong>S</strong> key.</p>
-<!--man:off-->
+<p>Any alphanumeric (A-z, 0-9) or function key (F1-F12) that is not bound to a specific action mentioned above or configured by the user (see below) can be used to assign shortcuts to pages that require quick access. If one of the keys is pressed together with <strong>Shift</strong>, the currently displayed page is associated with this key. To recall the page later, it is sufficient to press the shortcut key again. Shortcuts can be stored permanently with the <strong>S</strong> key.</p>
 
 <!-------------------------------------------------------------------------------->
 
-<!--man:on-->
+<h2><a name="controls"></a>Control Configuration</h2>
+
+<p>As already mentioned in the previous chapter, the keyboard and mouse bindings of Impressive can be widely configured. The only exceptions are the <strong>Alt</strong>+<strong>F4</strong> and <strong>Alt</strong>+<strong>Tab</strong> key combinations that will always quit or minimize Impressive, respectively. For everything else, there is a versatile configuration system in place; the controls described in the previous section are merely the defaults.</p>
+
+<p>Impressive's control system works by associating <strong>events</strong> with <strong>actions</strong>. An <em>event</em> is a key on the keyboard, a mouse button or a mouse wheel movement. An <em>action</em> is something that is performed by Impressive as a result of an event, like going to the next page, switching to overview mode or quitting the program. The association of an event to an an action is called a <strong>binding</strong>. Multiple events can be bound to the same action (like the page down and space keys in the default setting, both of which go to the next page); furthermore, multiple actions can be bound to the same event. In fact, bindings do not associate events with single actions at all, but with <em>chains</em> of actions. Only the first action in the chain that <em>matches</em> (i.e. makes sense in) the current context will be executed if the event fires; all other actions will be ignored. If no action matches, no action will be performed and the event will be ignored.</p>
+
+<p style="margin-bottom:0;">One example of such an action chain is the default binding for the left mouse button, which<ul style="margin-top:0;">
+<li>draws a highlight box if the mouse cursor moved, or</li>
+<li>visits a hyperlink if the mouse cursor hovers over one, or</li>
+<li>goes to the next page if none of the other conditions are met.</li>
+</ul></p>
+
+<p>Both events and actions have mnemonic names that are used in the command-line options and configuration files used for setting up bindings. Event and actions names are generally case-insensitive, though the canonical notation is lowercase.<br />
+If an event or action specified on the command line or in a configuration file is not recognized by Impressive, an error message will be written to the console and the offending event or action will be ignored. Errors in control configuration are thus always non-fatal.</p>
+
+<h3>Supported Events</h3>
+
+<p>Keyboard events are generally named after the keys they refer to. Consequently, the events <code>a</code> to <code>z</code> and <code>0</code> to <code>9</code> mean the respective letter and number keys on the main keyboard, <code>f1</code> to <code>f12</code> are the function keys and <code>kp0</code> to <code>kp9</code> are the number keys on the numerical keypad. All of these are raw scancodes, which has two implications: First, the key names are not internationalized and refer to the US keyboard layout (e.g. the <strong>Z</strong> key on a German or French keyboard will actually react to the event name <code>y</code>); second, modifiers will be ignored as well (e.g. the numerical keypad will always generate the <code>kp<em>X</em></code> scancodes, even if Num Lock is off).</p>
+
+<p>The mnemonic names for the other keyboard events are as follows (in alphabetic order): <code>ampersand</code>, <code>asterisk</code>, <code>at</code>, <code>backquote</code>, <code>backslash</code>, <code>backspace</code>, <code>break</code>, <code>capslock</code>, <code>caret</code>, <code>clear</code>, <code>comma</code>, <code>down</code>, <code>end</code>, <code>escape</code>, <code>euro</code>, <code>exclaim</code>, <code>greater</code>, <code>hash</code>, <code>help</code>, <code>home</code>, <code>insert</code>, <code>kp_divide</code>, <code>kp_enter</code>, <code>kp_equals</code>, <code>  kp_minus</code>, <code>kp_multiply</code>, <code>kp_plus</code>, <code>lalt</code>, <code>last</code>, <code>lctrl</code>, <code>left</code>, <code>leftbracket</code>, <code>leftparen</code>, <code>less</code>, <code>lmeta</code>, <code>lshift</code>, <code>lsuper</code>, <code>menu</code>, <code>minus</code>, <code>mode</code>, <code>numlock</code>, <code>pagedown</code>, <code>pageup</code>, <code>pause</code>, <code>period</code>, <code>plus</code>, <code>power</code>, <code>print</code>, <code>question</code>, <code>quote</code>, <code>quotedbl</code>, <code>ralt</code>, <code>rctrl</code>, <code>return</code>, <code>right</code>, <code>rightbracket</code>, <code>rightparen</code>, <code>rmeta</code>, <code>rshift</code>, <code>rsuper</code>, <code>scrollock</code>, <code>semicolon</code>, <code>slash</code>, <code>space</code>, <code>sysreq</code>, <code>tab</code>, <code>underscore</code>, <code>up</code>. The events prefixed with <code>kp_</code> refer to keys on the numerical keypad. Other than that, the names should be reasonably descriptive, so they will not be described futher at this point. Also note that not all keyboards and platforms support the full range of keys defined in this list.</p>
+
+<p>Mouse events names are mapped as follows:</p><dl>
+<dt><code>lmb</code></dt><dd>the left mouse button</dd>
+<dt><code>mmb</code></dt><dd>the middle mouse button</dd>
+<dt><code>rmb</code></dt><dd>the right mouse button</dd>
+<dt><code>wheelup</code></dt><dd>scrolling the mouse wheel upwards</dd>
+<dt><code>wheeldown</code></dt><dd>scrolling the mouse wheel downwards</dd>
+</dl>
+
+<p>The event names can be prefixed with the three modifiers <code>ctrl+</code>, <code>alt+</code> and <code>shift+</code> to make the event valid only if the specified set of modifiers is pressed as well. This works for both keyboard and mouse events. Multiple modifiers can be combined, but the order must match the one mentioned in this paragraph. For example, <code>ctrl+shift+x</code> is a valid event name, while <code>shift+ctrl+x</code> is not.</p>
+
+<p>A simple way to determine the name associated with an event is using Impressive's &raquo;Event Test Mode&laqo; by invoking <code>impressive --evtest</code>. In this mode, the name of each incoming event will be displayed on the screen (and logged to standard output), which makes it possible to determine event names by experimentation.</p>
+
+<h3>Supported Actions</h3>
+
+<p>The following list describes all actions supported by Impressive, together with the conditions under which they will match. Note that most actions will not match in overview mode and during video playback, unless mentioned otherwise in the description.</p><dl>
+
+<dt><code>box-add</code></dt>
+<dd>Draw a highlight box if the mouse has been moved since the button has been pressed down. This action must only be bound to a mouse button event without modifiers, otherwise it will not function properly.</dd>
+
+<dt><code>box-clear</code></dt>
+<dd>Removes all boxes from the current page.</dd>
+
+<dt><code>box-remove</code></dt>
+<dd>Removes the highlight box under the mouse cursor, if there is any.</dd>
+
+<dt><code>fade-less</code>, <code>fade-more</code></dt>
+<dd>Decrease or increase the amount of darkening applied to the background in spotlight or highlight box mode.</dd>
+
+<dt><code>fade-reset</code></dt>
+<dd>Resets the background darkness in spotlight or highlight box mode to its default value.</dd>
+
+<dt><code>fade-to-black</code>, <code>fade-to-white</code></dt>
+<dd>Fades to a black or white screen. Once the screen is faded out, any event except those bound to the <code>quit</code> action will just leave fade mode and not perform its assigned action.</dd>
+
+<dt><code>fullscreen</code></dt>
+<dd>Toggle fullscreen mode on platforms that support it.</dd>
+
+<dt><code>gamma-decrease</code>, <code>gamma-increase</code></dt>
+<dd>Decrease or increase the gamma level (i.e. roughly the brightness) of the display on platforms that support it.</dd>
+
+<dt><code>gamma-bl-decrease</code>, <code>gamma-bl-increase</code></dt>
+<dd>Decrease or increase the black level of the display on platforms that support it.</dd>
+
+<dt><code>gamma-reset</code></dt>
+<dd>Reset the gamma and black level settings to their defaults.</dd>
+
+<dt><code>goto-end</code>, <code>goto-end-notrans</code></dt>
+<dd>Go to the last page of the presentation, with or without a transition.</dd>
+
+<dt><code>goto-last</code>, <code>goto-last-notrans</code></dt>
+<dd>Go to the last (i.e. most recently) visited page, with or without a transition.</dd>
+
+<dt><code>goto-next</code>, <code>goto-next-notrans</code></dt>
+<dd>Go to the following page of the presentation, with or without a transition.</dd>
+
+<dt><code>goto-prev</code>, <code>goto-prev-notrans</code></dt>
+<dd>Go to the previous page of the presentation, with or without a transition.</dd>
+
+<dt><code>goto-start</code>, <code>goto-start-notrans</code></dt>
+<dd>Go to the first page of the presentation, with or without a transition.</dd>
+
+<dt><code>hyperlink</code>, <code>goto-start-notrans</code></dt>
+<dd>Navigate to the hyperlink under the mouse cursor, if there is one. If the hyperlink is a reference to another page of the presentation, this page will be activated with or without a transition. If the hyperlink refers to an external object (e.g. an URL), it will be opened externally, if supported by the system.</dd>
+
+<dt><code>overview-confirm</code></dt>
+<dd>When in overview mode, confirm the selection and leave overview mode, navigating to the selected page.</dd>
+
+<dt><code>overview-down</code>, <code>overview-up</code></dt>
+<dd>When in overview mode, select the page above or below the currently selected one in the grid.</dd>
+
+<dt><code>overview-enter</code></dt>
+<dd>When <em>not</em> in overview mode, zoom out of the current page, entering overview mode.</dd>
+
+<dt><code>overview-exit</code></dt>
+<dd>When in overview mode, leave overview mode, zooming back to the page that has been displayed before entering overview mode.</dd>
+
+<dt><code>overview-next</code>, <code>overview-prev</code></dt>
+<dd>When in overview mode, select the following or previous page.</dd>
+
+<dt><code>quit</code></dt>
+<dd>Quits Impressive immediately. This action is available in all modes.</dd>
+
+<dt><code>save</code></dt>
+<dd>Save or update the Info Script for the current presentation.</dd>
+
+<dt><code>spotlight-enter</code></dt>
+<dd>If spotlight mode is not active, enable spotlight mode.</dd>
+
+<dt><code>spotlight-exit</code></dt>
+<dd>If spotlight mode <em>is</em> active, deactivate spotlight mode.</dd>
+
+<dt><code>spotlight-grow</code>, <code>spotlight-shrink</code></dt>
+<dd>When in spotlight mode, increase or decrease the radius of the spotlight.</dd>
+
+<dt><code>spotlight-reset</code></dt>
+<dd>When in spotlight mode, reset the spotlight radius to the default value.</dd>
+
+<dt><code>time-reset</code></dt>
+<dd>Reset the presentation timer.</dd>
+
+<dt><code>time-toggle</code></dt>
+<dd>Toggle on-screen display of the current presentation time, or wall-clock time if the <code>--clock</code> option is used. If this is done at the start of the presentation, before the first page has been left, time tracking mode will be enabled, like the <code>--tracking</code> option would have done.</dd>
+
+<dt><code>toggle-overview</code></dt>
+<dd>This toggles the &raquo;page is visible on overview screen&laquo; flag for the current page. This will not have an immediate effect, but it can be saved to an Info Script.</dd>
+
+<dt><code>toggle-skip</code></dt>
+<dd>This toggles the &raquo;skip page when navigating with <code>goto-prev</code> and <code>goto-next</code>&laquo; flag for the current page.</dd>
+
+<dt><code>video-pause</code></dt>
+<dd>In video playback mode, this pauses or unpauses playback.</dd>
+
+<dt><code>video-seek-backward-10</code>, <code>video-seek-backward-1</code>, <code>video-seek-forward-1</code>, <code>video-seek-forward-10</code></dt>
+<dd>In video playback mode, seek forward or backward by 1 or 10 seconds.</dd>
+
+<dt><code>video-step</code></dt>
+<dd>In video playback mode, if playback is paused, advance one frame in the video.</dd>
+
+<dt><code>video-stop</code></dt>
+<dd>In video playback mode, stop playback and return to normal page display mode.</dd>
+
+<dt><code>zoom-enter</code></dt>
+<dd>If not in zoom mode, enter zoom mode.</dd>
+
+<dt><code>zoom-exit</code></dt>
+<dd>If in zoom mode, leave zoom mode.</dd>
+
+<dt><code>zoom-pan</code></dt>
+<dd>When in zoom mode, the visible area of the page can be moved around with the mouse while the key or mouse button of the associated event is held down.</dd>
+
+</dl>
+
+<h3>Binding Syntax</h3>
+
+<p>The arguments of the <code>-e</code>/<code>--bind</code> command-line option have the following basic syntax:<br />
+&nbsp;&nbsp&nbsp;&nbsp;<code><em>&lt;event&gt;</em> <em>[</em>,<em>&lt;event2&gt;...]</em> <em>&lt;operator&gt;</em> <em>&lt;action&gt;</em> <em>[</em>,<em>&lt;action2&gt;...]</em></code><br />
+In other words, it is a sequence of event names joined with commas, followed by an <em>operator</em> (see below) and a sequence of action names joined with commas. Multiple such binding statements can be combined into one argument by joining them with a semicolon (<code>;</code>).</p>
+
+<p>The used operator defines in which way the action list shall modify the bindings of the referenced events:</p><dl>
+
+<dt><code>=</code> (equals sign), <code>+=</code> (plus sign and equals sign)</dt>
+<dd>The specified actions will be <em>added</em> to the bindings of the specified events. In other words, <code>event=action1,action2</code> does exactly the same as <code>event=action1; event=action2</code>.</dd>
+
+<dt><code>:=</code> (colon and equals sign)</dt>
+<dd>The specified actions will be <em>overview</em> the bindings of the specified events.</dd>
+
+<dt><code>-=</code> (minus sign and equals sign)</dt>
+<dd>The specified actions will be <em>removed</em> from the bindings of the specified events. For example, to make the <strong>Esc</strong> key in the default bindings not clear highlight boxes, but otherwise preserve its original functionality, <code>escape&nbsp;-=&nbsp;box-clear</code> can be used.</dd>
+
+</dl>
+
+<p>Other than bindings, a statement can also contain one of the following special commands:</p>
+<dl>
+
+<dt><code>clearall</code></dt>
+<dd>Clears <em>all</em> current bindings.</dd>
+
+<dt><code>defaults</code></dt>
+<dd>Discards all current bindings and (re-)establishes the default bindings.</dd>
+
+<dt><code>include <em>&lt;filename&gt;</em></code></dt>
+<dd>Loads and executes a control configuration file with a specified name.</dd>
+
+</dl>
+
+<p>The syntax for the configuration files used with the <code>-E</code>/<code>--controls</code> option or <code>include</code> statement is exactly the same as for the ad-hoc configuration option, except that individual bindings can be written on individual lines instead of joining them together to a single long line with semicolons. In addition, everything following a hash sign (<code>#</code>) on a line will be ignored as a comment.</p>
+
+<p>One practical example for such a configuration file can be the following: The author of this program uses a cheap presentation remote control device that has four cursor keys, one &raquo;enter&laquo; key and a slider that switches between keyboard and mouse mode. Mouse mode works as expected, but what it does in keyboard mode is quite peculiar: the up and down keys act like Page-Up and Page-Down keys on a keyboard, the right arrow key sends the letter <strong>B</strong> to the computer, and the left key toggles between <strong>Esc</strong> and <strong>F5</strong> each time it's pressed. The following configuration file allows basic navigation and access to overview mode with this device:</p>
+<pre>    clearall  # don't use the default bindings
+    lmb = quit  # quit Impressive by clicking in mouse mode
+    # everything else uses keyboard mode:
+    return = overview-enter, overview-confirm  # toggle overview mode
+    escape, f5 = overview-prev, goto-prev
+    b = overview-next, goto-next
+    pageup = overview-up, goto-prev
+    pagedown = overview-down, goto-next</pre><!--man .PP -->
+
+<p>To get a better idea of how the control configuration system works in practice, it's recommended to study the output of <code>impressive --control-help</code> &ndash; this not only gives a concise overview of all events and actions, but also a full dump of Impressive's default bindings that can be used as a starting point for own customizations.</p>
+
+<!-------------------------------------------------------------------------------->
+
 <h2><a name="scripts"></a>Info Scripts</h2>
 
 <p>Impressive offers a powerful way to customize individual presentations using so-called info scripts. An info script is a text file having the same name and located in the same directory as the presentation file itself, except for the additional suffix <code>.info</code>. Thus, a presentation file called <code>BrandNewProduct.pdf</code> would have a info script with the name <code>BrandNewProduct.pdf.info</code>. If multiple arguments were specified on the command line, the info script will be called just <code>.info</code> (a dot file, so to speak). If a directory name was specified as the only argument, either a file called <code><em>DirectoryName</em>.info</code> or a file called <code>.info</code> <em>inside</em> the directory will be used, depending on whether a path separator was specified at the end of the directory name or not &ndash; Impressive simply appends <code>.info</code> to whatever the input path name was.<br />
@@ -465,10 +685,10 @@ In any case, the default file name can be overridden by the <code>-I</code> comm
 <dd>Each page can have a title that is displayed in the Impressive window's title bar. If there is no title explicitly specified in the info script, the title of the page will be extracted from PDF metadata if pdftk is installed, or the image file name will be used if the presentation is an image slideshow.</dd>
 
 <dt><code>transition</code></dt>
-<dd>With this property, the transition class to be used for rendering the transition between this page and the following page can be specified. For pages lacking this property, random transitions will be chosen. A list of available transition classes can be obtained with <code>impressive -l</code>.</dd>
+<dd>With this property, the transition class to be used for rendering the transition to this page (i.e. between the previous page and this page) can be specified. For pages lacking this property, random transitions will be chosen. A list of available transition classes can be obtained with <code>impressive -l</code>.</dd>
 
 <dt><code>transtime</code></dt>
-<dd>This property overrides the global transition time parameter (<code>-T</code> at the command line). It contains the integer time (in milliseconds) the transition between this page and the following page shall be shown.</dd>
+<dd>This property overrides the global transition time parameter (<code>-T</code> at the command line). It contains the integer time (in milliseconds) the transition to this page shall take.</dd>
 
 <dt><code>overview</code></dt>
 <dd>This property holds a boolean value (0/<code>False</code> or 1/<code>True</code>) that specifies whether the page shall be included in the overview page. If this property isn't specified, it is assumed to be <code>True</code>.</dd>
@@ -520,6 +740,8 @@ In any case, the default file name can be overridden by the <code>-I</code> comm
 <dd>This property specifies whether the colors of that page shall be inverted in the same way the <code>--invert</code> command-line switch does. It overrides the <code>--invert</code> setting on a per-page basis: If set to <code>True</code>, the page will always be inverted; if set to <code>False</code>, the page will never be inverted even if <code>--invert</code> has been specified on the command line.</dd>
 
 </dl>
+
+<p>Note that in Impressive versions prior to 0.11.0, the <code>transition</code> and <code>transtime</code> properties defined the transition from the current page to the next, not from the previous page to the current one.</p>
 
 <p>The properties are stored together in a Python dictionary called <code>PageProps</code>. The syntax looks like in this example:</p>
 

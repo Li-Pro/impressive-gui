@@ -71,6 +71,8 @@ def GetCacheImage(page):
             if CacheMode == FileCache:
                 CacheFile.seek(PageCache[page])
                 return CacheFile.read(TexSize)
+            elif CacheMode == CompressedCache:
+                return zlib.decompress(PageCache[page])
             else:
                 return PageCache[page]
     finally:
@@ -105,6 +107,8 @@ def AddToCache(page, data):
                 CacheFilePos += len(data)
             CacheFile.seek(PageCache[page])
             CacheFile.write(data)
+        elif CacheMode == CompressedCache:
+            PageCache[page] = zlib.compress(data, 1)
         else:
             PageCache[page] = data
     finally:
