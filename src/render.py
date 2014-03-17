@@ -99,7 +99,6 @@ class MuPDFRenderer(PDFRendererBase):
             # let's give it some time
             maxwait = time.time() + (0.1 if self.error else 0.5)
             while not(self.buffer) and (time.time() < maxwait):
-                print ".",
                 time.sleep(0.01)
             return self.buffer
 

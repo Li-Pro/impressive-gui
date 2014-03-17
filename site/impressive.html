@@ -12,12 +12,12 @@ code.pre { white-space:pre; }
 <!--VERSION-->
 <p style="text-indent:0;">
 <a href="http://impressive.sourceforge.net/">http://impressive.sourceforge.net/</a><br />
-<b>Version:</b> 0.11.0-WIP+gl2<br />
+<b>Version:</b> 0.11.0-WIP<br />
 <b>Author:</b> <a href="mailto:martin.fiedler@gmx.net">Martin J. Fiedler</a><br />
-<b>Last updated:</b> 2014-03-08</p>
+<b>Last updated:</b> 2014-03-17</p>
 <!--END-->
 <!--man
-.TH IMPRESSIVE 1 2014-03-08 "Martin J. Fiedler" "Impressive Documentation">
+.TH IMPRESSIVE 1 2014-03-17 "Martin J. Fiedler" "Impressive Documentation">
 .SH "NAME"
 Impressive \- presentation tool with eye candy
 .SH "SYNOPSIS"
@@ -222,7 +222,8 @@ The progress bar shown by this option takes precedence over the <code>--duration
 There might be situations where this machanism fails and Impressive tries to use the non-functional shader anyway. In these cases, the <code>--noblur</code> option can be used to enforce the fallback implementation.</dd>
 
 <dt><code>--noclicks</code></dt>
-<dd>If this option is enabled, switching to the previous or next page with the left and right mouse buttons is deactivated. The keyboard shortcuts are unaffected from this.</dd>
+<dd>If this option is enabled, switching to the previous or next page with the left and right mouse buttons is deactivated. The keyboard shortcuts are unaffected from this.<br />
+Note that this option only works as intended when the default controls are used. If the <code>-e</code>/<code>--bind</code> or <code>-E</code>/<code>--controls</code> options have been used, <code>--noclicks</code> might not have the intended effect.</dd>
 
 <dt><code>--nologo</code></dt>
 <dd>This option disables the Impressive logo and version number display. Instead, the loading screen will be just black or, if background rendering is disabled, only the progress bar will be visible.</dd>
@@ -289,7 +290,8 @@ The new PDF file must have at least as much pages as the old one; also, it shoul
 <dd>If this option is set, Impressive will &ldquo;wrap&rdquo; over to the first page after the last page. In other words, advancing to the next page at the end of the presentation will restart the whole presentation.</dd>
 
 <dt><code>-W</code> or <code>--nowheel</code></dt>
-<dd>By default, it is possible to change pages using the mouse wheel. This option disables this behavior, which can be useful to prevent spurious page changes if the mouse wheel is likely to be moved by accident.</dd>
+<dd>By default, it is possible to change pages using the mouse wheel. This option disables this behavior, which can be useful to prevent spurious page changes if the mouse wheel is likely to be moved by accident.<br />
+Note that this option only works as intended when the default controls are used. If the <code>-e</code>/<code>--bind</code> or <code>-E</code>/<code>--controls</code> options have been used, <code>--noclicks</code> might not have the intended effect.</dd>
 
 <dt><code>--windowed</code></dt>
 <dd>Starts Impressive in windowed mode. See the discussion of the <code>-f</code> option for details.</dd>
