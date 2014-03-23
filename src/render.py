@@ -386,7 +386,7 @@ def LoadImage(page, ZoomMode):
     except (KeyboardInterrupt, SystemExit):
         raise
     except:
-        print >>sys.stderr, "Image file `%s' is broken." % (FileList[page - 1])
+        print >>sys.stderr, "Image file `%s' is broken." % GetPageProp(page, '_file')
         return DummyPage()
 
     # apply rotation

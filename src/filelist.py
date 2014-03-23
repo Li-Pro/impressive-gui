@@ -9,6 +9,27 @@ def IsPlayable(name):
 def AddFile(name, title=None, implicit=False):
     global FileList, FileName
 
+    # handle list files
+    if name.startswith('@') and os.path.isfile(name[1:]):
+        name = name[1:]
+        dirname = os.path.dirname(name)
+        try:
+            f = file(name, "r")
+            next_title = None
+            for line in f:
+                line = [part.strip() for part in line.split('#', 1)]
+                if len(line) == 1:
+                    subfile = line[0]
+                    title = None
+                else:
+                    subfile, title = line
+                if subfile:
+                    AddFile(os.path.normpath(os.path.join(dirname, subfile)), title, implicit=True)
+            f.close()
+        except IOError:
+            print >>sys.stderr, "Error: cannot read list file `%s'" % name
+        return
+
     # generate absolute path
     path_sep_at_end = name.endswith(os.path.sep)
     name = os.path.normpath(os.path.abspath(name)).rstrip(os.path.sep)
@@ -33,25 +54,6 @@ def AddFile(name, title=None, implicit=False):
             print >>sys.stderr, "Warning: no image files in directory `%s'" % name
         for img in images:
             AddFile(img, implicit=True)
-
-    elif name.startswith('@') and os.path.isfile(name[1:]):
-        name = name[1:]
-        dirname = os.path.dirname(name)
-        try:
-            f = file(name, "r")
-            next_title = None
-            for line in f:
-                line = [part.strip() for part in line.split('#', 1)]
-                if len(line) == 1:
-                    subfile = line[0]
-                    title = None
-                else:
-                    subfile, title = line
-                if subfile:
-                    AddFile(os.path.normpath(os.path.join(dirname, subfile)), title, implicit=True)
-            f.close()
-        except IOError:
-            print >>sys.stderr, "Error: cannot read list file `%s'" % name
 
     else:
         files = list(filter(IsPlayable, glob.glob(name)))
