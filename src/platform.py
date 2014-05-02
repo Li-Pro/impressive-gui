@@ -174,7 +174,7 @@ class Platform_Win32(Platform_PyGame):
         if HaveWin32API:
             dm = win32api.EnumDisplaySettings(None, -1) #ENUM_CURRENT_SETTINGS
             return (int(dm.PelsWidth), int(dm.PelsHeight))
-        return Platform_PyGame.get_screen_size(self)
+        return Platform_PyGame.GetScreenSize(self)
 
 
 class Platform_Unix(Platform_PyGame):
@@ -194,7 +194,7 @@ class Platform_Unix(Platform_PyGame):
             pass
         if res:
             return res
-        return Platform_PyGame.get_screen_size(self)
+        return Platform_PyGame.GetScreenSize(self)
 
 
 class Platform_EGL(Platform_Unix):
