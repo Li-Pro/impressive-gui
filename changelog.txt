@@ -1,3 +1,8 @@
+0.10.5 [2014-05-02]
+- fixed bug that cause file lists ("@list.txt" parameters) to not work in 0.10.4
+- some minor additions to the release script, only relevant for distributors
+
+
 0.10.4 [2013-12-29]
 - changed Esc key behavior: doesn't quit immediately, leaves special modes first
 - middle mouse button in zoom mode now returns to normal mode (not overview)

@@ -1,5 +1,8 @@
 <?php include("menu.php"); ?>
 
+<h1><span class="date">2014-05-02</span>A major bug fixed in 0.10.5</h1>
+<p>As it turned out, 0.10.4 didn't only fix a ton of bugs, it also introduced one particularly nasty one: The file list feature stopped working. Since many people were using it, 0.10.5 fixes this specific issue. Other than that, it doesn't contain anything new; all the exciting stuff won't appear until 0.11.0.</p>
+
 <h1><span class="date">2013-12-29</span>Surprise! 0.10.4 is alive and kicking!</h1>
 <p>Yes, it has been another really, really large gap between the previous release and this one &ndash; so large, in fact, that some people already think the project <a href="http://alternativeto.net/software/impressive/">has been discontinued</a>. The reports of Impressive's death are greatly exaggerated though. In fact, I'm planning to release a new major version soon(-ish), and 0.10.4 is an intermediate step before I start with the bigger (and compatibility-breaking) changes.</p>
 <p>0.10.4 has the longest changelog of any version to date, but it's mostly smaller changes. There are some bugfixes and compatibility improvements, and a couple of options that can be useful in certain situations, like Ignite-style quick talks or LaTeX slides with built-in presenter screens.</p>
