@@ -70,6 +70,7 @@ Timing options:
   -k,  --auto-progress    shows a progress bar for each page for auto-advance
   -T,  --transtime <ms>   set transition duration in milliseconds
   -D,  --mousedelay <ms>  set mouse hide delay for fullscreen mode (in ms)
+                          (0 = show permanently, 1 = don't show at all)
   -B,  --boxfade <ms>     set highlight box fade duration in milliseconds
   -Z,  --zoomtime <ms>    set zoom animation duration in milliseconds
   -q,  --page-progress    shows a progress bar based on the position in the
