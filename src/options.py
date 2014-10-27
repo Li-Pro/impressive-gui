@@ -243,7 +243,7 @@ def ParseOptions(argv):
         opts, args = getopt.getopt(argv, \
             "vhfg:sc:i:wa:t:lo:r:T:D:B:Z:P:A:mbp:u:F:S:G:d:C:ML:I:O:z:xXqV:QHykWe:E:", \
            ["help", "fullscreen", "geometry=", "scale", "supersample", \
-            "nocache", "initialpage=", "wrap", "auto", "listtrans", "output=", \
+            "nocache", "initialpage=", "wrap", "auto=", "listtrans", "output=", \
             "rotate=", "transition=", "transtime=", "mousedelay=", "boxfade=", \
             "zoom=", "gspath=", "renderer=", "aspect=", "memcache", \
             "noback", "pages=", "poll=", "font=", "fontsize=", "gamma=",
