@@ -313,7 +313,7 @@ def PrepareCustomCursor(cimg):
     w, h = cimg.size
     tw, th = map(npot, cimg.size)
     if (tw > 256) or (th > 256):
-        print >>sys.stderr, "Custom cursor is rediculously large, reverting to normal one."
+        print >>sys.stderr, "Custom cursor is ridiculously large, reverting to normal one."
         return False
     img = Image.new('RGBA', (tw, th))
     img.paste(cimg, (0, 0))
