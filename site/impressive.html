@@ -14,10 +14,10 @@ code.pre { white-space:pre; }
 <a href="http://impressive.sourceforge.net/">http://impressive.sourceforge.net/</a><br />
 <b>Version:</b> 0.11.0-WIP<br />
 <b>Author:</b> <a href="mailto:martin.fiedler@gmx.net">Martin J. Fiedler</a><br />
-<b>Last updated:</b> 2014-03-17</p>
+<b>Last updated:</b> 2014-12-15</p>
 <!--END-->
 <!--man
-.TH IMPRESSIVE 1 2014-03-17 "Martin J. Fiedler" "Impressive Documentation">
+.TH IMPRESSIVE 1 2014-12-15 "Martin J. Fiedler" "Impressive Documentation">
 .SH "NAME"
 Impressive \- presentation tool with eye candy
 .SH "SYNOPSIS"
@@ -74,11 +74,11 @@ A more comfortable method is installing Impressive in the &raquo;Send To&laquo; 
 <li><strong>PIL</strong>, the Python Imaging Library &mdash; <a href="http://www.pythonware.com/products/pil/">www.pythonware.com/products/pil</a> <em>(required)</em></li>
 <li><strong>pdftk</strong> 1.44 or 1.45 for retrieving PDF metadata (page titles, hyperlinks) &mdash; <a href="http://www.accesspdf.com/pdftk/">www.accesspdf.com/pdftk</a> <em>(required)</em></li>
 <li>the <strong>MuPDF utilities</strong> for PDF rendering &mdash; <a href="http://www.mupdf.com/">www.mupdf.com</a> <em>(required)</em></li>
-<li><strong>Xpdf</strong> or the <strong>Poppler utilities</strong> for alternate PDF rendering &mdash; <a href="http://www.foolabs.com/xpdf/">www.foolabs.com/xpdf/</a> or <a href="http://poppler.freedesktop.org/">http://poppler.freedesktop.org/</a> <em>(required if MuPDF not available, optional otherwise)</em></li>
+<li><strong>Xpdf</strong> or the <strong>Poppler utilities</strong> for alternate PDF rendering &mdash; <a href="http://www.foolabs.com/xpdf/">www.foolabs.com/xpdf/</a> or <a href="http://poppler.freedesktop.org/">http://poppler.freedesktop.org/</a> <em>(required if MuPDF is not available, optional otherwise)</em></li>
 <li><strong>GhostScript</strong> for alternate PDF rendering &mdash; <a href="http://www.cs.wisc.edu/~ghost/">www.cs.wisc.edu/~ghost</a> <em>(required if neither MuPDF nor Xpdf/Poppler utilities are available; optional otherwise)</em></li>
-<li><strong>xdg-utils</strong> for starting web or e-mail hyperlinks from PDF documents &mdash; <a href="http://portland.freedesktop.org/">portland.freedesktop.org</a> <em>(optional, not applicable on Win32)</em></li>
-<li><strong>PyWin32</strong>, the Python for Windows extensions &mdash; <a href="http://sourceforge.net/projects/pywin32/">pywin32.sourceforge.net</a> <em>(optional, applicable on Win32 only)</em></li>
-<li><strong>MPlayer</strong> for sound and video playback &mdash; <a href="http://www.mplayerhq.hu/">www.mplayerhq.hu</a> <em>(optional)</em></li>
+<li><strong>xdg-utils</strong> for starting web or e-mail hyperlinks from PDF documents &mdash; <a href="http://portland.freedesktop.org/">portland.freedesktop.org</a> <em>(optional, does not apply to Win32)</em></li>
+<li><strong>PyWin32</strong>, the Python for Windows extensions &mdash; <a href="http://sourceforge.net/projects/pywin32/">pywin32.sourceforge.net</a> <em>(optional, applies to Win32 only)</em></li>
+<li><strong>MPlayer</strong> or <strong>MPlayer2</strong> for sound and video playback &mdash; <a href="http://www.mplayerhq.hu/">www.mplayerhq.hu</a> <em>(optional)</em></li>
 </ul>
 
 <p>On Unix-like systems, these dependencies are typically available in the major distributions' package repositories and can be installed easily with the package managers, e.g.:</p>
@@ -95,7 +95,7 @@ A more comfortable method is installing Impressive in the &raquo;Send To&laquo; 
 <code class="pre">    svn co http://svn.emphy.de/impressive/trunk/impressive</code><br />
 Regarding external dependencies, the section above applies as well; in addition, Subversion (whose package is usually called <code>svn</code> or <code>subversion</code>) is obviously required too.</p>
 
-<p>After checking out the sources, the <code>impressive.py</code> program will still be missing. Instead, the main program is called <code>impressive_dev.py</code> and is functionally equivalent; it pulls the actual source files from the <code>src</code> subdirectory and runs them. To get an actual <code>impressive.py</code> file for redistribution (or for putting it e.g. into <code>/usr/local</code> so it can be run from everywhere), it needs to be generated using either <code>make</code> (if GNU Make is installed) or <code>python compile.py</code>.</p>
+<p>After checking out the sources, the <code>impressive.py</code> program will still be missing. Instead, the main program is called <code>impressive_dev.py</code> and is functionally equivalent; it pulls the actual source files from the <code>src</code> subdirectory and runs them. To get a real stand-alone <code>impressive.py</code> file for redistribution (or for putting it e.g. into <code>/usr/local</code> so it can be run from everywhere), it needs to be generated using either <code>make</code> (if GNU Make is installed) or <code>python compile.py</code>.</p>
 
 <!-------------------------------------------------------------------------------->
 
@@ -111,7 +111,7 @@ Regarding external dependencies, the section above applies as well; in addition,
 <dd>Automatically advance to the next page after the given number of seconds. Together with the <code>-w</code> option (described below), this can be used to create automatic slideshows.</dd>
 
 <dt><code>-A <em>&lt;X&gt;</em>:<em>&lt;Y&gt;</em></code> or <code>--aspect <em>&lt;X&gt;</em>:<em>&lt;Y&gt;</em></code></dt>
-<dd>Specifies the display aspect ratio. Normally, Impressive assumes that the pixel aspect ratio is 1:1 (square pixels), regardless of the display resolution that has been set up. If a resolution has been selected that doesn't match the display's aspect ratio, the screen will be distorted. To overcome this, this option may be used to manually specify the display aspect ratio, e.g. &raquo;-A 16:9&laquo;. Note that this option has no effect if Xpdf is used for rendering.</dd>
+<dd>Specifies the display aspect ratio. Normally, Impressive assumes that the pixel aspect ratio is 1:1 (square pixels), regardless of the display resolution that has been set up. If a resolution has been selected that doesn't match the display's aspect ratio, the screen will be distorted. To overcome this, this option may be used to manually specify the display aspect ratio, e.g. &raquo;-A 16:9&laquo;. Note that this option has no effect if the MuPDF backend is used for rendering.</dd>
 
 <dt><code>-b</code> or <code>--noback</code></dt>
 <dd>Disables background rendering. By default, Impressive will pre-render all pages in a separate background thread while the presentation runs. If this option is specified, it will instead render all pages immediately on startup. This option has no effect if caching is disabled (<code>--cache none</code>, see below).</dd>
@@ -486,11 +486,11 @@ If an event or action specified on the command line or in a configuration file i
 
 <h3>Supported Events</h3>
 
-<p>Keyboard events are generally named after the keys they refer to. Consequently, the events <code>a</code> to <code>z</code> and <code>0</code> to <code>9</code> mean the respective letter and number keys on the main keyboard, <code>f1</code> to <code>f12</code> are the function keys and <code>kp0</code> to <code>kp9</code> are the number keys on the numerical keypad. All of these are raw scancodes, which has two implications: First, the key names are not internationalized and refer to the US keyboard layout (e.g. the <strong>Z</strong> key on a German or French keyboard will actually react to the event name <code>y</code>); second, modifiers will be ignored as well (e.g. the numerical keypad will always generate the <code>kp<em>X</em></code> scancodes, even if Num Lock is off).</p>
+<p>Keyboard events are generally named after the keys they refer to. Consequently, the events <code>a</code> to <code>z</code> and <code>0</code> to <code>9</code> mean the respective letter and number keys on the main keyboard, <code>f1</code> to <code>f12</code> are the function keys and <code>kp0</code> to <code>kp9</code> are the number keys on the numerical keypad. All of these are raw scancodes, which has two implications: First, the key names are not internationalized and refer to the US keyboard layout (e.g. the <strong>Z</strong> key on a German or French keyboard will actually react to the event name <code>y</code> or <code>w</code>); second, modifiers will be ignored as well (e.g. the numerical keypad will always generate the <code>kp<em>X</em></code> scancodes, even if Num Lock is off).</p>
 
 <p>The mnemonic names for the other keyboard events are as follows (in alphabetic order): <code>ampersand</code>, <code>asterisk</code>, <code>at</code>, <code>backquote</code>, <code>backslash</code>, <code>backspace</code>, <code>break</code>, <code>capslock</code>, <code>caret</code>, <code>clear</code>, <code>comma</code>, <code>down</code>, <code>end</code>, <code>escape</code>, <code>euro</code>, <code>exclaim</code>, <code>greater</code>, <code>hash</code>, <code>help</code>, <code>home</code>, <code>insert</code>, <code>kp_divide</code>, <code>kp_enter</code>, <code>kp_equals</code>, <code>  kp_minus</code>, <code>kp_multiply</code>, <code>kp_plus</code>, <code>lalt</code>, <code>last</code>, <code>lctrl</code>, <code>left</code>, <code>leftbracket</code>, <code>leftparen</code>, <code>less</code>, <code>lmeta</code>, <code>lshift</code>, <code>lsuper</code>, <code>menu</code>, <code>minus</code>, <code>mode</code>, <code>numlock</code>, <code>pagedown</code>, <code>pageup</code>, <code>pause</code>, <code>period</code>, <code>plus</code>, <code>power</code>, <code>print</code>, <code>question</code>, <code>quote</code>, <code>quotedbl</code>, <code>ralt</code>, <code>rctrl</code>, <code>return</code>, <code>right</code>, <code>rightbracket</code>, <code>rightparen</code>, <code>rmeta</code>, <code>rshift</code>, <code>rsuper</code>, <code>scrollock</code>, <code>semicolon</code>, <code>slash</code>, <code>space</code>, <code>sysreq</code>, <code>tab</code>, <code>underscore</code>, <code>up</code>. The events prefixed with <code>kp_</code> refer to keys on the numerical keypad. Other than that, the names should be reasonably descriptive, so they will not be described futher at this point. Also note that not all keyboards and platforms support the full range of keys defined in this list.</p>
 
-<p>Mouse events names are mapped as follows:</p><dl>
+<p>Mouse event names are mapped as follows:</p><dl>
 <dt><code>lmb</code></dt><dd>the left mouse button</dd>
 <dt><code>mmb</code></dt><dd>the middle mouse button</dd>
 <dt><code>rmb</code></dt><dd>the right mouse button</dd>
@@ -500,7 +500,7 @@ If an event or action specified on the command line or in a configuration file i
 
 <p>The event names can be prefixed with the three modifiers <code>ctrl+</code>, <code>alt+</code> and <code>shift+</code> to make the event valid only if the specified set of modifiers is pressed as well. This works for both keyboard and mouse events. Multiple modifiers can be combined, but the order must match the one mentioned in this paragraph. For example, <code>ctrl+shift+x</code> is a valid event name, while <code>shift+ctrl+x</code> is not.</p>
 
-<p>A simple way to determine the name associated with an event is using Impressive's &raquo;Event Test Mode&laqo; by invoking <code>impressive --evtest</code>. In this mode, the name of each incoming event will be displayed on the screen (and logged to standard output), which makes it possible to determine event names by experimentation.</p>
+<p>A simple way to determine the name associated with an event is using Impressive's &raquo;Event Test Mode&laquo; by invoking <code>impressive --evtest</code>. In this mode, the name of each incoming event will be displayed on the screen (and logged to standard output), which makes it possible to determine event names by experimentation.</p>
 
 <h3>Supported Actions</h3>
 
@@ -551,7 +551,7 @@ If an event or action specified on the command line or in a configuration file i
 <dt><code>goto-start</code>, <code>goto-start-notrans</code></dt>
 <dd>Go to the first page of the presentation, with or without a transition.</dd>
 
-<dt><code>hyperlink</code>, <code>goto-start-notrans</code></dt>
+<dt><code>hyperlink</code>, <code>hyperlink-notrans</code></dt>
 <dd>Navigate to the hyperlink under the mouse cursor, if there is one. If the hyperlink is a reference to another page of the presentation, this page will be activated with or without a transition. If the hyperlink refers to an external object (e.g. an URL), it will be opened externally, if supported by the system.</dd>
 
 <dt><code>overview-confirm</code></dt>
@@ -634,7 +634,7 @@ In other words, it is a sequence of event names joined with commas, followed by 
 <dd>The specified actions will be <em>added</em> to the bindings of the specified events. In other words, <code>event=action1,action2</code> does exactly the same as <code>event=action1; event=action2</code>.</dd>
 
 <dt><code>:=</code> (colon and equals sign)</dt>
-<dd>The specified actions will be <em>overview</em> the bindings of the specified events.</dd>
+<dd>The specified actions will <em>replace</em> the bindings of the specified events.</dd>
 
 <dt><code>-=</code> (minus sign and equals sign)</dt>
 <dd>The specified actions will be <em>removed</em> from the bindings of the specified events. For example, to make the <strong>Esc</strong> key in the default bindings not clear highlight boxes, but otherwise preserve its original functionality, <code>escape&nbsp;-=&nbsp;box-clear</code> can be used.</dd>
