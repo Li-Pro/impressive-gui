@@ -151,7 +151,7 @@ class PageDisplayActions(BaseDisplayActions):
         PanAnchorX = ZoomX0
         PanAnchorY = ZoomY0
     def _zoom_pan(self):
-        ActionValidIf(ZoomMode)
+        ActionValidIf(ZoomMode and Panning)
     def _zoom_pan_RELEASE(self):
         global PanValid, Panning
         PanValid = False
