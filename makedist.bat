@@ -10,6 +10,7 @@ if errorlevel 1 goto end
 python %pyinstaller_path%\pyinstaller.py --noconfirm --onedir --name=Impressive --console --icon=Artwork\icon.ico --version-file=win32_version.txt impressive.py
 if errorlevel 1 goto end
 rmdir /s /q build
+del dist\Impressive\Impressive.exe.manifest
 del Impressive.spec
 del logdict2.*.log
 del win32_version.txt

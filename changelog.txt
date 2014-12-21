@@ -1,3 +1,31 @@
+0.11.0 [2014-12-21]
+- full port from OpenGL 1.1 to OpenGL (ES) 2.0
+- fully customizable key/mouse bindings (-e/--bind, -E/--controls,
+  --control-help, --evtest)
+- MuPDF (mudraw/pdfdraw) rendering backend
+- 'transition' PageProp describes transition *to* the page, not after the page
+- Raspberry Pi compatibility
+- new shader-based blurring with desaturation + fallback to old method
+  for old HW (autodetect or --noblur)
+- re-implemented all transitions with shaders
+  (missing: PageTurn, SpinOutIn, SpiralOutIn, ZoomOutIn;
+  new: WipeClouds, WipeBrightness1, WipeBrightness2)
+- compressed in-memory cache (-cz / --cache compressed)
+- removed -e/--noext and -R/--meshres due to obsolescence
+- --tracking enables time tracking right from the start
+- added -v/--verbose mode
+- MuPDF renderer backend can work via named pipes instead of temp files on Unix
+- alternate overview downscaling algorithm for slower systems (auto-detected)
+- internal default mouse cursor image
+- fixed OSD font rendering bug with Pillow
+- most platform-specific code now handled by abstraction layer;
+  no direct PyGame calls in core
+- custom ctypes-based OpenGL loader instead of PyOpenGL
+- generic PDF renderer framework (necessary now that there's 3 renderers)
+- external PDF renderers are now called with 'nice' when background rendering
+  on POSIX
+
+
 0.10.5 [2014-05-02]
 - fixed bug that cause file lists ("@list.txt" parameters) to not work in 0.10.4
 - some minor additions to the release script, only relevant for distributors

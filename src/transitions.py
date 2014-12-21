@@ -413,13 +413,3 @@ AvailableTransitions = [ # from coolest to lamest
     WipeCenterOut,
     WipeDownRight, WipeRight, WipeDown
 ]
-
-
-"""
-missing transitions in gl2 branch so far:
-  PageTurn      - another page peel effect, slower but more realistic than PagePeel
-  SpinOutIn     - spins the current page out, and the next one in.
-  SpiralOutIn   - flushes the current page away to have the next one overflow
-  ZoomOutIn     - zooms the current page out, and the next one in.
-"""
-#AvailableTransitions = [AllTransitions[-1]]

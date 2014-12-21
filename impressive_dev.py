@@ -3,7 +3,6 @@
 #
 # Impressive, a fancy presentation tool
 # Copyright (C) 2005-2014 Martin J. Fiedler <martin.fiedler@gmx.net>
-# portions Copyright (C) 2007 Luke Campagnola <luke.campagnola@gmail.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -19,7 +18,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 __title__   = "Impressive"
-__version__ = "0.11.0-WIP"
+__version__ = "0.11.0"
 __rev__     = None
 __author__  = "Martin J. Fiedler"
 __email__   = "martin.fiedler@gmx.net"

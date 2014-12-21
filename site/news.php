@@ -1,5 +1,10 @@
 <?php include("menu.php"); ?>
 
+<h1><span class="date">2014-12-21</span>Early christmas present: 0.11.0 is out</h1>
+<p>Almost one year ago, I promised some larger changes to Impressive and, in fact, already implemented them. They sat in SVN for quite a while, and so far it seems that the people who tried them are quite happy with them, so it's time for a new release.</p>
+<p>In 0.11.0, major parts of the program have been rewritten. The graphics code is all-new and is now based on OpenGL (ES) 2.0 instead of the ancient OpenGL 1.1. The result: It now runs on Raspberry Pi, and transitions are smoother on this small computer than they ever were on high-end PCs with the previous versions. The other big thing is that Impressive finally got fully customizable keyboard and mouse controls. Also, the blazingly fast <a href="http://www.mupdf.com/">MuPDF</a> is now supported as a PDF rendering backend.</p>
+<p>The changes also bring some incompatibilities though. The most important one is that the <code>transition</code> PageProp no longer affects the transition <em>after</em> the specified page, but the transition <strong>to</strong> (or <em>before</em>) the specified page. The <code>-e</code>/<code>--noext</code> and <code>-R</code>/<code>--meshres</code> command-line options are now gone because they don't have any place in the new OpenGL 2.0 world; the <code>-e</code> option has been reused for input customization. Finally, some (rarely used) transitions have disappeared and some new ones are now available.</p>
+
 <h1><span class="date">2014-05-02</span>A major bug fixed in 0.10.5</h1>
 <p>As it turned out, 0.10.4 didn't only fix a ton of bugs, it also introduced one particularly nasty one: The file list feature stopped working. Since many people were using it, 0.10.5 fixes this specific issue. Other than that, it doesn't contain anything new; all the exciting stuff won't appear until 0.11.0.</p>
 
