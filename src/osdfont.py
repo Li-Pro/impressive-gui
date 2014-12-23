@@ -16,10 +16,10 @@ def SearchFont(root, name):
         return None
     infix = ""
     fontfile = []
-    while (len(infix) < 10) and (len(fontfile) != 1):
+    while (len(infix) < 10) and not(fontfile):
         fontfile = filter(os.path.isfile, glob.glob(root + infix + name))
         infix += "*/"
-    if len(fontfile) != 1:
+    if not fontfile:
         return None
     else:
         return fontfile[0]
@@ -67,7 +67,7 @@ class GLFont:
         self.widths = {}
         self.line_height = 0
         self.default_charset = default_charset
-        if type(name) == types.StringType:
+        if isinstance(name, basestring):
             self.font = LoadFont(search_path, name, size)
         else:
             for check_name in name:
