@@ -43,20 +43,21 @@ def DrawOverlays(trans_time=0.0):
             color1=(r, g, b, a)
         )
 
-    OSDFont.BeginDraw()
-    if WantStatus:
-        DrawOSDEx(OSDStatusPos, CurrentOSDStatus)
-    if TimeDisplay:
-        if ShowClock:
-            DrawOSDEx(OSDTimePos, ClockTime(MinutesOnly))
-        else:
-            t = reltime / 1000
-            DrawOSDEx(OSDTimePos, FormatTime(t, MinutesOnly))
-    if CurrentOSDComment and (OverviewMode or not(TransitionRunning)):
-        DrawOSD(ScreenWidth/2, \
-                ScreenHeight - 3*OSDMargin - FontSize, \
-                CurrentOSDComment, Center, Up)
-    OSDFont.EndDraw()
+    if OSDFont:
+        OSDFont.BeginDraw()
+        if WantStatus:
+            DrawOSDEx(OSDStatusPos, CurrentOSDStatus)
+        if TimeDisplay:
+            if ShowClock:
+                DrawOSDEx(OSDTimePos, ClockTime(MinutesOnly))
+            else:
+                t = reltime / 1000
+                DrawOSDEx(OSDTimePos, FormatTime(t, MinutesOnly))
+        if CurrentOSDComment and (OverviewMode or not(TransitionRunning)):
+            DrawOSD(ScreenWidth/2, \
+                    ScreenHeight - 3*OSDMargin - FontSize, \
+                    CurrentOSDComment, Center, Up)
+        OSDFont.EndDraw()
 
     if CursorImage and CursorVisible:
         x, y = Platform.GetMousePos()

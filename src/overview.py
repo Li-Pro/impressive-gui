@@ -32,12 +32,13 @@ def DrawOverview():
     )
 
     gl.Enable(gl.BLEND)
-    OSDFont.BeginDraw()
-    DrawOSDEx(OSDTitlePos,  CurrentOSDCaption)
-    DrawOSDEx(OSDPagePos,   CurrentOSDPage)
-    DrawOSDEx(OSDStatusPos, CurrentOSDStatus)
-    OSDFont.EndDraw()
-    DrawOverlays()
+    if OSDFont:
+        OSDFont.BeginDraw()
+        DrawOSDEx(OSDTitlePos,  CurrentOSDCaption)
+        DrawOSDEx(OSDPagePos,   CurrentOSDPage)
+        DrawOSDEx(OSDStatusPos, CurrentOSDStatus)
+        OSDFont.EndDraw()
+        DrawOverlays()
     Platform.SwapBuffers()
 
 # overview zoom effect, time mapped through func
@@ -88,12 +89,13 @@ def OverviewZoom(func):
             tex=Tcurrent, color=(1.0, 1.0, 1.0, 1.0 - t * t * t)
         )
 
-        OSDFont.BeginDraw()
-        DrawOSDEx(OSDTitlePos,  CurrentOSDCaption, alpha_factor=t)
-        DrawOSDEx(OSDPagePos,   CurrentOSDPage,    alpha_factor=t)
-        DrawOSDEx(OSDStatusPos, CurrentOSDStatus,  alpha_factor=t)
-        OSDFont.EndDraw()
-        DrawOverlays()
+        if OSDFont:
+            OSDFont.BeginDraw()
+            DrawOSDEx(OSDTitlePos,  CurrentOSDCaption, alpha_factor=t)
+            DrawOSDEx(OSDPagePos,   CurrentOSDPage,    alpha_factor=t)
+            DrawOSDEx(OSDStatusPos, CurrentOSDStatus,  alpha_factor=t)
+            OSDFont.EndDraw()
+            DrawOverlays()
         Platform.SwapBuffers()
     TransitionRunning = False
 
