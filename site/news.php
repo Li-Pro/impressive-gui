@@ -1,5 +1,8 @@
 <?php include("menu.php"); ?>
 
+<h1><span class="date">2014-12-23</span>Just a minor patch: 0.11.0a</h1>
+<p>Only a couple of hours after the release of 0.11.0, users informed me that there were problems with some recent Linux distributions, namely &raquo;could not load SDL library&laquo; errors and crashes because no OSD font has been found. 0.11.0a should fix these issues. It's a source-only release that affects POSIX systems only; on Windows, this version behaves in all regards identical to 0.11.0. That's why there's no new Win32 .zip file for 0.11.0, as it isn't needed.</p>
+
 <h1><span class="date">2014-12-21</span>Early christmas present: 0.11.0 is out</h1>
 <p>Almost one year ago, I promised some larger changes to Impressive and, in fact, already implemented them. They sat in SVN for quite a while, and so far it seems that the people who tried them are quite happy with them, so it's time for a new release.</p>
 <p>In 0.11.0, major parts of the program have been rewritten. The graphics code is all-new and is now based on OpenGL (ES) 2.0 instead of the ancient OpenGL 1.1. The result: It now runs on Raspberry Pi, and transitions are smoother on this small computer than they ever were on high-end PCs with the previous versions. The other big thing is that Impressive finally got fully customizable keyboard and mouse controls. Also, the blazingly fast <a href="http://www.mupdf.com/">MuPDF</a> is now supported as a PDF rendering backend.</p>
