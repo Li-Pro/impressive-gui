@@ -489,7 +489,7 @@ def run_main():
                 print >>sys.stderr, "Linux distribution:", lsb_release.stdout.read().strip()
                 lsb_release.wait()
             print >>sys.stderr, "Command line:", ' '.join(('"%s"'%arg if (' ' in arg) else arg) for arg in sys.argv)
-            raise
+            traceback.print_exc(file=sys.stderr)
     finally:
         StopMPlayer()
         # ensure that background rendering is halted
