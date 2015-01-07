@@ -50,7 +50,10 @@ class Platform_PyGame(object):
         except AttributeError:
             raise ImportError("failed to load SDL_GL_GetProcAddress from the SDL library")
         def loadsym(name, prototype):
-            addr = get_proc_address(name)
+            try:
+                addr = get_proc_address(name)
+            except EnvironmentError:
+                return None
             if not addr:
                 return None
             return prototype(addr)
@@ -175,6 +178,30 @@ class Platform_Win32(Platform_PyGame):
             dm = win32api.EnumDisplaySettings(None, -1) #ENUM_CURRENT_SETTINGS
             return (int(dm.PelsWidth), int(dm.PelsHeight))
         return Platform_PyGame.GetScreenSize(self)
+
+    def LoadOpenGL(self):
+        try:
+            opengl32 = WinDLL("opengl32")
+            get_proc_address = WINFUNCTYPE(c_void_p, c_char_p)(('wglGetProcAddress', opengl32))
+        except OSError:
+            raise ImportError("failed to load the OpenGL library")
+        except AttributeError:
+            raise ImportError("failed to load wglGetProcAddress from the OpenGL library")
+        def loadsym(name, prototype):
+            # try to load OpenGL 1.1 function from opengl32.dll first
+            try:
+                return prototype((name, opengl32))
+            except AttributeError:
+                pass
+            # if that fails, load the extension function via wglGetProcAddress
+            try:
+                addr = get_proc_address(name)
+            except EnvironmentError:
+                addr = None
+            if not addr:
+                return None
+            return prototype(addr)
+        return OpenGL(loadsym, desktop=True)
 
 
 class Platform_Unix(Platform_PyGame):

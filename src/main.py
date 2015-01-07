@@ -16,7 +16,6 @@ def main():
     global CursorImage, CursorVisible, InfoScriptPath
     global HalfScreen, AutoAdvance, WindowPos
     global BoxFadeDarknessBase, SpotRadiusBase
-    global GLVendor, GLRenderer, GLVersion
     global BoxIndexBuffer, UseBlurShader
 
     # allocate temporary file
@@ -160,14 +159,12 @@ def main():
     # initialize OpenGL
     try:
         gl = Platform.LoadOpenGL()
-        GLVendor = gl.GetString(gl.VENDOR)
-        GLRenderer = gl.GetString(gl.RENDERER)
-        GLVersion = gl.GetString(gl.VERSION)
         print >>sys.stderr, "OpenGL renderer:", GLRenderer
 
         # check if graphics are unaccelerated
         renderer = GLRenderer.lower().replace(' ', '').replace('(r)', '')
-        if (renderer in ("mesaglxindirect", "gdigeneric")) \
+        if not(renderer) \
+        or (renderer in ("mesaglxindirect", "gdigeneric")) \
         or renderer.startswith("software") \
         or ("llvmpipe" in renderer):
             print >>sys.stderr, "WARNING: Using an OpenGL software renderer. Impressive will work, but it will"
@@ -179,11 +176,13 @@ def main():
                 UseBlurShader = False
 
         # check the OpenGL version (2.0 needed to ensure NPOT texture support)
-        glver = gl.GetString(gl.VERSION)
-        extensions = set(gl.GetString(gl.EXTENSIONS).split())
-        if (glver < "2") and (not("GL_ARB_shader_objects" in extensions) or not("GL_ARB_texture_non_power_of_two" in extensions)):
-            raise ImportError("OpenGL version %r is below 2.0 and the necessary extensions are unavailable" % glver)
+        extensions = set((gl.GetString(gl.EXTENSIONS) or "").split())
+        if (GLVersion < "2") and (not("GL_ARB_shader_objects" in extensions) or not("GL_ARB_texture_non_power_of_two" in extensions)):
+            raise ImportError("OpenGL version %r is below 2.0 and the necessary extensions are unavailable" % GLVersion)
     except ImportError, e:
+        if GLVendor: print >>sys.stderr, "OpenGL vendor:", GLVendor
+        if GLRenderer: print >>sys.stderr, "OpenGL renderer:", GLRenderer
+        if GLVersion: print >>sys.stderr, "OpenGL version:", GLVersion
         print >>sys.stderr, "FATAL:", e
         print >>sys.stderr, "This likely means that your graphics driver or hardware is too old."
         sys.exit(1)

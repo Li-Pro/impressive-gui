@@ -83,10 +83,10 @@ class OpenGL(object):
     LINK_STATUS = 0x8B82
     INFO_LOG_LENGTH = 0x8B84
     _funcs = [
+        GLFunction(True,  "GetString",                c_char_p, c_uint),
         GLFunction(True,  "Enable",                   None, c_uint),
         GLFunction(True,  "Disable",                  None, c_uint),
         GLFunction(True,  "GetError",                 c_uint),
-        GLFunction(True,  "GetString",                c_char_p, c_uint),
         GLFunction(True,  "Viewport",                 None, c_int, c_int, c_int, c_int),
         GLFunction(True,  "Clear",                    None, c_uint),
         GLFunction(True,  "ClearColor",               None, c_float, c_float, c_float, c_float),
@@ -139,6 +139,7 @@ class OpenGL(object):
     }
 
     def __init__(self, loader, desktop=False):
+        global GLVendor, GLRenderer, GLVersion
         self._is_desktop_gl = desktop
         for func in self._funcs:
             funcptr = None
@@ -157,6 +158,10 @@ class OpenGL(object):
                 setattr(self, '_' + func.name, funcptr)
             else:
                 setattr(self, func.name, funcptr)
+            if func.name == "GetString":
+                GLVendor = self.GetString(self.VENDOR) or ""
+                GLRenderer = self.GetString(self.RENDERER) or ""
+                GLVersion = self.GetString(self.VERSION) or ""
         self._init()
 
     def GenTextures(self, n=1):
