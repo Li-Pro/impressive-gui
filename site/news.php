@@ -1,5 +1,8 @@
 <?php include("menu.php"); ?>
 
+<h1><span class="date">2015-01-08</span>... and now for the Windows users: 0.11.0b</h1>
+<p>Linux wasn't the only system affected from some growing pains in 0.11.0. I got two bug reports that the Windows version wasn't working either on some specific graphics hardware / driver combinations. To fix this, the way OpenGL functions are loaded has been rewritten and the problem seems to be gone now.</p>
+
 <h1><span class="date">2014-12-23</span>Just a minor patch: 0.11.0a</h1>
 <p>Only a couple of hours after the release of 0.11.0, users informed me that there were problems with some recent Linux distributions, namely &raquo;could not load SDL library&laquo; errors and crashes because no OSD font has been found. 0.11.0a should fix these issues. It's a source-only release that affects POSIX systems only; on Windows, this version behaves in all regards identical to 0.11.0. That's why there's no new Win32 .zip file for 0.11.0, as it isn't needed.</p>
 
