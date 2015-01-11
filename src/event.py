@@ -227,7 +227,7 @@ class PageDisplayActions(BaseDisplayActions):
             if valid and (x >= x0) and (x < x1) and (y >= y0) and (y < y1):
                 if type(target) == types.IntType:
                     TransitionTo(target, allow_transition=allow_transition)
-                elif dest:
+                elif target:
                     RunURL(target)
                 return
         raise ActionNotHandled()

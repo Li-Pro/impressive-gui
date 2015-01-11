@@ -18,7 +18,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 __title__   = "Impressive"
-__version__ = "0.11.0b"
+__version__ = "0.11.1-WIP"
 __rev__     = None
 __author__  = "Martin J. Fiedler"
 __email__   = "martin.fiedler@gmx.net"
