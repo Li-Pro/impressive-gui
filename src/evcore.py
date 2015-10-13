@@ -342,3 +342,8 @@ class BaseActions(ActionRelayBase):
         if Fullscreen:
             Platform.ScheduleEvent("$hide-mouse", MouseHideDelay)
             SetCursor(True)
+
+    def _X_call(self):
+        while CallQueue:
+            func, args, kwargs = CallQueue.pop(0)
+            func(*args, **kwargs)

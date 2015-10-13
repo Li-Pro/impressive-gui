@@ -64,6 +64,13 @@ def run():
     except SystemExit, e:
         return e.code
 
+# use this function if you use Impressive as a library and want to call any
+# Impressive-internal function from a second thread
+def synchronize(func, *args, **kwargs):
+    CallQueue.append((func, args, kwargs))
+    if Platform:
+        Platform.ScheduleEvent("$call", 1)
+
 if __name__ == "__main__":
     try:
         ParseOptions(sys.argv[1:])
