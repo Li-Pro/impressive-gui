@@ -500,7 +500,7 @@ def PageImage(page, ZoomMode=False, RenderMode=False):
         # return texture data
         if RenderMode:
             return TextureImage
-        data = TextureImage.tostring()
+        data = img2str(TextureImage)
         del TextureImage
     finally:
       Lrender.release()

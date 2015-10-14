@@ -68,6 +68,20 @@ RjCyHBD6IFPUVclUMHGeqWFVVWJuXm/Gku2cwNK0zr9fvJc5UdwqGqVoRZ56rOjMAFMWon1NTLZU11WX
 MqnMK0JSurx6HcNhxwOR8TnHx33eALjXt+o4A8EBUVReNjnBgaALGBoQkwWRRGOB1ZFDJhSBV90OoIHmuxOWZZ98E4Q4HVEgDDgAUiZyoQYjsbiI2SSMpRKynrv+jR2sKmlF4TewLpD20RExrXNMY24dpcTYvBj94F1RHC7vdH9Dcf6eF5wwtpDwKk5wZMnoY/fzqIxH3EWiQhS46ETAz7/t3eQfwqQe2g6gT/OGYkfobBHisfkVvv5vg8fP/d
 D6hnQq/Xqn0KJc0aiorxofq9zkL11+8FXeOwCOgGfVlpSof+vygTWAGagB/iiNTfp0IsRkWxA0hxFZyI0lbBRX/pM4ycZx2V6yAv08AAAAABJRU5ErkJggg=="""
 
+# get the contents of a PIL image as a string
+def img2str(img):
+    if hasattr(img, "tobytes"):
+        return img.tobytes()
+    else:
+        return img.tostring()
+
+# create a PIL image from a string
+def str2img(mode, size, data):
+    if hasattr(Image, "frombytes"):
+        return Image.frombytes(mode, size, data)
+    else:
+        return Image.fromstring(mode, size, data)
+
 # determine the next power of two
 def npot(x):
     res = 1

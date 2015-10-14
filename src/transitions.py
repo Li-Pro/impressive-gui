@@ -286,7 +286,7 @@ class WipeClouds(Wipe):
     blur = 5
     def prepare_mask(self):
         assert self.rx == self.ry
-        noise = Image.fromstring('L', (self.rx * 4, self.ry * 2), ''.join(map(chr, (random.randrange(256) for i in xrange(self.rx * self.ry * 8)))))
+        noise = str2img('L', (self.rx * 4, self.ry * 2), ''.join(map(chr, (random.randrange(256) for i in xrange(self.rx * self.ry * 8)))))
         img = Image.new('L', (1, 1), random.randrange(256))
         alpha = 1.0
         npos = 0
@@ -304,7 +304,7 @@ class WipeClouds(Wipe):
         for i in xrange(self.blur):
             img = img.filter(ImageFilter.BLUR)
         img = img.crop((border, border, img.size[0] - 2 * border, img.size[1] - 2 * border)).resize((self.rx, self.ry), Image.ANTIALIAS)
-        return img.tostring()
+        return img2str(img)
 class WipeBrightness1(Wipe):
     """wipe based on the current slide's brightness"""
     band_size = 1.0

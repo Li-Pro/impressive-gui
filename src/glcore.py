@@ -285,7 +285,7 @@ class OpenGL(object):
         elif img.mode == 'LA':   format = self.LUMINANCE_ALPHA
         elif img.mode == 'L':    format = self.LUMINANCE
         else: raise TypeError("image has unsupported color format '%s'" % img.mode)
-        gl.TexImage2D(target, 0, format, img.size[0], img.size[1], 0, format, self.UNSIGNED_BYTE, img.tostring())
+        gl.TexImage2D(target, 0, format, img.size[0], img.size[1], 0, format, self.UNSIGNED_BYTE, img2str(img))
 
 class GLShaderCompileError(SyntaxError):
     pass
