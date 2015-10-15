@@ -269,7 +269,7 @@ class PDFParser:
                     dest = a.get('URI', None)
                     for prefix in ("file://", "file:", "run://", "run:"):
                         if dest.startswith(prefix):
-                            dest = dest[len(prefix):]
+                            dest = urllib.unquote(dest[len(prefix):])
                             break
                 elif action == 'Launch':
                     dest = a.get('F', None)
