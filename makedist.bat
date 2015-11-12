@@ -1,5 +1,5 @@
 @echo off
-set pyinstaller_path="C:\Program Files (x86)\Dev\Python25\pyinstaller-2.0"
+set pyinstaller_path="C:\Program Files (x86)\Dev\Python25\PyInstaller-2.1"
 
 python compile.py
 if errorlevel 1 goto end

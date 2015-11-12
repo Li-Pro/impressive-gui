@@ -1,5 +1,8 @@
 <?php include("menu.php"); ?>
 
+<h1><span class="date">2015-11-12</span>Some small fixes in 0.11.1</h1>
+<p>This update just adds a few small fixes regarding hyperlinks and, most importantly, a compatibility fix for newer versions of one of the libraries relies on. This caused Impressive to break for Arch Linux users a few days ago, and so I'd rather make a new release version before the new library version gets into the real mainstream distributions.</p>
+
 <h1><span class="date">2015-01-08</span>... and now for the Windows users: 0.11.0b</h1>
 <p>Linux wasn't the only system affected from some growing pains in 0.11.0. I got two bug reports that the Windows version wasn't working either on some specific graphics hardware / driver combinations. To fix this, the way OpenGL functions are loaded has been rewritten and the problem seems to be gone now.</p>
 

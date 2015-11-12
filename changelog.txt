@@ -1,3 +1,22 @@
+0.11.1 [2015-11-12]
+- fix for newer PIL/Pillow versions that broke compatibility by
+  removing .tostring() and .fromstring()
+- fixed crash when clicking on run: URI hyperlinks
+- PDF hyperlinks with file:// and run:// URIs now work correctly with
+  quoted characters (e.g. spaces) in paths
+- added top-level synchronize() function to schedule calls in
+  Impressive's main thead (useful for library mode)
+- explicitly printing traceback on crashes to ensure proper display on
+  Win32 systems
+- early lookup of OpenGL vendor/renderer/version strings (to get more
+  useful crash logs)
+- added Win32-specific OpenGL loader (instead of SDL fallback)
+- fixed SDL library lookup issue on newer Linux systems
+- OSD font lookup now works if the same font file exists multiple times
+  in the font path
+- fixed crash when no OSD font is available
+
+
 0.11.0 [2014-12-21]
 - full port from OpenGL 1.1 to OpenGL (ES) 2.0
 - fully customizable key/mouse bindings (-e/--bind, -E/--controls,
