@@ -387,12 +387,16 @@ def EventHandlerLoop():
             ProcessEvent(ev, VideoActions)
         elif ProcessEvent(ev, PageDisplayActions):
             # normal action has been handled -> done
-            continue
+            pass
         elif ev and (ev[0] == '*'):
-            # handle a shortcut key
-            ctrl = ev.startswith('*ctrl+')
-            if ctrl:
-                ev = '*' + ev[6:]
-            page = HandleShortcutKey(ev, Pcurrent)
-            if page:
-                TransitionTo(page, allow_transition=not(ctrl))
+            keyfunc = GetPageProp(Pcurrent, 'keys', {}).get(ev[1:], None)
+            if keyfunc:
+                SafeCall(keyfunc)
+            else:
+                # handle a shortcut key
+                ctrl = ev.startswith('*ctrl+')
+                if ctrl:
+                    ev = '*' + ev[6:]
+                page = HandleShortcutKey(ev, Pcurrent)
+                if page:
+                    TransitionTo(page, allow_transition=not(ctrl))
