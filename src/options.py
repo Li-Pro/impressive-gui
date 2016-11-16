@@ -82,6 +82,7 @@ Control options:
   -E,  --controls <file>  load control configuration from a file
        --noclicks         disable page navigation via left/right mouse click
   -W,  --nowheel          disable page navigation via mouse wheel
+       --noquit           disable single-key shortcuts that quit the program
        --evtest           run Impressive in event test mode
 
 Advanced options:
@@ -254,7 +255,8 @@ def ParseOptions(argv):
             "clock", "half-screen", "spot-radius=", "invert", "min-box-size=",
             "auto-auto", "auto-progress", "darkness=", "no-clicks", "nowheel",
             "no-wheel", "fake-fullscreen", "windowed", "verbose", "noblur",
-            "tracking", "bind=", "controls=", "control-help", "evtest"])
+            "tracking", "bind=", "controls=", "control-help", "evtest",
+            "noquit"])
     except getopt.GetoptError, message:
         opterr(message)
 
@@ -317,6 +319,10 @@ def ParseOptions(argv):
             if not DefaultControls:
                 print >>sys.stderr, "Note: The default control settings have been modified, the `--nowheel' option might not work as expected."
             BindEvent("wheelup, wheeldown, ctrl+wheelup, ctrl+wheeldown -= goto-next, goto-prev, goto-next-notrans, goto-prev-notrans, overview-next, overview-prev")
+        if opt in ("--noquit", "--no-quit"):
+            if not DefaultControls:
+                print >>sys.stderr, "Note: The default control settings have been modified, the `--nowheel' option might not work as expected."
+            BindEvent("q,escape -= quit")            
         if opt in ("-e", "--bind"):
             BindEvent(arg, error_prefix="--bind")
             DefaultControls = False

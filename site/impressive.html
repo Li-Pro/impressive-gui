@@ -12,12 +12,12 @@ code.pre { white-space:pre; }
 <!--VERSION-->
 <p style="text-indent:0;">
 <a href="http://impressive.sourceforge.net/">http://impressive.sourceforge.net/</a><br />
-<b>Version:</b> 0.11.0 &ndash; 0.11.1<br />
+<b>Version:</b> 0.11.2-WIP<br />
 <b>Author:</b> <a href="mailto:martin.fiedler@gmx.net">Martin J. Fiedler</a><br />
-<b>Last updated:</b> 2014-12-21</p>
+<b>Last updated:</b> 2016-11-16</p>
 <!--END-->
 <!--man
-.TH IMPRESSIVE 1 2014-12-21 "Martin J. Fiedler" "Impressive Documentation">
+.TH IMPRESSIVE 1 2016-11-16 "Martin J. Fiedler" "Impressive Documentation">
 .SH "NAME"
 Impressive \- presentation tool with eye candy
 .SH "SYNOPSIS"
@@ -228,6 +228,10 @@ Note that this option only works as intended when the default controls are used.
 <dt><code>--nologo</code></dt>
 <dd>This option disables the Impressive logo and version number display. Instead, the loading screen will be just black or, if background rendering is disabled, only the progress bar will be visible.</dd>
 
+<dt><code>--noquit</code></dt>
+<dd>This option disables the keyboard shortcuts (Q and Esc) that could normally quit Impressive with a single keypress. If it is used, the only way to exit the program is the key combination Alt+F4, and accidental quitting is no longer possible.<br />
+Note that this option only works as intended when the default controls are used. If the <code>-e</code>/<code>--bind</code> or <code>-E</code>/<code>--controls</code> options have been used, <code>--noquit</code> might not have the intended effect.</dd>
+
 <dt><code>-o <em>&lt;directory&gt;</em></code> or <code>--output <em>&lt;directory&gt;</em></code></dt>
 <dd>Do not display the presentation, but render it into a series of PNG image files inside the specified directory. The images will be generated in the current resolution as specified by the <code>-g</code> option. This option is useful if the presentation is to be given on on a foreign PC with an old, broken or otherwise problematic Xpdf installation: By generating images of the PDF pages, is is made sure that no rendering bugs will happen on the target system.</dd>
 
@@ -291,7 +295,7 @@ The new PDF file must have at least as much pages as the old one; also, it shoul
 
 <dt><code>-W</code> or <code>--nowheel</code></dt>
 <dd>By default, it is possible to change pages using the mouse wheel. This option disables this behavior, which can be useful to prevent spurious page changes if the mouse wheel is likely to be moved by accident.<br />
-Note that this option only works as intended when the default controls are used. If the <code>-e</code>/<code>--bind</code> or <code>-E</code>/<code>--controls</code> options have been used, <code>--noclicks</code> might not have the intended effect.</dd>
+Note that this option only works as intended when the default controls are used. If the <code>-e</code>/<code>--bind</code> or <code>-E</code>/<code>--controls</code> options have been used, <code>--nowheel</code> might not have the intended effect.</dd>
 
 <dt><code>--windowed</code></dt>
 <dd>Starts Impressive in windowed mode. See the discussion of the <code>-f</code> option for details.</dd>
