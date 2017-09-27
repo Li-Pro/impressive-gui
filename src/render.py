@@ -23,35 +23,38 @@ class PDFRendererBase(object):
 
     def __init__(self, binary=None):
         # search for a working binary and run it to get a list of its options
-        self.binary = None
-        for test_binary in ([binary] if binary else self.binaries):
-            test_binary = FindBinary(test_binary)
+        self.command = None
+        for program_spec in map(str.split, ([binary] if binary else self.binaries)):
+            test_binary = FindBinary(program_spec[0])
             try:
-                p = subprocess.Popen([test_binary] + self.test_run_args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                p = subprocess.Popen([test_binary] + program_spec[1:] + self.test_run_args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
                 data = p.stdout.read()
                 p.wait()
             except OSError:
                 continue
-            self.binary = test_binary
+            self.command = [test_binary] + program_spec[1:]
             break
-        if not self.binary:
+        if not self.command:
             raise RendererUnavailable("program not found")
 
         # parse the output into an option list
         data = [line.strip().replace('\t', ' ') for line in data.split('\n')]
         self.options = set([line.split(' ', 1)[0].split('=', 1)[0].strip('-,') for line in data if line.startswith('-')])
         if not(set(self.required_options) <= self.options):
-            raise RendererUnavailable("%s does not support all required options" % os.path.basename(self.binary))
+            raise RendererUnavailable("%s does not support all required options" % os.path.basename(self.command[0]))
 
     def render(self, filename, page, res, antialias=True):
         raise RenderError()
 
-    def execute(self, args, wait=True):
-        args = [self.binary] + args
+    def execute(self, args, wait=True, redirect=False):
+        args = self.command + args
         if get_thread_id() == RTrunning:
             args = Nice + args
         try:
-            process = subprocess.Popen(args)
+            if redirect:
+                process = subprocess.Popen(args, stdout=subprocess.PIPE)
+            else:
+                process = subprocess.Popen(args)
             if not wait:
                 return process
             if process.wait() != 0:
@@ -77,8 +80,41 @@ class PDFRendererBase(object):
         except OSError:
             pass
 
+
 class MuPDFRenderer(PDFRendererBase):
     name = "MuPDF"
+    binaries = ["mutool draw", "mudraw"]
+    test_run_args = []
+    required_options = ["F", "c", "o", "r"]
+
+    def render(self, filename, page, res, antialias=True):
+        # direct stdout pipe from mutool on Unix; not possible on Win32
+        # because mutool does LF->CRLF mangling on the image data
+        pipe = (os.name != 'nt')
+        imgfile = "-" if pipe else (TempFileName + ".ppm")
+        if ("A" in self.options) and not(antialias):
+            aa_opts = ["-A", "0"]
+        else:
+            aa_opts = []
+        proc = self.execute(
+            ["-F", "pnm", "-c", "rgb", "-o", imgfile, "-r", str(res[0])] \
+            + aa_opts + [filename, str(page)],
+            wait=not(pipe), redirect=pipe)
+        if pipe:
+            try:
+                out, err = proc.communicate()
+            except EnvironmentError, e:
+                raise RenderError("could not run renderer - %s" % e)
+            if not out:
+                raise RenderError("renderer returned empty image")
+            return self.load(cStringIO.StringIO(out))
+        else:
+            return self.load(imgfile, autoremove=True)
+AvailableRenderers.append(MuPDFRenderer)
+
+
+class MuPDFLegacyRenderer(PDFRendererBase):
+    name = "MuPDF (legacy)"
     binaries = ["mudraw", "pdfdraw"]
     test_run_args = []
     required_options = ["o", "r"]
@@ -157,7 +193,8 @@ class MuPDFRenderer(PDFRendererBase):
                     except IOError:
                         pass
             self.remove(imgfile)
-AvailableRenderers.append(MuPDFRenderer)
+AvailableRenderers.append(MuPDFLegacyRenderer)
+
 
 class XpdfRenderer(PDFRendererBase):
     name = "Xpdf/Poppler"
