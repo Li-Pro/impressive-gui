@@ -23,7 +23,7 @@ if os.name == "nt":
         for p in _find_paths:
             path = os.path.join(p, binary)
             if os.path.isfile(path):
-                return path
+                return os.path.abspath(path)
         return binary  # fall-back if not found
     pdftkPath = FindBinary("pdftk.exe")
     mutoolPath = FindBinary("mutool.exe")
