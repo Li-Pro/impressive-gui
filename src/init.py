@@ -42,7 +42,7 @@ if os.name == "nt":
     if getattr(sys, "frozen", False):
         sys.path.append(root)
     FontPath = []
-    FontList = ["Verdana.ttf", "Arial.ttf"]
+    FontList = ["verdana.ttf", "arial.ttf"]
     Nice = []
 else:
     def FindBinary(x): return x
