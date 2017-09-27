@@ -206,7 +206,7 @@ class OpenGL(object):
 
     def GetShaderInfoLog(self, shader):
         length = self.GetShaderi(shader, self.INFO_LOG_LENGTH)
-        if not length: return None
+        if not length: return ""
         buf = create_string_buffer(length + 1)
         self._GetShaderInfoLog(shader, length + 1, None, buf)
         return buf.raw.split('\0', 1)[0]
@@ -218,7 +218,7 @@ class OpenGL(object):
 
     def GetProgramInfoLog(self, program):
         length = self.GetProgrami(program, self.INFO_LOG_LENGTH)
-        if not length: return None
+        if not length: return ""
         buf = create_string_buffer(length + 1)
         self._GetProgramInfoLog(program, length + 1, None, buf)
         return buf.raw.split('\0', 1)[0]
