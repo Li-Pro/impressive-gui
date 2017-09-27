@@ -146,7 +146,7 @@ def pdftkParse(filename, page_offset=0):
     BookmarkTitle = None
     Title = None
     Pages = 0
-    for line in f.xreadlines():
+    for line in f:
         try:
             key, value = [item.strip() for item in line.split(':', 1)]
         except ValueError:
@@ -177,6 +177,19 @@ def pdftkParse(filename, page_offset=0):
                         not(not(GetPageProp(page + AutoOverview - 1, '_title'))))
         SetPageProp(page_offset + Pages, '_overview', True)
     return (Title, Pages)
+
+# parse mutool output
+def mutoolParse(f, page_offset=0):
+    title = None
+    pages = 0
+    for line in f:
+        m = re.match("pages:\s*(\d+)", line, re.I)
+        if m and not(pages):
+            pages = int(m.group(1))
+        m = re.search("/title\s*\(", line, re.I)
+        if m and not(title):
+            title = line[m.end():].replace(')', '\0').replace('\\(', '(').replace('\\\0', ')').split('\0', 1)[0].strip()
+    return (title, pages)
 
 # translate pixel coordinates to normalized screen coordinates
 def MouseToScreen(mousepos):

@@ -82,7 +82,7 @@ class PDFRendererBase(object):
 
 
 class MuPDFRenderer(PDFRendererBase):
-    name = "MuPDF"
+    name = "MuPDF 1.4 or newer"
     binaries = ["mutool draw", "mudraw"]
     test_run_args = []
     required_options = ["F", "c", "o", "r"]

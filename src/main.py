@@ -84,15 +84,29 @@ def main():
                 pass
 
             # phase 2: use pdftk
-            try:
-                assert 0 == subprocess.Popen([pdftkPath, name, "dump_data", "output", TempFileName + ".txt"]).wait()
-                title, pages = pdftkParse(TempFileName + ".txt", PageCount)
-                if title and (len(FileList) == 1):
-                    DocumentTitle = title
-            except KeyboardInterrupt:
-                raise
-            except:
-                pass
+            if pdftkPath:
+                try:
+                    assert 0 == subprocess.Popen([pdftkPath, name, "dump_data", "output", TempFileName + ".txt"]).wait()
+                    title, pages = pdftkParse(TempFileName + ".txt", PageCount)
+                    if title and (len(FileList) == 1):
+                        DocumentTitle = title
+                except KeyboardInterrupt:
+                    raise
+                except:
+                    pass
+
+            # phase 3: use mutool (if pdftk wasn't successful)
+            if not(pages) and mutoolPath:
+                try:
+                    proc = subprocess.Popen([mutoolPath, "info", name], stdout=subprocess.PIPE)
+                    title, pages = mutoolParse(proc.stdout)
+                    assert 0 == proc.wait()
+                    if title and (len(FileList) == 1):
+                        DocumentTitle = title
+                except KeyboardInterrupt:
+                    raise
+                except:
+                    pass
         else:
             # Image File
             pages = 1

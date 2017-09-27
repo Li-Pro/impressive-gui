@@ -355,19 +355,40 @@ def FixHyperlinks(page):
 
 
 def ParsePDF(filename):
-    try:
-        assert 0 == subprocess.Popen([pdftkPath, filename, "output", TempFileName + ".pdf", "uncompress"]).wait()
-    except OSError:
-        print >>sys.stderr, "Note: pdftk not found, hyperlinks disabled."
+    uncompressed = TempFileName + ".pdf"
+    analyze = filename
+
+    # uncompress the file with either mutool or pdftk
+    ok = False
+    err = False
+    for args in [  # prefer mutool over pdftk, as it's much faster and doesn't force-decompress images
+        [mutoolPath, "clean", "-g", "-d", "-i", "-f", filename, uncompressed],
+        [pdftkPath, filename, "output", uncompressed, "uncompress"],
+    ]:
+        if not args[0]:
+            continue  # program not found
+        try:
+            assert 0 == subprocess.Popen(args).wait()
+            err = not(os.path.isfile(uncompressed))
+        except (OSError, AssertionError):
+            err = True
+        if not err:
+            ok = True
+            analyze = uncompressed
+            break
+    if ok:
+        pass
+    elif err:
+        print >>sys.stderr, "Note: error while unpacking the PDF file, hyperlinks disabled."
         return
-    except AssertionError:
-        print >>sys.stderr, "Note: pdftk failed, hyperlinks disabled."
+    else:
+        print >>sys.stderr, "Note: neither mutool nor pdftk found, hyperlinks disabled."
         return
 
     count = 0
     try:
         try:
-            pdf = PDFParser(TempFileName + ".pdf")
+            pdf = PDFParser(analyze)
             for page, annots in pdf.GetHyperlinks().iteritems():
                 for page_offset in FileProps[filename]['offsets']:
                     for a in annots:
@@ -375,16 +396,16 @@ def ParsePDF(filename):
                 count += len(annots)
                 FixHyperlinks(page)
             if pdf.errors:
-                print >>sys.stderr, "Note: there are errors in the PDF file, hyperlinks might not work properly"
+                print >>sys.stderr, "Note: failed to parse the PDF file, hyperlinks might not work properly"
             del pdf
             return count
         except IOError:
-            print >>sys.stderr, "Note: file produced by pdftk not readable, hyperlinks disabled."
+            print >>sys.stderr, "Note: intermediate PDF file not readable, hyperlinks disabled."
         except PDFError, e:
             print >>sys.stderr, "Note: error in PDF file, hyperlinks disabled."
             print >>sys.stderr, "      PDF parser error message:", e
     finally:
         try:
-            os.remove(TempFileName + ".pdf")
+            os.remove(uncompressed)
         except OSError:
             pass
