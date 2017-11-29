@@ -226,6 +226,8 @@ class Platform_Unix(Platform_PyGame):
 
 class Platform_EGL(Platform_Unix):
     name = 'egl'
+    egllib = "EGL"
+    gles2lib = "GLESv2"
 
     def StartDisplay(self, display=None, window=None, width=None, height=None):
         global ScreenWidth, ScreenHeight
@@ -234,13 +236,13 @@ class Platform_EGL(Platform_Unix):
 
         # load the GLESv2 library before the EGL library (required on the BCM2835)
         try:
-            self.gles = ctypes.CDLL(ctypes.util.find_library("GLESv2"))
+            self.gles = ctypes.CDLL(ctypes.util.find_library(self.gles2lib))
         except OSError:
             raise ImportError("failed to load the OpenGL ES 2.0 library")
 
         # import all functions first
         try:
-            egl = CDLL(ctypes.util.find_library("EGL"))
+            egl = CDLL(ctypes.util.find_library(self.egllib))
             def loadfunc(func, ret, *args):
                 return CFUNCTYPE(ret, *args)((func, egl))
             eglGetDisplay = loadfunc("eglGetDisplay", c_void_p, c_void_p)
@@ -308,6 +310,8 @@ class Platform_BCM2835(Platform_EGL):
     name = 'bcm2835'
     allow_custom_fullscreen_res = False
     has_hardware_cursor = False
+    egllib = "brcmEGL"
+    gles2lib = "brcmGLESv2"
     DISPLAY_ID = 0
 
     def __init__(self, libbcm_host):

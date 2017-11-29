@@ -161,8 +161,9 @@ def main():
     # initialize graphics
     try:
         Platform.StartDisplay()
-    except:
+    except Exception, e:
         print >>sys.stderr, "FATAL: failed to create rendering surface in the desired resolution (%dx%d)" % (ScreenWidth, ScreenHeight)
+        print >>sys.stderr, "       detailed error message:", e
         sys.exit(1)
     if Fullscreen:
         Platform.SetMouseVisible(False)
