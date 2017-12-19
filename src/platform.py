@@ -9,7 +9,7 @@ class Platform_PyGame(object):
     _keys = dict((getattr(pygame.locals, k), k[2:].lower()) for k in [k for k in dir(pygame.locals) if k.startswith('K_')])
 
     def __init__(self):
-        self.next_event = None
+        self.next_events = []
         self.schedule_map_ev2flag = {}
         self.schedule_map_ev2name = {}
         self.schedule_map_name2ev = {}
@@ -98,30 +98,19 @@ class Platform_PyGame(object):
         except KeyError:
             return 'unknown-key-' + str(ev.key)
 
-    def GetEvent(self, poll=False):
-        if self.next_event:
-            ev = self.next_event
-            self.next_event = None
-            return ev
-        if poll:
-            ev = pygame.event.poll()
-        else:
-            ev = pygame.event.wait()
-        if ev.type == NOEVENT:
-            return None
-        elif ev.type == QUIT:
-            return "$quit"
+    def _translate_event(self, ev):
+        if ev.type == QUIT:
+            return ["$quit"]
         elif ev.type == VIDEOEXPOSE:
-            return "$expose"
+            return ["$expose"]
         elif ev.type == MOUSEBUTTONDOWN:
-            return '+' + self._translate_button(ev)
+            return ['+' + self._translate_button(ev)]
         elif ev.type == MOUSEBUTTONUP:
             ev = self._translate_button(ev)
-            self.next_event = '-' + ev
-            return '*' + ev
+            return ['*' + ev, '-' + ev]
         elif ev.type == MOUSEMOTION:
             pygame.event.clear(MOUSEMOTION)
-            return "$move"
+            return ["$move"]
         elif ev.type == KEYDOWN:
             if ev.mod & KMOD_ALT:
                 if ev.key == K_F4:
@@ -129,19 +118,36 @@ class Platform_PyGame(object):
                 elif ev.key == K_TAB:
                     return "$alt-tab"
             ev = self._translate_key(ev)
-            self.next_event = '*' + ev
-            return '+' + ev
+            return ['+' + ev, '*' + ev]
         elif ev.type == KEYUP:
-            return '-' + self._translate_key(ev)
+            return ['-' + self._translate_key(ev)]
         elif (ev.type >= USEREVENT) and (ev.type < self.schedule_max):
             if not(self.schedule_map_ev2flag.get(ev.type)):
                 pygame.time.set_timer(ev.type, 0)
-            return self.schedule_map_ev2name.get(ev.type)
+            return [self.schedule_map_ev2name.get(ev.type)]
         else:
-            return "$?"
+            return []
+
+    def GetEvent(self, poll=False):
+        if self.next_events:
+            return self.next_events.pop(0)
+        if poll:
+            ev = pygame.event.poll()
+        else:
+            ev = pygame.event.wait()
+        evs = self._translate_event(ev)
+        if evs:
+            self.next_events.extend(evs[1:])
+            return evs[0]
 
     def CheckAnimationCancelEvent(self):
-        return bool(pygame.event.get([KEYDOWN, MOUSEBUTTONUP]))
+        while True:
+            ev = pygame.event.poll()
+            if ev.type == NOEVENT:
+                break
+            self.next_events.extend(self._translate_event(ev))
+            if ev.type in set([KEYDOWN, MOUSEBUTTONUP, QUIT]):
+                return True
 
     def ScheduleEvent(self, name, msec=0, periodic=False):
         try:

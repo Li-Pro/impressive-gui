@@ -379,9 +379,23 @@ PageDisplayActions = PageDisplayActions()
 ForcedActions.update(("-zoom-pan", "+zoom-pan", "-box-add", "+box-add"))
 
 # main event handling function
+# takes care that $page-timeout events are handled with least priority
 def EventHandlerLoop():
+    poll = True
+    page_timeout = False
     while True:
-        ev = Platform.GetEvent()
+        ev = Platform.GetEvent(poll)
+        poll = bool(ev)
+        if not ev:
+            # no more events in the queue -> can now insert a $page-timeout
+            if page_timeout:
+                ev = "$page-timeout"
+            else:
+                continue
+        elif ev == "$page-timeout":
+            page_timeout = True
+            continue
+
         if VideoPlaying:
             # video mode -> ignore all non-video actions
             ProcessEvent(ev, VideoActions)
