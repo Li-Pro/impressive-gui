@@ -389,6 +389,7 @@ def main():
     # prebuffer current and next page
     Pnext = 0
     RenderPage(Pcurrent, Tcurrent)
+    DrawCurrentPage()
     PageEntered(update_time=False)
     PreloadNextPage(GetNextPage(Pcurrent, 1))
 
