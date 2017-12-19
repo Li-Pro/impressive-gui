@@ -44,8 +44,11 @@ def AddFile(name, title=None, implicit=False):
             FileName = ""
 
     if os.path.isfile(name):
-        FileList.append(name)
-        if title: SetFileProp(name, 'title', title)
+        if IsPlayable(name):
+            FileList.append(name)
+            if title: SetFileProp(name, 'title', title)
+        else:
+            print >>sys.stderr, "Warning: input file `%s' has unrecognized file type" % name
 
     elif os.path.isdir(name):
         images = [os.path.join(name, f) for f in os.listdir(name) if IsImageFileName(f)]
