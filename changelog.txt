@@ -1,3 +1,35 @@
+0.11.2 [2017-12-19]
+- added new MuPDF renderer, uses no temporary files or named pipes on POSIX
+  with MuPDF >= 1.4
+- can now use MuPDF's mutool instead of pdftk to get basic file information
+  and unpack PDF files (for hyperlink decoding)
+  - pdftk is no longer required to open "modern" PDF files
+  - only page title extraction still needs pdftk
+- added --noquit option to prevent accidental single-key quitting
+- input files are now checked for playability (to prevent users from
+  accidentally playing .info files)
+- fixed non-responsiveness to any controls on slow systems where rendering a
+  page takes longer than the --auto interval
+- when cancelling a transition using a key or mouse click, the key press or
+  click is no longer discarded
+  - recommended to use a modifier key (Ctrl, Alt, or Shift) to cancel
+    transitions without "side effects"
+- first page is now shown as early as possible (before fonts etc. have been
+  preloaded)
+- fixed occasional re-rendering of pages that have already been rendered
+- fixed 'keys' PageProp that was broken since 0.11.0
+- fixed missing OSD fonts in Win32
+- fixed path detection of helper programs in Win32
+- fixed Raspberry Pi compability (some libraries have been renamed)
+- fixed crash in --verbose mode
+- changed shebang line to 'python2' to avoid issues with Linux distributions
+  that use Python 3.x by default
+- fixed arrows in manpage
+- added section about Raspberry Pi to manual
+- Win32 build now uses Python 2.7 and PyInstaller 3.x and uses MuPDF (mutool)
+  instead of Xpdf (pdftoppm)
+
+
 0.11.1 [2015-11-12]
 - fix for newer PIL/Pillow versions that broke compatibility by
   removing .tostring() and .fromstring()

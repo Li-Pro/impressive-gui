@@ -1,5 +1,4 @@
 @echo off
-set pyinstaller_path="C:\Program Files (x86)\Dev\Python25\PyInstaller-2.1"
 
 python compile.py
 if errorlevel 1 goto end
@@ -7,7 +6,11 @@ if errorlevel 1 goto end
 python win32\get_version_info.py impressive.py >win32_version.txt
 if errorlevel 1 goto end
 
-python %pyinstaller_path%\pyinstaller.py --noconfirm --onedir --name=Impressive --console --icon=Artwork\icon.ico --version-file=win32_version.txt impressive.py
+python -m PyInstaller ^
+    --noconfirm --onedir --console --name=Impressive ^
+    --icon=Artwork\icon.ico --version-file=win32_version.txt ^
+    --exclude-module Tkinter ^
+    impressive.py
 if errorlevel 1 goto end
 rmdir /s /q build
 del dist\Impressive\Impressive.exe.manifest

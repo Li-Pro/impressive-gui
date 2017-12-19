@@ -22,6 +22,7 @@ ENTITIES = {
     "amp": '&',
     "ndash": '-',
     "mdash": '--',
+    "rarr": '->',
     "gt": '>',
     "lt": '<',
     "times": 'x',

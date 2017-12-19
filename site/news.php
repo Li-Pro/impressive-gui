@@ -1,5 +1,8 @@
 <?php include("menu.php"); ?>
 
+<h1><span class="date">2017-12-19</span>0.11.2, a maintenance release</h1>
+<p>This version doesn't add any major features, but it's more stable and compatible with newer software environments. The largest change is a new MuPDF backend with better performance than ever, and the possibility to use MuPDF for PDF parsing. As a result, pdftk is no longer a hard requirement to open newer PDF documents; the only feature that still depends on it is automatic extraction of page titles. Even hyperlinks work without it.</p>
+
 <h1><span class="date">2015-11-12</span>Some small fixes in 0.11.1</h1>
 <p>This update just adds a few small fixes regarding hyperlinks and, most importantly, a compatibility fix for newer versions of one of the libraries relies on. This caused Impressive to break for Arch Linux users a few days ago, and so I'd rather make a new release version before the new library version gets into the real mainstream distributions.</p>
 

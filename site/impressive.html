@@ -12,12 +12,12 @@ code.pre { white-space:pre; }
 <!--VERSION-->
 <p style="text-indent:0;">
 <a href="http://impressive.sourceforge.net/">http://impressive.sourceforge.net/</a><br />
-<b>Version:</b> 0.11.2-WIP<br />
+<b>Version:</b> 0.11.2<br />
 <b>Author:</b> <a href="mailto:martin.fiedler@gmx.net">Martin J. Fiedler</a><br />
-<b>Last updated:</b> 2016-11-16</p>
+<b>Last updated:</b> 2017-12-19</p>
 <!--END-->
 <!--man
-.TH IMPRESSIVE 1 2016-11-16 "Martin J. Fiedler" "Impressive Documentation">
+.TH IMPRESSIVE 1 2017-12-19 "Martin J. Fiedler" "Impressive Documentation">
 .SH "NAME"
 Impressive \- presentation tool with eye candy
 .SH "SYNOPSIS"
@@ -69,15 +69,15 @@ A more comfortable method is installing Impressive in the &raquo;Send To&laquo; 
 
 <p>Another way to get Impressive is downloading the platform-independent source code version. The most important file in this archive is <code>impressive.py</code>, which contains all the code of Impressive and can be run like any executable on Unix-like systems. However, the following external libraries and utilities have to be installed as well for Impressive to work:</p>
 <ul>
-<li><strong>Python</strong> 2.5 to 2.7 &mdash; <a href="http://www.python.org/">www.python.org</a> <em>(required)</em> &ndash; Python 3.x will <em>not</em> work!</li>
+<li><strong>Python 2</strong>.7 &mdash; <a href="http://www.python.org/">www.python.org</a> <em>(required)</em> &ndash; Python 3.x will <em>not</em> work!</li>
 <li><strong>PyGame</strong> (the SDL binding for Python) &mdash; <a href="http://www.pygame.org/">www.pygame.org</a> <em>(required)</em></li>
 <li><strong>PIL</strong>, the Python Imaging Library &mdash; <a href="http://www.pythonware.com/products/pil/">www.pythonware.com/products/pil</a> <em>(required)</em></li>
-<li><strong>pdftk</strong> 1.44 or higher for retrieving PDF metadata (page titles, hyperlinks) &mdash; <a href="http://www.accesspdf.com/pdftk/">www.accesspdf.com/pdftk</a> <em>(required)</em></li>
-<li>the <strong>MuPDF utilities</strong> for PDF rendering &mdash; <a href="http://www.mupdf.com/">www.mupdf.com</a> <em>(required)</em></li>
-<li><strong>Xpdf</strong> or the <strong>Poppler utilities</strong> for alternate PDF rendering &mdash; <a href="http://www.foolabs.com/xpdf/">www.foolabs.com/xpdf/</a> or <a href="http://poppler.freedesktop.org/">http://poppler.freedesktop.org/</a> <em>(required if MuPDF is not available, optional otherwise)</em></li>
-<li><strong>GhostScript</strong> for alternate PDF rendering &mdash; <a href="http://www.cs.wisc.edu/~ghost/">www.cs.wisc.edu/~ghost</a> <em>(required if neither MuPDF nor Xpdf/Poppler utilities are available; optional otherwise)</em></li>
-<li><strong>xdg-utils</strong> for starting web or e-mail hyperlinks from PDF documents &mdash; <a href="http://portland.freedesktop.org/">portland.freedesktop.org</a> <em>(optional, does not apply to Win32)</em></li>
-<li><strong>PyWin32</strong>, the Python for Windows extensions &mdash; <a href="http://sourceforge.net/projects/pywin32/">pywin32.sourceforge.net</a> <em>(optional, applies to Win32 only)</em></li>
+<li><strong>pdftk</strong> 1.44 or higher for retrieving PDF metadata (page titles) &mdash; <a href="http://www.accesspdf.com/pdftk/">www.accesspdf.com/pdftk</a> <em>(recommended; required if MuPDF is not available)</em></li>
+<li>the <strong>MuPDF utilities</strong> for PDF rendering and metadata retrieval (hyperlinks) &mdash; <a href="http://www.mupdf.com/">www.mupdf.com</a> <em>(required)</em></li>
+<li><strong>Xpdf</strong> or the <strong>Poppler utilities</strong> for alternate PDF rendering &mdash; <a href="http://www.foolabs.com/xpdf/">www.foolabs.com/xpdf/</a> or <a href="http://poppler.freedesktop.org/">http://poppler.freedesktop.org/</a> <em>(required if MuPDF is not available; not required otherwise)</em></li>
+<li><strong>GhostScript</strong> for alternate PDF rendering &mdash; <a href="http://www.cs.wisc.edu/~ghost/">www.cs.wisc.edu/~ghost</a> <em>(required if neither MuPDF nor Xpdf/Poppler utilities are available; not required otherwise)</em></li>
+<li><strong>xdg-utils</strong> for starting web or e-mail hyperlinks from PDF documents &mdash; <a href="http://portland.freedesktop.org/">portland.freedesktop.org</a> <em>(recommended; does not apply to Win32)</em></li>
+<li><strong>PyWin32</strong>, the Python for Windows extensions &mdash; <a href="http://sourceforge.net/projects/pywin32/">pywin32.sourceforge.net</a> <em>(optional; applies to Win32 only)</em></li>
 <li><strong>MPlayer</strong> or <strong>MPlayer2</strong> for sound and video playback &mdash; <a href="http://www.mplayerhq.hu/">www.mplayerhq.hu</a> <em>(optional)</em></li>
 </ul>
 
@@ -96,6 +96,18 @@ A more comfortable method is installing Impressive in the &raquo;Send To&laquo; 
 Regarding external dependencies, the section above applies as well; in addition, Subversion (whose package is usually called <code>svn</code> or <code>subversion</code>) is obviously required too.</p>
 
 <p>After checking out the sources, the <code>impressive.py</code> program will still be missing. Instead, the main program is called <code>impressive_dev.py</code> and is functionally equivalent; it pulls the actual source files from the <code>src</code> subdirectory and runs them. To get a real stand-alone <code>impressive.py</code> file for redistribution (or for putting it e.g. into <code>/usr/local</code> so it can be run from everywhere), it needs to be generated using either <code>make</code> (if GNU Make is installed) or <code>python compile.py</code>.</p>
+
+<h3>Special considerations for Raspberry Pi</h3>
+
+<p>Impressive runs on Rasbperry Pi Single-Board Computers with bearable performance, if the following notes are taken into consideration:</p>
+<ul>
+<li>Overscan must be off (set <code>disable_overscan=1</code> in <code>/boot/config.txt</code>, or run <code>raspi-config</code> &rarr; Advanced Menu &rarr; Overscan).</li>
+<li>The classic Broadcom OpenGL ES driver stack must be used, <strong>not</strong> the Fake-KMS or Full-KMS Mesa drivers (disable <code>dtoverlay=vc4-</code>(<code>f</code>)<code>kms-v3d</code> in <code>/boot/config.txt</code>, or run <code>raspi-config</code> &rarr; Advanced Menu &rarr; GL Driver &rarr; Legacy: Original non-GL desktop driver).</li>
+<li>Doesn't require X11 &ndash; can also be run from a normal text console in Raspbian Lite.</li>
+<li>Can be run from X11, but only in fullscreen mode.</li>
+<li>Video playback is unavailable.</li>
+<li>Since microSD storage is <em>very</em> slow on the Raspberry Pi, consider using the <code>-cz</code>/<code>--cache compressed</code> option for better performance. This will consume more RAM though, which is also a scarce resource on the device, but typical presentation slides with uniformly colored backgrounds compress very well and shouldn't be a problem.</li>
+</ul>
 
 <!-------------------------------------------------------------------------------->
 
@@ -233,7 +245,7 @@ Note that this option only works as intended when the default controls are used.
 Note that this option only works as intended when the default controls are used. If the <code>-e</code>/<code>--bind</code> or <code>-E</code>/<code>--controls</code> options have been used, <code>--noquit</code> might not have the intended effect.</dd>
 
 <dt><code>-o <em>&lt;directory&gt;</em></code> or <code>--output <em>&lt;directory&gt;</em></code></dt>
-<dd>Do not display the presentation, but render it into a series of PNG image files inside the specified directory. The images will be generated in the current resolution as specified by the <code>-g</code> option. This option is useful if the presentation is to be given on on a foreign PC with an old, broken or otherwise problematic Xpdf installation: By generating images of the PDF pages, is is made sure that no rendering bugs will happen on the target system.</dd>
+<dd>Do not display the presentation, but render it into a series of PNG image files inside the specified directory. The images will be generated in the current resolution as specified by the <code>-g</code> option. This option is useful if the presentation is to be given on on a foreign PC with an old, broken or otherwise problematic MuPDF/Xpdf/GhostScript installation: By generating images of the PDF pages, is is made sure that no rendering bugs will happen on the target system.</dd>
 
 <dt><code>-O <em>&lt;mode&gt;</em></code> or <code>--autooverview <em>&lt;mode&gt;</em></code></dt>
 <dd>Enables or disables automatic derivation of whether a page shall or shall not be shown on the overview page. This feature is based on the fact that some LaTeX presentation packages tag all pages with a title (that can be read by Impressive with the help of <code>pdftk</code>), except those that contain multiple reveal steps.<br />

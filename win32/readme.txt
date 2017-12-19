@@ -5,8 +5,8 @@ Win32 executables of Impressive:
               http://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/
               Note: may also require libiconv2.dll
 
-* pdftoppm.exe - Xpdf's PDF-to-image converter, from:
-                 http://www.foolabs.com/xpdf/download.html
+* mutool.exe - MuPDF rendering tool (optimal version, size-wise: 1.8)
+               https://mupdf.com/downloads/archive/
 
 * mplayer.exe - any 32-bit Windows build of MPlayer or MPlayer2, for example:
                 http://mplayerwin.sourceforge.net/downloads.html
