@@ -24,6 +24,7 @@
 - fixed crash in --verbose mode
 - changed shebang line to 'python2' to avoid issues with Linux distributions
   that use Python 3.x by default
+- fixed --overscan option
 - fixed arrows in manpage
 - added section about Raspberry Pi to manual
 - Win32 build now uses Python 2.7 and PyInstaller 3.x and uses MuPDF (mutool)
