@@ -468,6 +468,12 @@ def PageImage(page, ZoomMode=False, RenderMode=False):
     # if it's not in the temporary cache, render it
     Lrender.acquire()
     try:
+        # check the cache again, because another thread might have just
+        # rendered the page while we were waiting for the render lock
+        if EnableCacheRead:
+            data = GetCacheImage(page)
+            if data: return data
+
         # retrieve the image from the persistent cache or fully re-render it
         if EnableCacheRead:
             img = GetPCacheImage(page)
@@ -540,7 +546,7 @@ def PageImage(page, ZoomMode=False, RenderMode=False):
         data = img2str(TextureImage)
         del TextureImage
     finally:
-      Lrender.release()
+        Lrender.release()
 
     # finally add it back into the cache and return it
     if EnableCacheWrite:
