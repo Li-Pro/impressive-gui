@@ -11,7 +11,9 @@
 
 <p>Impressive is written in <a href="http://www.python.org/"><strong>Python</strong></a>, a feature-rich interpreted scripting language. Python is available on numerous platforms. Because of this, Impressive works with most operating systems, including Microsoft Windows and GNU/Linux.</p>
 
-<p><a href="http://www.foolabs.com/xpdf/"><strong>Xpdf</strong></a> is used for PDF rendering, and <a href="http://www.opengl.org/"><strong>OpenGL</strong></a> enables hardware acceleration support required for the various graphical effects in Impressive.</p>
+<p><a href="https://mupdf.com/"><strong>MuPDF</strong></a> is used for PDF rendering, and <a href="http://www.opengl.org/"><strong>OpenGL</strong></a> enables hardware acceleration support required for the various graphical effects in Impressive.</p>
+
+<p>Impressive also runs on the Raspberry Pi.</p>
 
 
 <h1><a name="features"></a>Features</h1>
