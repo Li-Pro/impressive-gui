@@ -11,6 +11,7 @@ class PDFRendererBase(object):
     test_run_args = []
     supports_anamorphic = False
     required_options = []
+    needs_tempfile = True
 
     @classmethod
     def supports(self, binary):
@@ -22,6 +23,9 @@ class PDFRendererBase(object):
         return (binary in self.binaries)
 
     def __init__(self, binary=None):
+        if self.needs_tempfile and not(TempFileName):
+            raise RendererUnavailable("temporary file creation required, but not available")
+
         # search for a working binary and run it to get a list of its options
         self.command = None
         for program_spec in map(str.split, ([binary] if binary else self.binaries)):
@@ -86,6 +90,7 @@ class MuPDFRenderer(PDFRendererBase):
     binaries = ["mudraw", "mutool draw"]
     test_run_args = []
     required_options = ["F", "c", "o", "r"]
+    needs_tempfile = (os.name == 'nt')
 
     def render(self, filename, page, res, antialias=True):
         # direct stdout pipe from mutool on Unix; not possible on Win32

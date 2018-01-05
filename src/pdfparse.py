@@ -355,6 +355,8 @@ def FixHyperlinks(page):
 
 
 def ParsePDF(filename):
+    if Bare or not(TempFileName):
+        return
     uncompressed = TempFileName + ".pdf"
     analyze = filename
 

@@ -11,7 +11,7 @@ def main():
     global DocumentTitle, PageProps, LogoTexture, OSDFont
     global Pcurrent, Pnext, Tcurrent, Tnext, InitialPage
     global CacheFile, CacheFileName, BaseWorkingDir, RenderToDirectory
-    global PAR, DAR, TempFileName
+    global PAR, DAR, TempFileName, Bare
     global BackgroundRendering, FileStats, RTrunning, RTrestart, StartTime
     global CursorImage, CursorVisible, InfoScriptPath
     global HalfScreen, AutoAdvance, WindowPos
@@ -19,7 +19,13 @@ def main():
     global BoxIndexBuffer, UseBlurShader
 
     # allocate temporary file
-    TempFileName = tempfile.mktemp(prefix="impressive-", suffix="_tmp")
+    TempFileName = None
+    try:
+        TempFileName = tempfile.mktemp(prefix="impressive-", suffix="_tmp")
+    except EnvironmentError:
+        if not Bare:
+            print >>sys.stderr, "Could not allocate temporary file, reverting to --bare mode."
+        Bare = True
 
     # some input guesswork
     BaseWorkingDir = os.getcwd()
@@ -84,7 +90,7 @@ def main():
                 pass
 
             # phase 2: use pdftk
-            if pdftkPath:
+            if pdftkPath and TempFileName:
                 try:
                     assert 0 == subprocess.Popen([pdftkPath, name, "dump_data", "output", TempFileName + ".txt"]).wait()
                     title, pages = pdftkParse(TempFileName + ".txt", PageCount)
@@ -513,11 +519,12 @@ def run_main():
         # remove all temp files
         if 'CacheFile' in globals():
             del CacheFile
-        for tmp in glob.glob(TempFileName + "*"):
-            try:
-                os.remove(tmp)
-            except OSError:
-                pass
+        if TempFileName:
+            for tmp in glob.glob(TempFileName + "*"):
+                try:
+                    os.remove(tmp)
+                except OSError:
+                    pass
         Platform.Quit()
 
     # release all locks

@@ -84,6 +84,7 @@ Control options:
   -W,  --nowheel          disable page navigation via mouse wheel
        --noquit           disable single-key shortcuts that quit the program
        --evtest           run Impressive in event test mode
+       --bare             don't use any special features (hyperlinks etc.)
 
 Advanced options:
   -c,  --cache <mode>     set page cache mode:
@@ -238,7 +239,7 @@ def ParseOptions(argv):
     global AutoOverview, ZoomFactor, FadeInOut, ShowLogo, Shuffle, PageProgress
     global QuitAtEnd, ShowClock, HalfScreen, SpotRadius, InvertPages
     global MinBoxSize, AutoAutoAdvance, AutoAdvanceProgress, BoxFadeDarkness
-    global WindowPos, FakeFullscreen, UseBlurShader
+    global WindowPos, FakeFullscreen, UseBlurShader, Bare
     DefaultControls = True
 
     try:  # unused short options: jnJKNRUY
@@ -256,7 +257,7 @@ def ParseOptions(argv):
             "auto-auto", "auto-progress", "darkness=", "no-clicks", "nowheel",
             "no-wheel", "fake-fullscreen", "windowed", "verbose", "noblur",
             "tracking", "bind=", "controls=", "control-help", "evtest",
-            "noquit"])
+            "noquit", "bare"])
     except getopt.GetoptError, message:
         opterr(message)
 
@@ -504,6 +505,8 @@ def ParseOptions(argv):
                 opterr("invalid parameter for --darkness")
         if opt == "--noblur":
             UseBlurShader = not(UseBlurShader)
+        if opt == "--bare":
+            Bare = not(Bare)
 
     for arg in args:
         AddFile(arg)
