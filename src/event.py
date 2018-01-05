@@ -390,6 +390,7 @@ def EventHandlerLoop():
             # no more events in the queue -> can now insert a $page-timeout
             if page_timeout:
                 ev = "$page-timeout"
+                page_timeout = False
             else:
                 continue
         elif ev == "$page-timeout":
