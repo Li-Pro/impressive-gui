@@ -16,6 +16,7 @@ class Platform_PyGame(object):
         self.schedule_max = USEREVENT
 
     def Init(self):
+        os.environ["SDL_MOUSE_RELATIVE"] = "0"
         pygame.display.init()
 
     def GetTicks(self):
