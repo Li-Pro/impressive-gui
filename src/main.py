@@ -267,7 +267,7 @@ def main():
         DoEventTestMode()
 
     # initialize mouse cursor
-    if CursorImage or not(Platform.has_hardware_cursor):
+    if EnableCursor and (CursorImage or not(Platform.has_hardware_cursor)):
         img = None
         if CursorImage and not(CursorImage.lower() in ("-", "default")):
             try:
@@ -277,6 +277,8 @@ def main():
                 print >>sys.stderr, "Could not open the mouse cursor image, using standard cursor."
                 img = None
         CursorImage = PrepareCustomCursor(img)
+    else:
+        CursorImage = None
 
     # set up page cache
     if CacheMode == PersistentCache:
@@ -423,7 +425,7 @@ def main():
     if TimeTracking:
         EnableTimeTracking(True)
     Platform.ScheduleEvent("$timer-update", 100, periodic=True)
-    if not(Fullscreen) and CursorImage:
+    if not(Fullscreen) and (not(EnableCursor) or CursorImage):
         Platform.SetMouseVisible(False)
     if FadeInOut:
         LeaveFadeMode()

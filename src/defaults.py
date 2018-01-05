@@ -63,6 +63,7 @@ ProgressBarColorCritical = (1.0, 0.0, 0.0)
 ProgressBarColorPage = (0.0, 0.5, 1.0)
 ProgressBarWarningFactor = 1.25
 ProgressBarCriticalFactor = 1.5
+EnableCursor = True
 CursorImage = None
 CursorHotspot = (0, 0)
 MinutesOnly = False

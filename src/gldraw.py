@@ -59,7 +59,7 @@ def DrawOverlays(trans_time=0.0):
                     CurrentOSDComment, Center, Up)
         OSDFont.EndDraw()
 
-    if CursorImage and CursorVisible:
+    if EnableCursor and CursorVisible and CursorImage:
         x, y = Platform.GetMousePos()
         x -= CursorHotspot[0]
         y -= CursorHotspot[1]

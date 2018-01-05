@@ -50,6 +50,7 @@ Display options:
   -F,  --font <file>      use a specific TrueType font file for the OSD
   -S,  --fontsize <px>    specify the OSD font size in pixels
   -C,  --cursor <F[:X,Y]> use a .png image as the mouse cursor
+  -N,  --no-cursor        don't show a mouse cursor at all
   -L,  --layout <spec>    set the OSD layout (please read the documentation)
   -z,  --zoom <factor>    set zoom factor (integer number, default: 2)
   -x,  --fade             fade in at start and fade out at end
@@ -236,16 +237,16 @@ def ParseOptions(argv):
     global BackgroundRendering, UseAutoScreenSize, PollInterval, CacheFileName
     global PageRangeStart, PageRangeEnd, FontList, FontSize, Gamma, BlackLevel
     global EstimatedDuration, CursorImage, CursorHotspot, MinutesOnly, Overscan
-    global PDFRendererPath, InfoScriptPath, EventTestMode
+    global PDFRendererPath, InfoScriptPath, EventTestMode, EnableCursor
     global AutoOverview, ZoomFactor, FadeInOut, ShowLogo, Shuffle, PageProgress
     global QuitAtEnd, ShowClock, HalfScreen, SpotRadius, InvertPages
     global MinBoxSize, AutoAutoAdvance, AutoAdvanceProgress, BoxFadeDarkness
     global WindowPos, FakeFullscreen, UseBlurShader, Bare, EnableOverview
     DefaultControls = True
 
-    try:  # unused short options: jnJKNRUY
+    try:  # unused short options: jnJKRUY
         opts, args = getopt.getopt(argv, \
-            "vhfg:sc:i:wa:t:lo:r:T:D:B:Z:P:A:mbp:u:F:S:G:d:C:ML:I:O:z:xXqV:QHykWe:E:", \
+            "vhfg:sc:i:wa:t:lo:r:T:D:B:Z:P:A:mbp:u:F:S:G:d:C:ML:I:O:z:xXqV:QHykWe:E:N", \
            ["help", "fullscreen", "geometry=", "scale", "supersample", \
             "nocache", "initialpage=", "wrap", "auto=", "listtrans", "output=", \
             "rotate=", "transition=", "transtime=", "mousedelay=", "boxfade=", \
@@ -258,7 +259,7 @@ def ParseOptions(argv):
             "auto-auto", "auto-progress", "darkness=", "no-clicks", "nowheel",
             "no-wheel", "fake-fullscreen", "windowed", "verbose", "noblur",
             "tracking", "bind=", "controls=", "control-help", "evtest",
-            "noquit", "bare", "no-overview", "nooverview"])
+            "noquit", "bare", "no-overview", "nooverview", "no-cursor", "nocursor"])
     except getopt.GetoptError, message:
         opterr(message)
 
@@ -510,6 +511,8 @@ def ParseOptions(argv):
             Bare = not(Bare)
         if opt in ("--no-overview", "--nooverview"):
             EnableOverview = not(EnableOverview)
+        if opt in ("-N", "--no-cursor", "--nocursor"):
+            EnableCursor = not(EnableCursor)
 
     for arg in args:
         AddFile(arg)
