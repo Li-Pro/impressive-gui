@@ -272,6 +272,7 @@ class PageDisplayActions(BaseDisplayActions):
 
     def _overview_enter(self):
         "zoom out to the overview page"
+        if not EnableOverview: return
         LeaveZoomMode()
         DoOverview()
 

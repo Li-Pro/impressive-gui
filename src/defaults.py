@@ -32,6 +32,7 @@ HighQualityOverview = True
 OverviewBorder = 3
 OverviewLogoBorder = 24
 AutoOverview = Off
+EnableOverview = True
 InitialPage = None
 Wrap = False
 AutoAdvance = None

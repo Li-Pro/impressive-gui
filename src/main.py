@@ -286,52 +286,54 @@ def main():
     if CacheMode == FileCache:
         CacheFile = tempfile.TemporaryFile(prefix="impressive-", suffix=".cache")
 
-    # initialize overview metadata
-    OverviewPageMap=[i for i in xrange(1, PageCount + 1) \
-        if GetPageProp(i, ('overview', '_overview'), True) \
-        and (i >= PageRangeStart) and (i <= PageRangeEnd)]
-    OverviewPageCount = max(len(OverviewPageMap), 1)
-    OverviewPageMapInv = {}
-    for page in xrange(1, PageCount + 1):
-        OverviewPageMapInv[page] = len(OverviewPageMap) - 1
-        for i in xrange(len(OverviewPageMap)):
-            if OverviewPageMap[i] >= page:
-                OverviewPageMapInv[page] = i
-                break
+    # overview preparations
+    if EnableOverview:
+        # initialize overview metadata
+        OverviewPageMap=[i for i in xrange(1, PageCount + 1) \
+            if GetPageProp(i, ('overview', '_overview'), True) \
+            and (i >= PageRangeStart) and (i <= PageRangeEnd)]
+        OverviewPageCount = max(len(OverviewPageMap), 1)
+        OverviewPageMapInv = {}
+        for page in xrange(1, PageCount + 1):
+            OverviewPageMapInv[page] = len(OverviewPageMap) - 1
+            for i in xrange(len(OverviewPageMap)):
+                if OverviewPageMap[i] >= page:
+                    OverviewPageMapInv[page] = i
+                    break
 
-    # initialize overview page geometry
-    OverviewGridSize = 1
-    while OverviewPageCount > OverviewGridSize * OverviewGridSize:
-        OverviewGridSize += 1
-    if HalfScreen:
-        # in half-screen mode, temporarily override ScreenWidth
-        saved_screen_width = ScreenWidth
-        ScreenWidth /= 2
-    OverviewCellX = int(ScreenWidth  / OverviewGridSize)
-    OverviewCellY = int(ScreenHeight / OverviewGridSize)
-    OverviewOfsX = int((ScreenWidth  - OverviewCellX * OverviewGridSize)/2)
-    OverviewOfsY = int((ScreenHeight - OverviewCellY * \
-                   int((OverviewPageCount + OverviewGridSize - 1) / OverviewGridSize)) / 2)
-    while OverviewBorder and (min(OverviewCellX - 2 * OverviewBorder, OverviewCellY - 2 * OverviewBorder) < 16):
-        OverviewBorder -= 1
-    OverviewImage = Image.new('RGB', (TexWidth, TexHeight))
-    if HalfScreen:
-        OverviewOfsX += ScreenWidth
-        ScreenWidth = saved_screen_width
+        # initialize overview page geometry
+        OverviewGridSize = 1
+        while OverviewPageCount > OverviewGridSize * OverviewGridSize:
+            OverviewGridSize += 1
+        if HalfScreen:
+            # in half-screen mode, temporarily override ScreenWidth
+            saved_screen_width = ScreenWidth
+            ScreenWidth /= 2
+        OverviewCellX = int(ScreenWidth  / OverviewGridSize)
+        OverviewCellY = int(ScreenHeight / OverviewGridSize)
+        OverviewOfsX = int((ScreenWidth  - OverviewCellX * OverviewGridSize)/2)
+        OverviewOfsY = int((ScreenHeight - OverviewCellY * \
+                       int((OverviewPageCount + OverviewGridSize - 1) / OverviewGridSize)) / 2)
+        while OverviewBorder and (min(OverviewCellX - 2 * OverviewBorder, OverviewCellY - 2 * OverviewBorder) < 16):
+            OverviewBorder -= 1
+        OverviewImage = Image.new('RGB', (TexWidth, TexHeight))
+        if HalfScreen:
+            OverviewOfsX += ScreenWidth
+            ScreenWidth = saved_screen_width
 
-    # fill overlay "dummy" images
-    dummy = LogoImage.copy()
-    border = max(OverviewLogoBorder, 2 * OverviewBorder)
-    maxsize = (OverviewCellX - border, OverviewCellY - border)
-    if (dummy.size[0] > maxsize[0]) or (dummy.size[1] > maxsize[1]):
-        dummy.thumbnail(ZoomToFit(dummy.size, maxsize), Image.ANTIALIAS)
-    margX = int((OverviewCellX - dummy.size[0]) / 2)
-    margY = int((OverviewCellY - dummy.size[1]) / 2)
-    dummy = dummy.convert(mode='RGB')
-    for page in range(OverviewPageCount):
-        pos = OverviewPos(page)
-        OverviewImage.paste(dummy, (pos[0] + margX, pos[1] + margY))
-    del dummy
+        # fill overlay "dummy" images
+        dummy = LogoImage.copy()
+        border = max(OverviewLogoBorder, 2 * OverviewBorder)
+        maxsize = (OverviewCellX - border, OverviewCellY - border)
+        if (dummy.size[0] > maxsize[0]) or (dummy.size[1] > maxsize[1]):
+            dummy.thumbnail(ZoomToFit(dummy.size, maxsize), Image.ANTIALIAS)
+        margX = int((OverviewCellX - dummy.size[0]) / 2)
+        margY = int((OverviewCellY - dummy.size[1]) / 2)
+        dummy = dummy.convert(mode='RGB')
+        for page in range(OverviewPageCount):
+            pos = OverviewPos(page)
+            OverviewImage.paste(dummy, (pos[0] + margX, pos[1] + margY))
+        del dummy
 
     # compute auto-advance timeout, if applicable
     if EstimatedDuration and AutoAutoAdvance:

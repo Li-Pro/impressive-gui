@@ -508,7 +508,8 @@ def PageImage(page, ZoomMode=False, RenderMode=False):
             FixHyperlinks(page)
 
         # paste thumbnail into overview image
-        if GetPageProp(page, ('overview', '_overview'), True) \
+        if EnableOverview \
+        and GetPageProp(page, ('overview', '_overview'), True) \
         and (page >= PageRangeStart) and (page <= PageRangeEnd) \
         and not(GetPageProp(page, '_overview_rendered')) \
         and not(RenderMode):

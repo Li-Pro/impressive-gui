@@ -41,6 +41,7 @@ Page options:
                             -O first = show pages with captions
                             -O last  = show pages before pages with captions
   -Q,  --autoquit         quit after the last slide (no effect with --wrap)
+       --no-overview      disable overview page
 
 Display options:
   -t,  --transition <trans[,trans2...]>
@@ -239,7 +240,7 @@ def ParseOptions(argv):
     global AutoOverview, ZoomFactor, FadeInOut, ShowLogo, Shuffle, PageProgress
     global QuitAtEnd, ShowClock, HalfScreen, SpotRadius, InvertPages
     global MinBoxSize, AutoAutoAdvance, AutoAdvanceProgress, BoxFadeDarkness
-    global WindowPos, FakeFullscreen, UseBlurShader, Bare
+    global WindowPos, FakeFullscreen, UseBlurShader, Bare, EnableOverview
     DefaultControls = True
 
     try:  # unused short options: jnJKNRUY
@@ -257,7 +258,7 @@ def ParseOptions(argv):
             "auto-auto", "auto-progress", "darkness=", "no-clicks", "nowheel",
             "no-wheel", "fake-fullscreen", "windowed", "verbose", "noblur",
             "tracking", "bind=", "controls=", "control-help", "evtest",
-            "noquit", "bare"])
+            "noquit", "bare", "no-overview", "nooverview"])
     except getopt.GetoptError, message:
         opterr(message)
 
@@ -507,6 +508,8 @@ def ParseOptions(argv):
             UseBlurShader = not(UseBlurShader)
         if opt == "--bare":
             Bare = not(Bare)
+        if opt in ("--no-overview", "--nooverview"):
+            EnableOverview = not(EnableOverview)
 
     for arg in args:
         AddFile(arg)
