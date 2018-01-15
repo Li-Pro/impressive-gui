@@ -401,8 +401,8 @@ def ParsePDF(filename):
                 for page_offset in FileProps[filename]['offsets']:
                     for a in annots:
                         AddHyperlink(page_offset, page, a[4], a[:4], pdf.box[page], pdf.rotate[page])
+                    FixHyperlinks(page + page_offset)
                 count += len(annots)
-                FixHyperlinks(page)
             if pdf.errors:
                 print >>sys.stderr, "Note: failed to parse the PDF file, hyperlinks might not work properly"
             del pdf
