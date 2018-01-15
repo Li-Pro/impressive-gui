@@ -273,6 +273,12 @@ class PDFParser:
                             break
                 elif action == 'Launch':
                     dest = a.get('F', None)
+                    if isinstance(dest, PDFref):
+                        dest = self.getobj(dest)
+                    if isinstance(dest, dict):
+                        dest = dest.get('F', None) or dest.get('Unix', None)
+                    if not isinstance(dest, basestring):
+                        dest = None  # still an unknown type -> ignore it
                 elif action == 'GoTo':
                     dest = self.dest2page(a.get('D', None))
             if dest:
