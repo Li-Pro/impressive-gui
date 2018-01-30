@@ -92,7 +92,7 @@ class Platform_PyGame(object):
         try:
             return self._translate_mods(self._buttons[ev.button], pygame.key.get_mods())
         except KeyError:
-            return 'unknown-button-' + str(ev.button)
+            return 'btn' + str(ev.button)
     def _translate_key(self, ev):
         try:
             return self._translate_mods(self._keys[ev.key], ev.mod)

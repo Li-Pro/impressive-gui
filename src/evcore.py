@@ -13,7 +13,7 @@ KnownEvents = set(list(SpecialKeyNames) + filter(None, """
 a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9
 kp0 kp1 kp2 kp3 kp4 kp5 kp6 kp7 kp8 kp9 f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12
 lmb mmb rmb wheeldown wheelup
-""".split()))
+""".split()) + ["btn%d" % i for i in xrange(1, 20)])
 
 # event handling model:
 # - Platform.GetEvent() generates platform-neutral event (= string) that
@@ -249,7 +249,8 @@ def EventHelp():
         print line
     print "Recognized mouse event names:"
     print "  lmb, mmb, rmb (= left, middle and right mouse buttons),"
-    print "  wheelup, wheeldown"
+    print "  wheelup, wheeldown,"
+    print "  btnX (additional buttons, use --evtest to check their mapping)"
     print
     print "Recognized actions:"
     maxalen = max(map(len, KnownActions))
