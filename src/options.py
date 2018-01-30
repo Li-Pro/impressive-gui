@@ -491,7 +491,7 @@ def ParseOptions(argv):
                 opterr("invalid parameter for --cursor")
         if opt in ("-z", "--zoom"):
             try:
-                ZoomFactor = int(arg)
+                ZoomFactor = float(arg)
                 assert ZoomFactor > 1
             except:
                 opterr("invalid parameter for --zoom")

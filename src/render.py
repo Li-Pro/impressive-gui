@@ -321,8 +321,8 @@ def RenderPDF(page, MayAdjustResolution, ZoomMode):
     # handle supersample and zoom mode
     use_aa = True
     if ZoomMode:
-        res = (ZoomFactor * res[0], ZoomFactor * res[1])
-        out = (ZoomFactor * out[0], ZoomFactor * out[1])
+        res = (int(ZoomFactor * res[0]), int(ZoomFactor * res[1]))
+        out = (int(ZoomFactor * out[0]), int(ZoomFactor * out[1]))
         zscale = ZoomFactor
     elif Supersample:
         res = (Supersample * res[0], Supersample * res[1])
@@ -496,9 +496,9 @@ def PageImage(page, ZoomMode=False, RenderMode=False):
 
         # create black background image to paste real image onto
         if ZoomMode:
-            TextureImage = Image.new('RGB', (ZoomFactor * TexWidth, ZoomFactor * TexHeight))
-            TextureImage.paste(img, ((ZoomFactor * ScreenWidth  - img.size[0]) / 2, \
-                                     (ZoomFactor * ScreenHeight - img.size[1]) / 2))
+            TextureImage = Image.new('RGB', (int(ZoomFactor * TexWidth), int(ZoomFactor * TexHeight)))
+            TextureImage.paste(img, ((int(ZoomFactor * ScreenWidth)  - img.size[0]) / 2, \
+                                     (int(ZoomFactor * ScreenHeight) - img.size[1]) / 2))
         else:
             TextureImage = Image.new('RGB', (TexWidth, TexHeight))
             x0 = (ScreenWidth  - img.size[0]) / 2

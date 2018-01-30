@@ -226,11 +226,13 @@ def main():
     gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
     BoxIndexBuffer = HighlightIndexBuffer(4)
 
-    # setup the OpenGL texture size
-    TexWidth  = (ScreenWidth + 3) & (-4)
-    TexHeight = (ScreenHeight + 3) & (-4)
-    TexMaxS = float(ScreenWidth) / TexWidth
-    TexMaxT = float(ScreenHeight) / TexHeight
+    # set up the OpenGL texture size (identical to the screen size because we
+    # require non-power-of-two texture support by now)
+    gl.PixelStorei(gl.UNPACK_ALIGNMENT, 1)
+    TexWidth  = ScreenWidth
+    TexHeight = ScreenHeight
+    TexMaxS = 1.0
+    TexMaxT = 1.0
     TexSize = TexWidth * TexHeight * 3
 
     # set up some variables

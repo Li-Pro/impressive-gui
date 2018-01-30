@@ -82,6 +82,7 @@ class OpenGL(object):
     COMPILE_STATUS = 0x8B81
     LINK_STATUS = 0x8B82
     INFO_LOG_LENGTH = 0x8B84
+    UNPACK_ALIGNMENT = 0x0CF5
     _funcs = [
         GLFunction(True,  "GetString",                c_char_p, c_uint),
         GLFunction(True,  "Enable",                   None, c_uint),
@@ -127,6 +128,7 @@ class OpenGL(object):
         GLFunction(True,  "VertexAttribPointer",      None, c_uint, c_uint, c_uint, c_uint, c_uint, c_void_p),
         GLFunction(True,  "DrawArrays",               None, c_uint, c_uint, c_uint),
         GLFunction(True,  "DrawElements",             None, c_uint, c_uint, c_uint, c_void_p),
+        GLFunction(True,  "PixelStorei",              None, c_uint, c_uint),
     ]
     _typemap = {
                   BYTE:  c_int8,

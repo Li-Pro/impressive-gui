@@ -330,7 +330,7 @@ def EnterZoomMode(targetx, targety):
     gl.BindTexture(gl.TEXTURE_2D, Tcurrent)
     while gl.GetError():
         pass  # clear all OpenGL errors
-    gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGB, ZoomFactor * TexWidth, ZoomFactor * TexHeight, 0, gl.RGB, gl.UNSIGNED_BYTE, PageImage(Pcurrent, True))
+    gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGB, int(ZoomFactor * TexWidth), int(ZoomFactor * TexHeight), 0, gl.RGB, gl.UNSIGNED_BYTE, PageImage(Pcurrent, True))
     if gl.GetError():
         print >>sys.stderr, "I'm sorry, but your graphics card is not capable of rendering presentations"
         print >>sys.stderr, "in this resolution. Either the texture memory is exhausted, or there is no"
