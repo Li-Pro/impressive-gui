@@ -27,8 +27,12 @@ impressive.py: compile.py impressive_dev.py src/*.py
 	python $<
 	chmod +x $@
 
-install: impressive.py
-	install -m 755 $< /usr/local/bin/impressive
+PREFIX ?= /usr/local
+install: impressive.py impressive.1
+	install -m 755 impressive.py $(PREFIX)/bin/impressive
+	install -m 644 -D impressive.1 $(PREFIX)/man/man1/impressive.1
+uninstall:
+	rm $(PREFIX)/bin/impressive $(PREFIX)/man/man1/impressive.1
 
 clean:
 	rm -f *.nav *.out *.snm *.toc *.vrb *.aux *.log *.pyc *.pyo
@@ -39,4 +43,4 @@ distclean: clean
 	rm -f demo.pdf impressive.1 impressive.py
 	rm -rf dist
 
-.PHONY: all man test-man demo test-demo test release clean distclean install
+.PHONY: all man test-man demo test-demo test release clean distclean install uninstall
