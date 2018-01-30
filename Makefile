@@ -24,8 +24,11 @@ release:
 	pdflatex -halt-on-error $<
 
 impressive.py: compile.py impressive_dev.py src/*.py
-	python compile.py
+	python $<
 	chmod +x $@
+
+install: impressive.py
+	install -m 755 $< /usr/local/bin/impressive
 
 clean:
 	rm -f *.nav *.out *.snm *.toc *.vrb *.aux *.log *.pyc *.pyo
@@ -36,4 +39,4 @@ distclean: clean
 	rm -f demo.pdf impressive.1 impressive.py
 	rm -rf dist
 
-.PHONY: all man test-man demo test-demo test release clean distclean
+.PHONY: all man test-man demo test-demo test release clean distclean install
