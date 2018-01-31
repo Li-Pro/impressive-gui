@@ -116,6 +116,7 @@ def PlayVideo(video):
 def PreparePage():
     global SpotRadius, SpotRadiusBase
     global BoxFadeDarkness, BoxFadeDarknessBase
+    global BoxZoomDarkness, BoxZoomDarknessBase
     override = GetPageProp(Pcurrent, 'radius')
     if override:
         SpotRadius = override
@@ -125,13 +126,17 @@ def PreparePage():
     if override is not None:
         BoxFadeDarkness = override * 0.01
         BoxFadeDarknessBase = override * 0.01
+    override = GetPageProp(Pcurrent, 'zoomdarkness')
+    if override is not None:
+        BoxZoomDarkness = override * 0.01
+        BoxZoomDarknessBase = override * 0.01
 
 # called each time a page is entered, AFTER the transition, AFTER entering box-fade mode
 def PageEntered(update_time=True):
     global PageEnterTime, PageTimeout, MPlayerProcess, IsZoomed, WantStatus
     if update_time:
         PageEnterTime = Platform.GetTicks() - StartTime
-    IsZoomed = False  # no, we don't have a pre-zoomed image right now
+    IsZoomed = 0  # no, we don't have a pre-zoomed image right now
     WantStatus = False  # don't show status unless it's changed interactively
     PageTimeout = AutoAdvance
     shown = GetPageProp(Pcurrent, '_shown', 0)
@@ -308,29 +313,32 @@ def ZoomAnimation(targetx, targety, func, duration_override=None):
         t = (Platform.GetTicks() - t0) * 1.0 / duration
         if t >= 1.0: break
         t = func(t)
+        dark = (t if BoxZoom else 1.0)
         t = (2.0 - t) * t
         ZoomX0 = targetx * t
         ZoomY0 = targety * t
-        ZoomArea = 1.0 - (1.0 - 1.0 / ZoomFactor) * t
-        DrawCurrentPage()
+        ZoomArea = 1.0 - (1.0 - 1.0 / ViewZoomFactor) * t
+        DrawCurrentPage(dark=dark)
     t = func(1.0)
     ZoomX0 = targetx * t
     ZoomY0 = targety * t
-    ZoomArea = 1.0 - (1.0 - 1.0 / ZoomFactor) * t
+    ZoomArea = 1.0 - (1.0 - 1.0 / ViewZoomFactor) * t
     GenerateSpotMesh()
-    DrawCurrentPage()
+    DrawCurrentPage(dark=(t if BoxZoom else 1.0))
 
 # enter zoom mode
-def EnterZoomMode(targetx, targety):
-    global ZoomMode, IsZoomed, HighResZoomFailed
+def EnterZoomMode(factor, targetx, targety):
+    global ZoomMode, ViewZoomFactor, ResZoomFactor, IsZoomed, HighResZoomFailed
+    ViewZoomFactor = factor
+    ResZoomFactor = min(factor, MaxZoomFactor)
     ZoomAnimation(targetx, targety, lambda t: t)
     ZoomMode = True
-    if IsZoomed or HighResZoomFailed:
+    if (IsZoomed >= ResZoomFactor) or (ResZoomFactor < 1.1) or HighResZoomFailed:
         return
     gl.BindTexture(gl.TEXTURE_2D, Tcurrent)
     while gl.GetError():
         pass  # clear all OpenGL errors
-    gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGB, int(ZoomFactor * TexWidth), int(ZoomFactor * TexHeight), 0, gl.RGB, gl.UNSIGNED_BYTE, PageImage(Pcurrent, True))
+    gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGB, int(ResZoomFactor * TexWidth), int(ResZoomFactor * TexHeight), 0, gl.RGB, gl.UNSIGNED_BYTE, PageImage(Pcurrent, True))
     if gl.GetError():
         print >>sys.stderr, "I'm sorry, but your graphics card is not capable of rendering presentations"
         print >>sys.stderr, "in this resolution. Either the texture memory is exhausted, or there is no"
@@ -339,15 +347,23 @@ def EnterZoomMode(targetx, targety):
         HighResZoomFailed = True
         return
     DrawCurrentPage()
-    IsZoomed = True
+    IsZoomed = ResZoomFactor
 
 # leave zoom mode (if enabled)
 def LeaveZoomMode(allow_transition=True):
-    global ZoomMode
+    global ZoomMode, BoxZoom, Panning, ViewZoomFactor, ResZoomFactor
     if not ZoomMode: return
     ZoomAnimation(ZoomX0, ZoomY0, lambda t: 1.0 - t, (None if allow_transition else 0))
     ZoomMode = False
+    BoxZoom = False
     Panning = False
+    ViewZoomFactor = 1
+    ResZoomFactor = 1
+
+# check whether a box mark is too small
+def BoxTooSmall():
+    return ((abs(MarkUL[0] - MarkLR[0]) * ScreenWidth)  < MinBoxSize) \
+        or ((abs(MarkUL[1] - MarkLR[1]) * ScreenHeight) < MinBoxSize)
 
 # increment/decrement spot radius
 def IncrementSpotSize(delta):

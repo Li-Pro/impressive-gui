@@ -11,11 +11,11 @@ def main():
     global DocumentTitle, PageProps, LogoTexture, OSDFont
     global Pcurrent, Pnext, Tcurrent, Tnext, InitialPage
     global CacheFile, CacheFileName, BaseWorkingDir, RenderToDirectory
-    global PAR, DAR, TempFileName, Bare
+    global PAR, DAR, TempFileName, Bare, MaxZoomFactor
     global BackgroundRendering, FileStats, RTrunning, RTrestart, StartTime
     global CursorImage, CursorVisible, InfoScriptPath
     global HalfScreen, AutoAdvance, WindowPos
-    global BoxFadeDarknessBase, SpotRadiusBase
+    global BoxFadeDarknessBase, BoxZoomDarknessBase, SpotRadiusBase
     global BoxIndexBuffer, UseBlurShader
 
     # allocate temporary file
@@ -154,6 +154,7 @@ def main():
 
     # initialize some derived variables
     BoxFadeDarknessBase = BoxFadeDarkness
+    BoxZoomDarknessBase = BoxZoomDarkness
     SpotRadiusBase = SpotRadius
 
     # get the initial page number
@@ -234,6 +235,15 @@ def main():
     TexMaxS = 1.0
     TexMaxT = 1.0
     TexSize = TexWidth * TexHeight * 3
+
+    # determine maximum texture size
+    maxsize = c_int(0)
+    gl.GetIntegerv(gl.MAX_TEXTURE_SIZE, ctypes.byref(maxsize))
+    maxsize = float(maxsize.value)
+    if (maxsize > ScreenWidth) and (maxsize <= 65536):
+        MaxZoomFactor = min(MaxZoomFactor, maxsize / ScreenWidth, maxsize / ScreenHeight)
+    if Verbose:
+        print >>sys.stderr, "Maximum texture size is %.0f pixels, using maximum zoom level of %.1f." % (maxsize, MaxZoomFactor)
 
     # set up some variables
     PixelX = 1.0 / ScreenWidth

@@ -81,6 +81,7 @@ def DrawCurrentPage(dark=1.0, do_flip=True):
     global ScreenTransform
     if VideoPlaying: return
     boxes = GetPageProp(Pcurrent, 'boxes')
+    if BoxZoom: boxes = [BoxZoom]
     gl.Clear(gl.COLOR_BUFFER_BIT)
 
     # pre-transform for zoom
@@ -93,14 +94,24 @@ def DrawCurrentPage(dark=1.0, do_flip=True):
         )
 
     # background layer -- the page's image, darkened if it has boxes
+    # note: some code paths enable GL_BLEND here; it stays enabled
+    #       during the rest of this function and will be disabled
+    #       at the end of DrawOverlays()
     is_dark = (boxes or Tracing) and (dark > 0.001)
-    if not is_dark:
+    if not(is_dark) or BoxZoom:
         # standard mode
+        if BoxZoom:
+            i = 1.0 - BoxZoomDarkness * dark
+        else:
+            i = 1.0
         TexturedRectShader.get_instance().draw(
             0.0, 0.0, 1.0, 1.0,
             s1=TexMaxS, t1=TexMaxT,
-            tex=Tcurrent
+            tex=Tcurrent,
+            color=(i,i,i,1.0)
         )
+        if BoxZoom and is_dark:
+            gl.Enable(gl.BLEND)
     elif UseBlurShader:
         # blurred background (using shader)
         blur_scale = BoxFadeBlur * ZoomArea * dark
@@ -111,8 +122,6 @@ def DrawCurrentPage(dark=1.0, do_flip=True):
             tex=Tcurrent
         )
         gl.Enable(gl.BLEND)
-        # note: BLEND stays enabled during the rest of this function;
-        # it will be disabled at the end of DrawOverlays()
     else:
         # blurred background (using oldschool multi-pass blend fallback)
         intensity = 1.0 - BoxFadeDarkness * dark
@@ -132,7 +141,7 @@ def DrawCurrentPage(dark=1.0, do_flip=True):
                 tex=Tcurrent,
                 color=(intensity, intensity, intensity, alpha)
             )
-            gl.Enable(gl.BLEND)
+            gl.Enable(gl.BLEND)  # start blending from the second pass on
         
 
     if boxes and is_dark:

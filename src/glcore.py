@@ -83,6 +83,7 @@ class OpenGL(object):
     LINK_STATUS = 0x8B82
     INFO_LOG_LENGTH = 0x8B84
     UNPACK_ALIGNMENT = 0x0CF5
+    MAX_TEXTURE_SIZE = 0x0D33
     _funcs = [
         GLFunction(True,  "GetString",                c_char_p, c_uint),
         GLFunction(True,  "Enable",                   None, c_uint),
@@ -129,6 +130,7 @@ class OpenGL(object):
         GLFunction(True,  "DrawArrays",               None, c_uint, c_uint, c_uint),
         GLFunction(True,  "DrawElements",             None, c_uint, c_uint, c_uint, c_void_p),
         GLFunction(True,  "PixelStorei",              None, c_uint, c_uint),
+        GLFunction(True,  "GetIntegerv",              None, c_uint, POINTER(c_int)),
     ]
     _typemap = {
                   BYTE:  c_int8,

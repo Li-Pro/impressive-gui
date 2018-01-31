@@ -304,8 +304,8 @@ def LoadDefaultBindings():
     shift+rightbracket = gamma-bl-increase
     backslash = gamma-reset
     lmb = box-add, hyperlink, overview-confirm
-    ctrl+lmb = hyperlink-notrans
-    rmb = zoom-pan, box-remove, overview-exit
+    ctrl+lmb = box-zoom, hyperlink-notrans
+    rmb = box-zoom-exit, zoom-pan, box-remove, overview-exit
     mmb = zoom-exit, overview-enter, overview-exit
     left, wheelup = overview-prev
     right, wheeldown = overview-next

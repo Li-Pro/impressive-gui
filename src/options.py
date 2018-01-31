@@ -52,12 +52,14 @@ Display options:
   -C,  --cursor <F[:X,Y]> use a .png image as the mouse cursor
   -N,  --no-cursor        don't show a mouse cursor at all
   -L,  --layout <spec>    set the OSD layout (please read the documentation)
-  -z,  --zoom <factor>    set zoom factor (integer number, default: 2)
+  -z,  --zoom <factor>    set zoom factor (default: 2.0)
+       --maxzoom <factor> maximum factor to render high-resolution zoom
   -x,  --fade             fade in at start and fade out at end
        --spot-radius <px> set the initial radius of the spotlight, in pixels
        --invert           display slides in inverted colors
        --min-box-size <x> set minimum size of a highlight box, in pixels
        --darkness <p>     set highlight box mode darkness to <p> percent
+       --zoomdarkness <p> set box-zoom mode darkness to <p> percent
        --noblur           use legacy blur implementation
 
 Timing options:
@@ -238,18 +240,19 @@ def ParseOptions(argv):
     global PageRangeStart, PageRangeEnd, FontList, FontSize, Gamma, BlackLevel
     global EstimatedDuration, CursorImage, CursorHotspot, MinutesOnly, Overscan
     global PDFRendererPath, InfoScriptPath, EventTestMode, EnableCursor
-    global AutoOverview, ZoomFactor, FadeInOut, ShowLogo, Shuffle, PageProgress
+    global AutoOverview, DefaultZoomFactor, FadeInOut, ShowLogo, Shuffle
     global QuitAtEnd, ShowClock, HalfScreen, SpotRadius, InvertPages
     global MinBoxSize, AutoAutoAdvance, AutoAdvanceProgress, BoxFadeDarkness
     global WindowPos, FakeFullscreen, UseBlurShader, Bare, EnableOverview
+    global PageProgress, BoxZoomDarkness, MaxZoomFactor
     DefaultControls = True
 
     try:  # unused short options: jnJKRUY
         opts, args = getopt.getopt(argv, \
             "vhfg:sc:i:wa:t:lo:r:T:D:B:Z:P:A:mbp:u:F:S:G:d:C:ML:I:O:z:xXqV:QHykWe:E:N", \
-           ["help", "fullscreen", "geometry=", "scale", "supersample", \
-            "nocache", "initialpage=", "wrap", "auto=", "listtrans", "output=", \
-            "rotate=", "transition=", "transtime=", "mousedelay=", "boxfade=", \
+           ["help", "fullscreen", "geometry=", "scale", "supersample",
+            "nocache", "initialpage=", "wrap", "auto=", "listtrans", "output=",
+            "rotate=", "transition=", "transtime=", "mousedelay=", "boxfade=",
             "zoom=", "gspath=", "renderer=", "aspect=", "memcache", \
             "noback", "pages=", "poll=", "font=", "fontsize=", "gamma=",
             "duration=", "cursor=", "minutes", "layout=", "script=", "cache=",
@@ -259,7 +262,9 @@ def ParseOptions(argv):
             "auto-auto", "auto-progress", "darkness=", "no-clicks", "nowheel",
             "no-wheel", "fake-fullscreen", "windowed", "verbose", "noblur",
             "tracking", "bind=", "controls=", "control-help", "evtest",
-            "noquit", "bare", "no-overview", "nooverview", "no-cursor", "nocursor"])
+            "noquit", "bare", "no-overview", "nooverview", "no-cursor",
+            "nocursor", "zoomdarkness=", "zoom-darkness=",
+            "maxzoom=", "max-zoom="])
     except getopt.GetoptError, message:
         opterr(message)
 
@@ -491,10 +496,16 @@ def ParseOptions(argv):
                 opterr("invalid parameter for --cursor")
         if opt in ("-z", "--zoom"):
             try:
-                ZoomFactor = float(arg)
-                assert ZoomFactor > 1
+                DefaultZoomFactor = float(arg)
+                assert DefaultZoomFactor > 1
             except:
                 opterr("invalid parameter for --zoom")
+        if opt in ("--maxzoom", "--max-zoom"):
+            try:
+                MaxZoomFactor = float(arg)
+                assert MaxZoomFactor >= 1.0
+            except:
+                opterr("invalid parameter for --maxzoom")
         if opt in ("-V", "--overscan"):
             try:
                 Overscan = int(arg)
@@ -505,6 +516,11 @@ def ParseOptions(argv):
                 BoxFadeDarkness = float(arg) * 0.01
             except:
                 opterr("invalid parameter for --darkness")
+        if opt in ("--zoom-darkness", "--zoomdarkness"):
+            try:
+                BoxZoomDarkness = float(arg) * 0.01
+            except:
+                opterr("invalid parameter for --zoom-darkness")
         if opt == "--noblur":
             UseBlurShader = not(UseBlurShader)
         if opt == "--bare":

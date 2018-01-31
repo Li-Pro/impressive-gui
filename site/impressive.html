@@ -12,12 +12,12 @@ code.pre { white-space:pre; }
 <!--VERSION-->
 <p style="text-indent:0;">
 <a href="http://impressive.sourceforge.net/">http://impressive.sourceforge.net/</a><br />
-<b>Version:</b> 0.11.2<br />
+<b>Version:</b> 0.11.3-WIP<br />
 <b>Author:</b> <a href="mailto:martin.fiedler@gmx.net">Martin J. Fiedler</a><br />
-<b>Last updated:</b> 2017-12-19</p>
+<b>Last updated:</b> 2018-01-31</p>
 <!--END-->
 <!--man
-.TH IMPRESSIVE 1 2017-12-19 "Martin J. Fiedler" "Impressive Documentation">
+.TH IMPRESSIVE 1 2018-01-31 "Martin J. Fiedler" "Impressive Documentation">
 .SH "NAME"
 Impressive \- presentation tool with eye candy
 .SH "SYNOPSIS"
@@ -221,7 +221,11 @@ The progress bar shown by this option takes precedence over the <code>--duration
 <dd>If this option is specified, Impressive writes a list of all available transition classes to standard output and does not start a presentation. Transitions that are enabled by default are marked with a star (<code>*</code>) left of the class name.</dd>
 
 <dt><code>-L <em>&lt;spec&gt;</em></code> or <code>--layout <em>&lt;spec&gt;</em></code></dt>
-<dd>Specifies the OSD layout. Read below for an explanation of this option</dd>
+<dd>Specifies the OSD layout. Read below for an explanation of this option.</dd>
+
+<dt><code>--maxzoom <em>&lt;factor&gt;</em></code></dt>
+<dd>The maximum zoom factor up to which Impressive shall attempt to render a high-resolution image of the page when zoomed in. This can be any real number larger than or equal to 1.0; the default is 5.0. A setting of 1.0 causes Impressive to never render a high-resolution image for zooming; in this case, the zoom and box-zoom modes will upscale the image, but not enhance any details.<br />
+Note that regardless of this setting, Impressive always checks the graphics hardware capabilities (in particular, the maximum supported texture size) and may reduce the effective value of <code>--maxzoom</code> if the hardware supports less than what has been specified.</dd>
 
 <dt><code>--min-box-size <em>&lt;pixels&gt;</em></code></dt>
 <dd>This option sets the minimum size of a highlight box, in pixels. Boxes that are not this many pixels wide and high are rejected in order to prevent accidental creation of highlight boxes. The default value for this is 30&nbsp;pixels.</dd>
@@ -322,7 +326,10 @@ Note that this option only works as intended when the default controls are used.
 <dd>This option can be used together with <code>--duration</code> to have Impressive compute a page timeout (as with the <code>--auto</code> option) automatically. This results in a presentation that runs automatically, displaying each slide for the same time, so that the desired total duration will be reached (almost) exactly.</dd>
 
 <dt><code>-z <em>&lt;factor&gt;</em></code> or <code>--zoom <em>&lt;factor&gt;</em></code></dt>
-<dd>Sets the zoom factor that is used in zoom mode. It must be an integer value of at least 2. The default value is 2. Note that it might not be possible to get high-quality zooming for large zoom factors due to hardware restrictions. Also, note that if the hardware doesn't support non-power-of-two textures or if the <code>-e</code> option is used, the number must be a power of two.</dd>
+<dd>Sets the scaling factor that is used in zoom mode. It can be any real value above 1.0; the default value is 2.0. Note that it might not be possible to get high-quality zooming for large zoom factors due to hardware restrictions. Furthermore, please be aware that after leaving zoom mode, the image quality of the normal page display may be slightly degraded until another page is displayed if a zoom factor other than 2.0 is used.</dd>
+
+<dt><code>--zoomdarkness <em>&lt;percentage&gt;</em></code></dt>
+<dd>Specifies how much the non-selected parts of the screen shall become darker in box-zoom mode. The value is specified in percent, with 90 being the default. A value of zero would mean no darkening at all (parts outside of the zoom box would still be perfectly visible), and a value of 100 would make everything but the selected region black.</dd>
 
 <dt><code>-Z <em>&lt;ms&gt;</em></code> or <code>--zoomtime <em>&lt;ms&gt;</em></code></dt>
 <dd>Sets the duration (in milliseconds) of the overview page zoom-in/zoom-out effects. Default value: 250 ms.</dd>
@@ -381,7 +388,7 @@ Note that this option only works as intended when the default controls are used.
 <dl>
 
 <dt><strong>Esc</strong> key</dt>
-<dd>Return from the currently active special mode (zoom, overview, spotlight, highlight boxes); if no such special mode is active, quit Impressive altogether.</dd>
+<dd>Return from the currently active special mode (zoom, box-zoom, overview, spotlight, highlight boxes); if no such special mode is active, quit Impressive altogether.</dd>
 
 <dt><strong>Q</strong> key or <strong>Alt</strong>+<strong>F4</strong></dt>
 <dd>Quit Impressive immediately.</dd>
@@ -417,6 +424,10 @@ Note that this option only works as intended when the default controls are used.
 <dd>Create a new highlight box. While at least one highlight box is defined on the current page, the page itself will be shown in a darker, blurry and (if supported by the graphics hardware) desaturated rendition. Only the highlight boxes will be displayed in their original lightness, sharpness and color saturation.<br />
 If a page with highlight boxes is left, the boxes will be saved and restored the next time this page is shown again.</dd>
 
+<dt>click&amp;drag with <strong>Ctrl</strong>+<strong>LMB</strong> (left mouse button)</dt>
+<dd>Draw a box to zoom into. This enters so-called &raquo;box-zoom&laquo; mode, where the selected region is zoomed into full view and anything else is displayed in much darker colors (but not blurred like in highlight box mode). The page contents will be re-rendered in a higher resolution, if possible (limited to what has been configured with the <code>--maxzoom</code> command-line option, and the graphics hardware's maximum supported texture size). To leave this mode again, use <strong>RMB</strong>, <strong>MMB</strong> or <strong>Esc</strong>.<br />
+Note that box-zoom mode is mutually exclusive with highlight boxes and the spotlight; if any of those is currently active, it's not possible to draw a zoom box.</dd>
+
 <dt><strong>RMB</strong> (right mouse button) over a highlight box</dt>
 <dd>If the right mouse button is clicked while the mouse cursor is above a highlight box, the box will be removed. If the last box on a page is removed, the page will turn bright and sharp again.</dd>
 
@@ -442,10 +453,10 @@ If a page with highlight boxes is left, the boxes will be saved and restored the
 <dd>Resets the spotlight radius to the default value, i.e. the value that has been set up by the <code>radius</code> page property, the <code>--spot-radius</code> command-line option or Impressive's built-in default.</dd>
 
 <dt><strong>7</strong> / <strong>8</strong> key</dt>
-<dd>Adjust the amount of darkening applied to the page in spotlight or highlight box mode.</dd>
+<dd>Adjust the amount of darkening applied to the page in spotlight, highlight box or box-zoom mode.</dd>
 
 <dt><strong>Ctrl</strong>+<strong>7</strong> or <strong>Ctrl</strong>+<strong>8</strong> keys</dt>
-<dd>Resets the amount of darkening in spotlight or highlight box mode to the default value, i.e. the value that has been set up by the <code>darkness</code> page property, the <code>--darkness</code> command-line option or Impressive's built-in default.</dd>
+<dd>Resets the amount of darkening in spotlight, highlight box and box-zoom mode to the default values, i.e. the value that have been set up by the <code>darkness</code> and <code>zoomdarkness</code> page properties, the <code>--darkness</code> and <code>--zoomdarkness</code> command-line options or Impressive's built-in defaults.</dd>
 
 <dt><strong>Z</strong> key</dt>
 <dd>Toggle zoom mode. When this key is first pressed, the current page will zoom in. The page will be displayed at double size, but in its original resolution (i.e. it will be blurry). Impressive will re-render the page at the new resolution if the graphics hardware supports it. During this time, Impressive will <strong>not</strong> accept any input, so don't even think about clicking the mouse or pressing keys before the image gets crisp again.<br />
@@ -523,13 +534,19 @@ If an event or action specified on the command line or in a configuration file i
 <p>The following list describes all actions supported by Impressive, together with the conditions under which they will match. Note that most actions will not match in overview mode and during video playback, unless mentioned otherwise in the description.</p><dl>
 
 <dt><code>box-add</code></dt>
-<dd>Draw a highlight box if the mouse has been moved since the button has been pressed down. This action must only be bound to a mouse button event without modifiers, otherwise it will not function properly.</dd>
+<dd>Draw a highlight box if the mouse has been moved since the button has been pressed down. This action must only be bound to a mouse button event, otherwise it will not function properly.</dd>
 
 <dt><code>box-clear</code></dt>
 <dd>Removes all boxes from the current page.</dd>
 
 <dt><code>box-remove</code></dt>
 <dd>Removes the highlight box under the mouse cursor, if there is any.</dd>
+
+<dt><code>box-zoom</code></dt>
+<dd>Define a region to zoom into by drawing a rectangle. This action must only be bound to a mouse button event, otherwise it will not function properly.</dd>
+
+<dt><code>box-zoom-exit</code></dt>
+<dd>If in box-zoom (but not normal zoom) mode, leave box-zoom mode.</dd>
 
 <dt><code>fade-less</code>, <code>fade-more</code></dt>
 <dd>Decrease or increase the amount of darkening applied to the background in spotlight or highlight box mode.</dd>
@@ -631,7 +648,7 @@ If an event or action specified on the command line or in a configuration file i
 <dd>If not in zoom mode, enter zoom mode.</dd>
 
 <dt><code>zoom-exit</code></dt>
-<dd>If in zoom mode, leave zoom mode.</dd>
+<dd>If in zoom or box-zoom mode, leave that mode.</dd>
 
 <dt><code>zoom-pan</code></dt>
 <dd>When in zoom mode, the visible area of the page can be moved around with the mouse while the key or mouse button of the associated event is held down.</dd>
@@ -725,6 +742,9 @@ In any case, the default file name can be overridden by the <code>-I</code> comm
 
 <dt><code>darkness</code></dt>
 <dd>This property takes an integer or floating-point percentage value that, if defined, will be used to set the background darkness in spotlight or highlight box mode each time the page is entered. This overrides the current setting as defined by the <code>--darkness</code> command line option or run-time adjustments. Note that the value is <em>not</em> reset to the default value after the page has been left again.</dd>
+
+<dt><code>zoomdarkness</code></dt>
+<dd>This property takes an integer or floating-point percentage value that, if defined, will be used to set the background darkness in box-zoom mode each time the page is entered. This overrides the current setting as defined by the <code>--zoomdarkness</code> command line option or run-time adjustments. Note that the value is <em>not</em> reset to the default value after the page has been left again.</dd>
 
 <dt><code>comment</code></dt>
 <dd>This property can hold a string with a single line of text that will be displayed on screen while the page is shown. Display of this text can not be disabled.</dd>

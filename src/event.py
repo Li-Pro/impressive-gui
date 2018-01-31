@@ -144,7 +144,7 @@ class PageDisplayActions(BaseDisplayActions):
     def _zoom_pan_ACTIVATE(self):
         "pan visible region in zoom mode"
         global PanValid, Panning, PanBaseX, PanBaseY, PanAnchorX, PanAnchorY
-        ActionValidIf(ZoomMode)
+        ActionValidIf(ZoomMode and not(BoxZoom))
         PanValid = True
         Panning = False
         PanBaseX, PanBaseY = Platform.GetMousePos()
@@ -161,8 +161,9 @@ class PageDisplayActions(BaseDisplayActions):
         "enter zoom mode"
         ActionValidIf(not(ZoomMode))
         tx, ty = MouseToScreen(Platform.GetMousePos())
-        EnterZoomMode((1.0 - 1.0 / ZoomFactor) * tx, \
-                      (1.0 - 1.0 / ZoomFactor) * ty)
+        EnterZoomMode(DefaultZoomFactor,
+                      (1.0 - 1.0 / DefaultZoomFactor) * tx, \
+                      (1.0 - 1.0 / DefaultZoomFactor) * ty)
     def _zoom_exit(self):
         "leave zoom mode"
         ActionValidIf(ZoomMode)
@@ -179,17 +180,14 @@ class PageDisplayActions(BaseDisplayActions):
         global Marking
         ActionValidIf(Marking)
         Marking = False
-        # reject too small boxes
-        if  ((abs(MarkUL[0] - MarkLR[0]) * ScreenWidth)  >= MinBoxSize) \
-        and ((abs(MarkUL[1] - MarkLR[1]) * ScreenHeight) >= MinBoxSize):
-            boxes = GetPageProp(Pcurrent, 'boxes', [])
-            oldboxcount = len(boxes)
-            boxes.append(NormalizeRect(MarkUL[0], MarkUL[1], MarkLR[0], MarkLR[1]))
-            SetPageProp(Pcurrent, 'boxes', boxes)
-            if not(oldboxcount) and not(Tracing):
-                BoxFade(lambda t: t)
-        else:
+        if BoxTooSmall():
             raise ActionNotHandled()
+        boxes = GetPageProp(Pcurrent, 'boxes', [])
+        oldboxcount = len(boxes)
+        boxes.append(NormalizeRect(MarkUL[0], MarkUL[1], MarkLR[0], MarkLR[1]))
+        SetPageProp(Pcurrent, 'boxes', boxes)
+        if not(oldboxcount) and not(Tracing):
+            BoxFade(lambda t: t)
         DrawCurrentPage()
     def _box_add_RELEASE(self):
         global MarkValid
@@ -219,6 +217,35 @@ class PageDisplayActions(BaseDisplayActions):
             BoxFade(lambda t: 1.0 - t)
         DelPageProp(Pcurrent, 'boxes')
         DrawCurrentPage()
+
+    def _box_zoom_ACTIVATE(self):
+        "draw a box to zoom into [mouse-only]"
+        ActionValidIf(not(BoxZoom) and not(Tracing) and not(GetPageProp(Pcurrent, 'boxes')))
+        return self._box_add_ACTIVATE()
+    def _box_zoom(self):
+        global Marking, BoxZoom, ZoomBox
+        ActionValidIf(Marking and not(BoxZoom) and not(Tracing) and not(GetPageProp(Pcurrent, 'boxes')))
+        Marking = False
+        if BoxTooSmall():
+            raise ActionNotHandled()
+        z = min(1.0 / abs(MarkUL[0] - MarkLR[0]), 1.0 / abs(MarkUL[1] - MarkLR[1]))
+        if z <= 1:
+            return DrawCurrentPage()
+        tx = (MarkUL[0] + MarkLR[0]) * 0.5
+        ty = (MarkUL[1] + MarkLR[1]) * 0.5
+        tx = tx + (tx - 0.5) / (z - 1.0)
+        ty = ty + (ty - 0.5) / (z - 1.0)
+        tx = (1.0 - 1.0 / z) * tx
+        ty = (1.0 - 1.0 / z) * ty
+        BoxZoom = NormalizeRect(MarkUL[0], MarkUL[1], MarkLR[0], MarkLR[1])
+        EnterZoomMode(z, tx, ty)
+    def _box_zoom_RELEASE(self):
+        return self._box_add_RELEASE()
+
+    def _box_zoom_exit(self):
+        "leave box-zoom mode"
+        ActionValidIf(BoxZoom)
+        LeaveZoomMode()
 
     def _hyperlink(self, allow_transition=True):
         "navigate to the hyperlink under the mouse cursor"
@@ -346,18 +373,25 @@ class PageDisplayActions(BaseDisplayActions):
 
     def _fade_less(self):
         "decrease the spotlight/box background darkness"
-        global BoxFadeDarkness
-        BoxFadeDarkness = max(0.0, BoxFadeDarkness - BoxFadeDarknessStep)
+        global BoxFadeDarkness, BoxZoomDarkness
+        if BoxZoom:
+            BoxZoomDarkness = max(0.0, BoxZoomDarkness - BoxFadeDarknessStep)
+        else:
+            BoxFadeDarkness = max(0.0, BoxFadeDarkness - BoxFadeDarknessStep)
         DrawCurrentPage()
     def _fade_more(self):
         "increase the spotlight/box background darkness"
-        global BoxFadeDarkness
-        BoxFadeDarkness = min(1.0, BoxFadeDarkness + BoxFadeDarknessStep)
+        global BoxFadeDarkness, BoxZoomDarkness
+        if BoxZoom:
+            BoxZoomDarkness = min(1.0, BoxZoomDarkness + BoxFadeDarknessStep)
+        else:
+            BoxFadeDarkness = min(1.0, BoxFadeDarkness + BoxFadeDarknessStep)
         DrawCurrentPage()
     def _fade_reset(self):
         "reset spotlight/box background darkness to default"
-        global BoxFadeDarkness
+        global BoxFadeDarkness, BoxZoomDarkness
         BoxFadeDarkness = BoxFadeDarknessBase
+        BoxZoomDarkness = BoxZoomDarknessBase
         DrawCurrentPage()
 
     def _gamma_decrease(self):
@@ -377,7 +411,7 @@ class PageDisplayActions(BaseDisplayActions):
         SetGamma(1.0, 0)
 
 PageDisplayActions = PageDisplayActions()
-ForcedActions.update(("-zoom-pan", "+zoom-pan", "-box-add", "+box-add"))
+ForcedActions.update(("-zoom-pan", "+zoom-pan", "-box-add", "+box-add", "-box-zoom", "+box-zoom"))
 
 # main event handling function
 # takes care that $page-timeout events are handled with least priority
