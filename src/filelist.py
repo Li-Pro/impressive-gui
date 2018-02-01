@@ -1,10 +1,14 @@
 ##### FILE LIST GENERATION #####################################################
 
-def IsImageFileName(name):
-    return os.path.splitext(name)[1].lower() in \
-           (".jpg", ".jpeg", ".png", ".tif", ".tiff", ".bmp", ".ppm", ".pgm")
-def IsPlayable(name):
-    return IsImageFileName(name) or name.lower().endswith(".pdf") or os.path.isdir(name)
+ImageExts = set('.'+x for x in "jpg jpeg png tif tiff bmp ppm pgm".split())
+VideoExts = set('.'+x for x in "avi mov mp4 mkv ogv mpg mpeg m1v m2v m4v mts m2ts m2t ts webm 3gp flv qt".split())
+AllExts = set(list(ImageExts) + list(VideoExts) + [".pdf"])
+
+def CheckExt(name, exts):
+    return os.path.splitext(name)[1].lower() in exts
+def IsImageFile(name): return CheckExt(name, ImageExts)
+def IsVideoFile(name): return CheckExt(name, VideoExts)
+def IsPlayable(name):  return CheckExt(name, AllExts)
 
 def AddFile(name, title=None, implicit=False):
     global FileList, FileName

@@ -146,18 +146,21 @@ def PageEntered(update_time=True):
         pass
     if not(shown) or Wrap:
         PageTimeout = GetPageProp(Pcurrent, 'timeout', PageTimeout)
+    if GetPageProp(Pcurrent, '_video'):
+        PlayVideo(GetPageProp(Pcurrent, '_file'))
     if not(shown) or GetPageProp(Pcurrent, 'always', False):
-        video = GetPageProp(Pcurrent, 'video')
-        sound = GetPageProp(Pcurrent, 'sound')
-        PlayVideo(video)
-        if sound and not(video):
-            StopMPlayer()
-            try:
-                MPlayerProcess = subprocess.Popen( \
-                    [MPlayerPath, "-quiet", "-really-quiet", "-novideo", sound], \
-                    stdin=subprocess.PIPE)
-            except OSError:
-                MPlayerProcess = None
+        if not GetPageProp(Pcurrent, '_video'):
+            video = GetPageProp(Pcurrent, 'video')
+            sound = GetPageProp(Pcurrent, 'sound')
+            PlayVideo(video)
+            if sound and not(video):
+                StopMPlayer()
+                try:
+                    MPlayerProcess = subprocess.Popen( \
+                        [MPlayerPath, "-quiet", "-really-quiet", "-novideo", sound], \
+                        stdin=subprocess.PIPE)
+                except OSError:
+                    MPlayerProcess = None
         SafeCall(GetPageProp(Pcurrent, 'OnEnterOnce'))
     SafeCall(GetPageProp(Pcurrent, 'OnEnter'))
     if PageTimeout:

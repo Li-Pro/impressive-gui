@@ -420,16 +420,17 @@ def RenderPDF(page, MayAdjustResolution, ZoomMode):
 
 
 # load a page from an image file
-def LoadImage(page, ZoomMode):
-    # open the image file with PIL
-    try:
-        img = Image.open(GetPageProp(page, '_file'))
-        img.load()
-    except (KeyboardInterrupt, SystemExit):
-        raise
-    except:
-        print >>sys.stderr, "Image file `%s' is broken." % GetPageProp(page, '_file')
-        return DummyPage()
+def LoadImage(page, zoom=False, img=None):
+    # open the image file with PIL (if not already done so)
+    if not img:
+        try:
+            img = Image.open(GetPageProp(page, '_file'))
+            img.load()
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except:
+            print >>sys.stderr, "Image file `%s' is broken." % GetPageProp(page, '_file')
+            return DummyPage()
 
     # apply rotation
     rot = GetPageProp(page, 'rotate')
@@ -446,7 +447,7 @@ def LoadImage(page, ZoomMode):
     # don't scale if the source is smaller than the destination
     if not(Scaling) and (newsize > img.size): newsize = img.size
     # zoom up (if wanted)
-    if ZoomMode: newsize = (2 * newsize[0], 2 * newsize[1])
+    if zoom: newsize = (int(ResZoomFactor * newsize[0]), int(ResZoomFactor * newsize[1]))
     # skip processing if there was no change
     if newsize == img.size: return img
 
@@ -456,6 +457,32 @@ def LoadImage(page, ZoomMode):
     else:
         filter = Image.ANTIALIAS
     return img.resize(newsize, filter)
+
+
+# load a preview image from a video file
+def LoadVideoPreview(page, zoom):
+    reason = None
+    try:
+        reason = "failed to call FFmpeg"
+        out, dummy = subprocess.Popen([ffmpegPath,
+                        "-loglevel", "fatal",
+                        "-i", GetPageProp(page, '_file'), "-vframes", "1",
+                        "-f", "image2pipe", "-vcodec", "ppm", "-"],
+                        stdout=subprocess.PIPE).communicate()
+        reason = "FFmpeg output is not valid"
+        out = cStringIO.StringIO(out)
+        img = Image.open(out)
+        img.load()
+    except (KeyboardInterrupt, SystemExit):
+        raise
+    except EnvironmentError:
+        img = None
+
+    if img:
+        return LoadImage(page, zoom, img)
+    else:
+        print >>sys.stderr, "Can not generate preview image for video file `%s' (%s)." % (GetPageProp(page, '_file'), reason)
+        return DummyPage()
 
 
 # render a page to an OpenGL texture
@@ -487,6 +514,8 @@ def PageImage(page, ZoomMode=False, RenderMode=False):
         if not img:
             if GetPageProp(page, '_page'):
                 img = RenderPDF(page, not(ZoomMode), ZoomMode)
+            elif GetPageProp(page, '_video'):
+                img = LoadVideoPreview(page, ZoomMode)
             else:
                 img = LoadImage(page, ZoomMode)
             if GetPageProp(page, 'invert', InvertPages):

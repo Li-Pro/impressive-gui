@@ -27,6 +27,7 @@ if os.name == "nt":
         return binary  # fall-back if not found
     pdftkPath = FindBinary("pdftk.exe")
     mutoolPath = FindBinary("mutool.exe")
+    ffmpegPath = FindBinary("ffmpeg.exe")
     GhostScriptPlatformOptions = ["-I" + os.path.join(root, "gs")]
     try:
         import win32api
@@ -53,6 +54,7 @@ else:
     MPlayerColorKey = False
     pdftkPath = "pdftk"
     mutoolPath = "mutool"
+    ffmpegPath = "ffmpeg"
     FontPath = ["/usr/share/fonts", "/usr/local/share/fonts", "/usr/X11R6/lib/X11/fonts/TTF"]
     FontList = ["DejaVuSans.ttf", "Vera.ttf", "Verdana.ttf"]
     Nice = ["nice", "-n", "7"]

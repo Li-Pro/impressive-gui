@@ -114,8 +114,10 @@ def main():
                 except:
                     pass
         else:
-            # Image File
+            # image or video file
             pages = 1
+            if IsVideoFile(name):
+                SetPageProp(PageCount + 1, '_video', True)
             SetPageProp(PageCount + 1, '_title', os.path.split(name)[-1])
 
         # validity check
