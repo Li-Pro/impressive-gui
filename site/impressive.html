@@ -323,7 +323,7 @@ Note that this option only works as intended when the default controls are used.
 <dd>If this option is enabled, the input files will be shuffled into random order before starting the presentation. The individual pages of PDF input files will stay in their original order, though, so this option is mainly useful for image presentations.</dd>
 
 <dt><code>-y</code> or <code>--auto-auto</code></dt>
-<dd>This option can be used together with <code>--duration</code> to have Impressive compute a page timeout (as with the <code>--auto</code> option) automatically. This results in a presentation that runs automatically, displaying each slide for the same time, so that the desired total duration will be reached (almost) exactly.</dd>
+<dd>This option can be used together with <code>--duration</code> to have Impressive compute a page timeout (as with the <code>--auto</code> option) automatically. This results in a presentation that runs automatically, displaying each slide for the same time, so that the desired total duration will be reached (almost) exactly. One exception is the runtime of videos, which is not taken into account.</dd>
 
 <dt><code>-z <em>&lt;factor&gt;</em></code> or <code>--zoom <em>&lt;factor&gt;</em></code></dt>
 <dd>Sets the scaling factor that is used in zoom mode. It can be any real value above 1.0; the default value is 2.0. Note that it might not be possible to get high-quality zooming for large zoom factors due to hardware restrictions. Furthermore, please be aware that after leaving zoom mode, the image quality of the normal page display may be slightly degraded until another page is displayed if a zoom factor other than 2.0 is used.</dd>

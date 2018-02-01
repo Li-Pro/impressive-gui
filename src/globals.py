@@ -53,6 +53,7 @@ CurrentTime = 0
 PageEnterTime = 0
 PageLeaveTime = 0
 PageTimeout = 0
+NextPageAfterVideo = False
 TimeDisplay = False
 FirstPage = True
 ProgressBarPos = 0

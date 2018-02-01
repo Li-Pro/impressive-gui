@@ -83,7 +83,7 @@ def ResetTimer():
 
 # start video playback
 def PlayVideo(video):
-    global MPlayerProcess, VideoPlaying
+    global MPlayerProcess, VideoPlaying, NextPageAfterVideo
     if not video: return
     StopMPlayer()
     opts = ["-quiet", "-slave", \
@@ -103,6 +103,7 @@ def PlayVideo(video):
             return
     if not isinstance(video, list):
         video = [video]
+    NextPageAfterVideo = False
     try:
         MPlayerProcess = subprocess.Popen([MPlayerPath] + opts + video, stdin=subprocess.PIPE)
         if MPlayerColorKey:

@@ -41,7 +41,11 @@ class BaseDisplayActions(BaseActions):
         DrawCurrentPage()
 
     def _X_page_timeout(self):
-        TransitionTo(GetNextPage(Pcurrent, 1))
+        global NextPageAfterVideo
+        if VideoPlaying:
+            NextPageAfterVideo = True
+        else:
+            TransitionTo(GetNextPage(Pcurrent, 1))
 
     def _X_poll_file(self):
         global RTrunning, RTrestart, Pnext

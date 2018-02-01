@@ -228,32 +228,35 @@ def OverviewPos(page):
     )
 
 def StopMPlayer():
-    global MPlayerProcess, VideoPlaying
+    global MPlayerProcess, VideoPlaying, NextPageAfterVideo
     if not MPlayerProcess: return
 
     # first, ask politely
     try:
         MPlayerProcess.stdin.write('quit\n')
         for i in xrange(10):
-            if not(MPlayerProcess.poll() is None):
-                MPlayerProcess = None
-                VideoPlaying = False
-                return
-            time.sleep(0.1)
+            if MPlayerProcess.poll() is None:
+                time.sleep(0.1)
+            else:
+                break
     except:
         pass
 
     # if that didn't work, be rude
-    print >>sys.stderr, "MPlayer didn't exit properly, killing PID", MPlayerProcess.pid
-    try:
-        if os.name == 'nt':
-            win32api.TerminateProcess(win32api.OpenProcess(1, False, MPlayerProcess.pid), 0)
-        else:
-            os.kill(MPlayerProcess.pid, 2)
-        MPlayerProcess = None
-    except:
-        pass
+    if MPlayerProcess.poll() is None:
+        print >>sys.stderr, "MPlayer didn't exit properly, killing PID", MPlayerProcess.pid
+        try:
+            if os.name == 'nt':
+                win32api.TerminateProcess(win32api.OpenProcess(1, False, MPlayerProcess.pid), 0)
+            else:
+                os.kill(MPlayerProcess.pid, 2)
+            MPlayerProcess = None
+        except:
+            pass
     VideoPlaying = False
+    if NextPageAfterVideo:
+        NextPageAfterVideo = False
+        TransitionTo(GetNextPage(Pcurrent, 1))
 
 def ClockTime(minutes):
     if minutes:
