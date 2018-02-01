@@ -58,6 +58,7 @@ Display options:
        --spot-radius <px> set the initial radius of the spotlight, in pixels
        --invert           display slides in inverted colors
        --min-box-size <x> set minimum size of a highlight box, in pixels
+       --box-edge <px>    size of highlight box borders, in pixels
        --darkness <p>     set highlight box mode darkness to <p> percent
        --zoomdarkness <p> set box-zoom mode darkness to <p> percent
        --noblur           use legacy blur implementation
@@ -244,7 +245,7 @@ def ParseOptions(argv):
     global QuitAtEnd, ShowClock, HalfScreen, SpotRadius, InvertPages
     global MinBoxSize, AutoAutoAdvance, AutoAdvanceProgress, BoxFadeDarkness
     global WindowPos, FakeFullscreen, UseBlurShader, Bare, EnableOverview
-    global PageProgress, BoxZoomDarkness, MaxZoomFactor
+    global PageProgress, BoxZoomDarkness, MaxZoomFactor, BoxEdgeSize
     DefaultControls = True
 
     try:  # unused short options: jnJKRUY
@@ -263,7 +264,7 @@ def ParseOptions(argv):
             "no-wheel", "fake-fullscreen", "windowed", "verbose", "noblur",
             "tracking", "bind=", "controls=", "control-help", "evtest",
             "noquit", "bare", "no-overview", "nooverview", "no-cursor",
-            "nocursor", "zoomdarkness=", "zoom-darkness=",
+            "nocursor", "zoomdarkness=", "zoom-darkness=", "box-edge=",
             "maxzoom=", "max-zoom="])
     except getopt.GetoptError, message:
         opterr(message)
@@ -427,6 +428,11 @@ def ParseOptions(argv):
                 MinBoxSize = int(arg)
             except:
                 opterr("invalid parameter for --min-box-size")
+        if opt == "--box-edge":
+            try:
+                BoxEdgeSize = int(arg)
+            except:
+                opterr("invalid parameter for --box-edge-size")
         if opt in ("-r", "--rotate"):
             try:
                 Rotation = int(arg)
