@@ -436,7 +436,7 @@ def main():
 
     # start output and enter main loop
     StartTime = Platform.GetTicks()
-    if TimeTracking:
+    if TimeTracking or TimeDisplay:
         EnableTimeTracking(True)
     Platform.ScheduleEvent("$timer-update", 100, periodic=True)
     if not(Fullscreen) and (not(EnableCursor) or CursorImage):

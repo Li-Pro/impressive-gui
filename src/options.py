@@ -67,6 +67,7 @@ Timing options:
   -M,  --minutes          display time in minutes, not seconds
        --clock            show current time instead of time elapsed
        --tracking         enable time tracking mode
+       --time-display     enable time display (implies --tracking)
   -a,  --auto <seconds>   automatically advance to next page after some seconds
   -d,  --duration <time>  set the desired duration of the presentation and show
                           a progress bar at the bottom of the screen
@@ -246,6 +247,7 @@ def ParseOptions(argv):
     global MinBoxSize, AutoAutoAdvance, AutoAdvanceProgress, BoxFadeDarkness
     global WindowPos, FakeFullscreen, UseBlurShader, Bare, EnableOverview
     global PageProgress, BoxZoomDarkness, MaxZoomFactor, BoxEdgeSize
+    global TimeDisplay
     DefaultControls = True
 
     try:  # unused short options: jnJKRUY
@@ -265,7 +267,7 @@ def ParseOptions(argv):
             "tracking", "bind=", "controls=", "control-help", "evtest",
             "noquit", "bare", "no-overview", "nooverview", "no-cursor",
             "nocursor", "zoomdarkness=", "zoom-darkness=", "box-edge=",
-            "maxzoom=", "max-zoom="])
+            "maxzoom=", "max-zoom=", "time-display"])
     except getopt.GetoptError, message:
         opterr(message)
 
@@ -347,6 +349,8 @@ def ParseOptions(argv):
             ShowClock = not(ShowClock)
         if opt == "--tracking":
             TimeTracking = not(TimeTracking)
+        if opt == "--time-display":
+            TimeDisplay = not(TimeDisplay)
         if opt in ("-X", "--shuffle"):
             Shuffle = not(Shuffle)
         if opt in ("-Q", "--autoquit"):
