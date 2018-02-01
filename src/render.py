@@ -461,29 +461,62 @@ def LoadImage(page, zoom=False, img=None):
 
 # load a preview image from a video file
 def LoadVideoPreview(page, zoom):
-    reason = None
-    try:
-        reason = "failed to call FFmpeg"
-        out, dummy = subprocess.Popen([ffmpegPath,
-                        "-loglevel", "fatal",
-                        "-i", GetPageProp(page, '_file'), "-vframes", "1",
-                        "-f", "image2pipe", "-vcodec", "ppm", "-"],
-                        stdout=subprocess.PIPE).communicate()
-        reason = "FFmpeg output is not valid"
-        out = cStringIO.StringIO(out)
-        img = Image.open(out)
-        img.load()
-    except (KeyboardInterrupt, SystemExit):
-        raise
-    except EnvironmentError:
-        img = None
+    global ffmpegWorks, mplayerWorks
+    img = None
+    reason = "no working preview generator application available"
+
+    if not(img) and ffmpegWorks:
+        try:
+            ffmpegWorks = False
+            reason = "failed to call FFmpeg"
+            out, dummy = subprocess.Popen([ffmpegPath,
+                            "-loglevel", "fatal",
+                            "-i", GetPageProp(page, '_file'),
+                            "-vframes", "1", "-pix_fmt", "rgb24",
+                            "-f", "image2pipe", "-vcodec", "ppm", "-"],
+                            stdout=subprocess.PIPE).communicate()
+            ffmpegWorks = True
+            reason = "FFmpeg output is not valid"
+            out = cStringIO.StringIO(out)
+            img = Image.open(out)
+            img.load()
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except EnvironmentError:
+            img = None
+
+    if not(img) and mplayerWorks:
+        cwd = os.getcwd()
+        try:
+            try:
+                mplayerWorks = False
+                reason = "failed to change into temporary directory"
+                if TempFileName:
+                    os.chdir(os.path.dirname(TempFileName))
+                reason = "failed to call MPlayer"
+                dummy = subprocess.Popen([MPlayerPath,
+                            "-really-quiet", "-nosound",
+                            "-frames", "1", "-vo", "png",
+                            GetPageProp(page, '_file')],
+                            stdin=subprocess.PIPE).communicate()
+                mplayerWorks = True
+                reason = "MPlayer output is not valid"
+                img = Image.open("00000001.png")
+                img.load()
+            except (KeyboardInterrupt, SystemExit):
+                raise
+            except EnvironmentError:
+                img = None
+        finally:
+            os.chdir(cwd)
 
     if img:
         return LoadImage(page, zoom, img)
     else:
         print >>sys.stderr, "Can not generate preview image for video file `%s' (%s)." % (GetPageProp(page, '_file'), reason)
         return DummyPage()
-
+ffmpegWorks = True
+mplayerWorks = True
 
 # render a page to an OpenGL texture
 def PageImage(page, ZoomMode=False, RenderMode=False):
