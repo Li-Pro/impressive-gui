@@ -59,6 +59,7 @@ Display options:
        --invert           display slides in inverted colors
        --min-box-size <x> set minimum size of a highlight box, in pixels
        --box-edge <px>    size of highlight box borders, in pixels
+       --zbox-edge <px>   size of zoom box borders, in pixels
        --darkness <p>     set highlight box mode darkness to <p> percent
        --zoomdarkness <p> set box-zoom mode darkness to <p> percent
        --noblur           use legacy blur implementation
@@ -247,7 +248,7 @@ def ParseOptions(argv):
     global MinBoxSize, AutoAutoAdvance, AutoAdvanceProgress, BoxFadeDarkness
     global WindowPos, FakeFullscreen, UseBlurShader, Bare, EnableOverview
     global PageProgress, BoxZoomDarkness, MaxZoomFactor, BoxEdgeSize
-    global TimeDisplay, MouseWheelZoom
+    global TimeDisplay, MouseWheelZoom, ZoomBoxEdgeSize
     DefaultControls = True
 
     try:  # unused short options: jnJKRUY
@@ -267,7 +268,7 @@ def ParseOptions(argv):
             "tracking", "bind=", "controls=", "control-help", "evtest",
             "noquit", "bare", "no-overview", "nooverview", "no-cursor",
             "nocursor", "zoomdarkness=", "zoom-darkness=", "box-edge=",
-            "maxzoom=", "max-zoom=", "time-display"])
+            "maxzoom=", "max-zoom=", "time-display", "zbox-edge="])
     except getopt.GetoptError, message:
         opterr(message)
 
@@ -437,7 +438,12 @@ def ParseOptions(argv):
             try:
                 BoxEdgeSize = int(arg)
             except:
-                opterr("invalid parameter for --box-edge-size")
+                opterr("invalid parameter for --box-edge")
+        if opt == "--zbox-edge":
+            try:
+                ZoomBoxEdgeSize = int(arg)
+            except:
+                opterr("invalid parameter for --zbox-edge")
         if opt in ("-r", "--rotate"):
             try:
                 Rotation = int(arg)

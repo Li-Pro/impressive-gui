@@ -4,7 +4,7 @@ LoadDefaultBindings()
 
 def main():
     global gl, ScreenWidth, ScreenHeight, TexWidth, TexHeight, TexSize
-    global TexMaxS, TexMaxT, EdgeX, EdgeY, PixelX, PixelY, LogoImage
+    global TexMaxS, TexMaxT, PixelX, PixelY, LogoImage
     global OverviewGridSize, OverviewCellX, OverviewCellY
     global OverviewOfsX, OverviewOfsY, OverviewBorder, OverviewImage, OverviewPageCount
     global OverviewPageMap, OverviewPageMapInv, FileName, FileList, PageCount
@@ -251,8 +251,6 @@ def main():
     PixelX = 1.0 / ScreenWidth
     PixelY = 1.0 / ScreenHeight
     ScreenAspect = float(ScreenWidth) / float(ScreenHeight)
-    EdgeX = BoxEdgeSize * PixelX
-    EdgeY = BoxEdgeSize * PixelY
 
     # prepare logo image
     LogoImage = Image.open(cStringIO.StringIO(LOGO.decode('base64')))

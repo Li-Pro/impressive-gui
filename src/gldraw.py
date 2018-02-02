@@ -150,17 +150,19 @@ def DrawCurrentPage(dark=1.0, do_flip=True):
             s1=TexMaxS, t1=TexMaxT
             # tex is already set
         )
+        ex = (ZoomBoxEdgeSize if BoxZoom else BoxEdgeSize) * PixelX
+        ey = (ZoomBoxEdgeSize if BoxZoom else BoxEdgeSize) * PixelY
         for X0, Y0, X1, Y1 in boxes:
             vertices = (c_float * 27)(
                 X0, Y0, 1.0,  # note: this produces two degenerate triangles
-                X0,         Y0,         1.0,
-                X0 - EdgeX, Y0 - EdgeY, 0.0,
-                X1,         Y0,         1.0,
-                X1 + EdgeX, Y0 - EdgeY, 0.0,
-                X1,         Y1,         1.0,
-                X1 + EdgeX, Y1 + EdgeY, 0.0,
-                X0,         Y1,         1.0,
-                X0 - EdgeX, Y1 + EdgeY, 0.0,
+                X0,      Y0,      1.0,
+                X0 - ex, Y0 - ey, 0.0,
+                X1,      Y0,      1.0,
+                X1 + ex, Y0 - ey, 0.0,
+                X1,      Y1,      1.0,
+                X1 + ex, Y1 + ey, 0.0,
+                X0,      Y1,      1.0,
+                X0 - ex, Y1 + ey, 0.0,
             )
             gl.BindBuffer(gl.ARRAY_BUFFER, 0)
             gl.VertexAttribPointer(0, 3, gl.FLOAT, False, 0, vertices)

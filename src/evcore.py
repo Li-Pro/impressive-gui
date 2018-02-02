@@ -306,7 +306,7 @@ def LoadDefaultBindings():
     lmb = box-add, hyperlink, overview-confirm
     ctrl+lmb = box-zoom, hyperlink-notrans
     rmb = box-zoom-exit, zoom-pan, box-remove, overview-exit
-    mmb = zoom-exit, overview-enter, overview-exit
+    mmb = zoom-pan, zoom-exit, overview-enter, overview-exit
     left, wheelup = overview-prev
     right, wheeldown = overview-next
     up = overview-up
