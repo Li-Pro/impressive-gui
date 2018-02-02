@@ -257,7 +257,12 @@ def StopMPlayer():
             MPlayerProcess = None
         except:
             pass
+    else:
+        MPlayerProcess = None
+
     VideoPlaying = False
+    if os.name == 'nt':
+        win32gui.ShowWindow(Platform.GetWindowID(), 9)  # SW_RESTORE
     if NextPageAfterVideo:
         NextPageAfterVideo = False
         TransitionTo(GetNextPage(Pcurrent, 1))

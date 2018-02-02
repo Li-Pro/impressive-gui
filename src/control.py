@@ -91,14 +91,14 @@ def PlayVideo(video):
     else:
         opts = [MPlayerPath, "-quiet", "-slave", \
                 "-monitorpixelaspect", "1:1", \
-                "-autosync", "100"] + \
-                MPlayerPlatformOptions
-        if Fullscreen:
-            opts += ["-fs"]
-        else:
-            try:
-                opts += ["-wid", str(Platform.GetWindowID())]
-            except KeyError:
+                "-vo", "gl", \
+                "-autosync", "100"]
+        try:
+            opts += ["-wid", str(Platform.GetWindowID())]
+        except KeyError:
+            if Fullscreen:
+                opts.append("-fs")
+            else:
                 print >>sys.stderr, "Sorry, but Impressive only supports video on your operating system if fullscreen"
                 print >>sys.stderr, "mode is used."
                 VideoPlaying = False
@@ -109,9 +109,16 @@ def PlayVideo(video):
     NextPageAfterVideo = False
     try:
         MPlayerProcess = subprocess.Popen(opts + video, stdin=subprocess.PIPE)
-        if MPlayerColorKey or Platform.use_omxplayer:
+        if Platform.use_omxplayer:
             gl.Clear(gl.COLOR_BUFFER_BIT)
             Platform.SwapBuffers()
+        if Fullscreen and (os.name == 'nt'):
+            # very ugly Win32-specific hack: in -wid embedding mode,
+            # video display only works if we briefly minimize and restore
+            # the window ... and that's the good case: in -fs, keyboard
+            # focus is messed up and we don't get any input!
+            win32gui.ShowWindow(Platform.GetWindowID(), 6)  # SW_MINIMIZE
+            win32gui.ShowWindow(Platform.GetWindowID(), 9)  # SW_RESTORE
         VideoPlaying = True
     except OSError:
         MPlayerProcess = None

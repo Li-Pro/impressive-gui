@@ -30,7 +30,7 @@ if os.name == "nt":
     ffmpegPath = FindBinary("ffmpeg.exe")
     GhostScriptPlatformOptions = ["-I" + os.path.join(root, "gs")]
     try:
-        import win32api
+        import win32api, win32gui
         HaveWin32API = True
         MPlayerPath = FindBinary("mplayer.exe")
         def RunURL(url):
@@ -39,8 +39,6 @@ if os.name == "nt":
         HaveWin32API = False
         MPlayerPath = ""
         def RunURL(url): print "Error: cannot run URL `%s'" % url
-    MPlayerPlatformOptions = [ "-colorkey", "0x000000" ]
-    MPlayerColorKey = True
     if getattr(sys, "frozen", False):
         sys.path.append(root)
     FontPath = []
@@ -50,8 +48,6 @@ else:
     def FindBinary(x): return x
     GhostScriptPlatformOptions = []
     MPlayerPath = "mplayer"
-    MPlayerPlatformOptions = [ "-vo", "gl" ]
-    MPlayerColorKey = False
     pdftkPath = "pdftk"
     mutoolPath = "mutool"
     ffmpegPath = "ffmpeg"
