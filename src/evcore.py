@@ -311,6 +311,8 @@ def LoadDefaultBindings():
     right, wheeldown = overview-next
     up = overview-up
     down = overview-down
+    wheelup = zoom-in
+    wheeldown = zoom-out
 
     lmb, wheeldown, pagedown, down, right, space = goto-next
     ctrl+lmb, ctrl+wheeldown, ctrl+pagedown, ctrl+down, ctrl+right, ctrl+space = goto-next-notrans

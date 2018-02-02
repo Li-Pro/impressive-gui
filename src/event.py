@@ -341,6 +341,15 @@ class PageDisplayActions(BaseDisplayActions):
         GenerateSpotMesh()
         DrawCurrentPage()
 
+    def _zoom_in(self):
+        "zoom in a small bit"
+        ActionValidIf((MouseWheelZoom or ZoomMode) and not(BoxZoom))
+        ChangeZoom(ViewZoomFactor * ZoomStep, Platform.GetMousePos())
+    def _zoom_out(self):
+        "zoom out a small bit"
+        ActionValidIf((MouseWheelZoom or ZoomMode) and not(BoxZoom))
+        ChangeZoom(ViewZoomFactor / ZoomStep, Platform.GetMousePos())
+
     def _fullscreen(self):
         "toggle fullscreen mode"
         SetFullscreen(not(Fullscreen))

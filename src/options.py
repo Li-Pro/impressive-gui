@@ -87,7 +87,7 @@ Control options:
   -e,  --bind             set controls (modify event/action bindings)
   -E,  --controls <file>  load control configuration from a file
        --noclicks         disable page navigation via left/right mouse click
-  -W,  --nowheel          disable page navigation via mouse wheel
+  -W,  --nowheel          disable page navigation via mouse wheel, zoom instead
        --noquit           disable single-key shortcuts that quit the program
        --evtest           run Impressive in event test mode
        --bare             don't use any special features (hyperlinks etc.)
@@ -247,7 +247,7 @@ def ParseOptions(argv):
     global MinBoxSize, AutoAutoAdvance, AutoAdvanceProgress, BoxFadeDarkness
     global WindowPos, FakeFullscreen, UseBlurShader, Bare, EnableOverview
     global PageProgress, BoxZoomDarkness, MaxZoomFactor, BoxEdgeSize
-    global TimeDisplay
+    global TimeDisplay, MouseWheelZoom
     DefaultControls = True
 
     try:  # unused short options: jnJKRUY
@@ -330,9 +330,10 @@ def ParseOptions(argv):
             if not DefaultControls:
                 print >>sys.stderr, "Note: The default control settings have been modified, the `--nowheel' option might not work as expected."
             BindEvent("wheelup, wheeldown, ctrl+wheelup, ctrl+wheeldown -= goto-next, goto-prev, goto-next-notrans, goto-prev-notrans, overview-next, overview-prev")
+            MouseWheelZoom = True
         if opt in ("--noquit", "--no-quit"):
             if not DefaultControls:
-                print >>sys.stderr, "Note: The default control settings have been modified, the `--nowheel' option might not work as expected."
+                print >>sys.stderr, "Note: The default control settings have been modified, the `--noquit' option might not work as expected."
             BindEvent("q,escape -= quit")            
         if opt in ("-e", "--bind"):
             BindEvent(arg, error_prefix="--bind")
@@ -340,7 +341,7 @@ def ParseOptions(argv):
         if opt in ("-E", "--controls"):
             ParseInputBindingFile(arg)
             DefaultControls = False
-        if opt == "--control-help":
+        if opt in ("--control-help", "--event-help"):
             EventHelp()
             sys.exit(0)
         if opt == "--evtest":

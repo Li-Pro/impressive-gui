@@ -356,6 +356,7 @@ def EnterZoomMode(factor, targetx, targety):
 # leave zoom mode (if enabled)
 def LeaveZoomMode(allow_transition=True):
     global ZoomMode, BoxZoom, Panning, ViewZoomFactor, ResZoomFactor
+    global ZoomArea, ZoomX0, ZoomY0
     if not ZoomMode: return
     ZoomAnimation(ZoomX0, ZoomY0, lambda t: 1.0 - t, (None if allow_transition else 0))
     ZoomMode = False
@@ -363,6 +364,29 @@ def LeaveZoomMode(allow_transition=True):
     Panning = False
     ViewZoomFactor = 1
     ResZoomFactor = 1
+    ZoomArea = 1.0
+    ZoomX0 = 0.0
+    ZoomY0 = 0.0
+
+# change zoom factor in zoom mode
+def ChangeZoom(target_factor, mousepos):
+    global ZoomMode, ViewZoomFactor, ZoomArea, ZoomX0, ZoomY0
+    px, py = MouseToScreen(mousepos)
+    log_zf = log(ViewZoomFactor)
+    dlog = log(target_factor) - log_zf
+    t0 = Platform.GetTicks()
+    dt = -1
+    while dt < WheelZoomDuration:
+        dt = Platform.GetTicks() - t0
+        rel = min(1.0, float(dt) / WheelZoomDuration) if WheelZoomDuration else 1.0
+        factor = exp(log_zf + rel * dlog)
+        if factor < 1.001: factor = 1.0
+        ZoomArea = 1.0 / factor
+        ZoomX0 = max(0.0, min(1.0 - ZoomArea, px - mousepos[0] * ZoomArea / ScreenWidth))
+        ZoomY0 = max(0.0, min(1.0 - ZoomArea, py - mousepos[1] * ZoomArea / ScreenHeight))
+        DrawCurrentPage()
+    ViewZoomFactor = factor
+    ZoomMode = (factor > 1.0)
 
 # check whether a box mark is too small
 def BoxTooSmall():
