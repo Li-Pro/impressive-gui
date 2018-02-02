@@ -86,27 +86,30 @@ def PlayVideo(video):
     global MPlayerProcess, VideoPlaying, NextPageAfterVideo
     if not video: return
     StopMPlayer()
-    opts = ["-quiet", "-slave", \
-            "-monitorpixelaspect", "1:1", \
-            "-autosync", "100"] + \
-            MPlayerPlatformOptions
-    if Fullscreen:
-        opts += ["-fs"]
+    if Platform.use_omxplayer:
+        opts = ["omxplayer"]
     else:
-        try:
-            opts += ["-wid", str(Platform.GetWindowID())]
-        except KeyError:
-            print >>sys.stderr, "Sorry, but Impressive only supports video on your operating system if fullscreen"
-            print >>sys.stderr, "mode is used."
-            VideoPlaying = False
-            MPlayerProcess = None
-            return
+        opts = [MPlayerPath, "-quiet", "-slave", \
+                "-monitorpixelaspect", "1:1", \
+                "-autosync", "100"] + \
+                MPlayerPlatformOptions
+        if Fullscreen:
+            opts += ["-fs"]
+        else:
+            try:
+                opts += ["-wid", str(Platform.GetWindowID())]
+            except KeyError:
+                print >>sys.stderr, "Sorry, but Impressive only supports video on your operating system if fullscreen"
+                print >>sys.stderr, "mode is used."
+                VideoPlaying = False
+                MPlayerProcess = None
+                return
     if not isinstance(video, list):
         video = [video]
     NextPageAfterVideo = False
     try:
-        MPlayerProcess = subprocess.Popen([MPlayerPath] + opts + video, stdin=subprocess.PIPE)
-        if MPlayerColorKey:
+        MPlayerProcess = subprocess.Popen(opts + video, stdin=subprocess.PIPE)
+        if MPlayerColorKey or Platform.use_omxplayer:
             gl.Clear(gl.COLOR_BUFFER_BIT)
             Platform.SwapBuffers()
         VideoPlaying = True

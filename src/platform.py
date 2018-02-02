@@ -4,6 +4,7 @@ class Platform_PyGame(object):
     name = 'pygame'
     allow_custom_fullscreen_res = True
     has_hardware_cursor = True
+    use_omxplayer = False
 
     _buttons = { 1: "lmb", 2: "mmb", 3: "rmb", 4: "wheelup", 5: "wheeldown" }
     _keys = dict((getattr(pygame.locals, k), k[2:].lower()) for k in [k for k in dir(pygame.locals) if k.startswith('K_')])
@@ -317,6 +318,7 @@ class Platform_BCM2835(Platform_EGL):
     name = 'bcm2835'
     allow_custom_fullscreen_res = False
     has_hardware_cursor = False
+    use_omxplayer = True
     egllib = "brcmEGL"
     gles2lib = "brcmGLESv2"
     DISPLAY_ID = 0

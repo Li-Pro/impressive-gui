@@ -93,31 +93,34 @@ class VideoActions(BaseDisplayActions):
         StopMPlayer()
         DrawCurrentPage()
 
-    def mplayer_command(self, cmd):
+    def player_command(self, mplayer_cmd, omxplayer_cmd):
         "helper for the various video-* actions"
+        cmd = omxplayer_cmd if Platform.use_omxplayer else (mplayer_cmd + '\n')
+        if not cmd: return
         try:
-            MPlayerProcess.stdin.write(cmd + "\n")
+            MPlayerProcess.stdin.write(cmd)
+            MPlayerProcess.stdin.flush()
         except:
             StopMPlayer()
             DrawCurrentPage()
     def _video_pause(self):
         "pause video playback"
-        self.mplayer_command("pause")
+        self.player_command("pause", 'p')
     def _video_step(self):
         "advance to the next frame in paused video"
-        self.mplayer_command("framestep")
+        self.player_command("framestep", None)
     def _video_seek_backward_10(self):
         "seek 10 seconds backward in video"
-        self.mplayer_command("seek -10 pausing_keep")
+        self.player_command("seek -10 pausing_keep", '\x1b[D')
     def _video_seek_backward_1(self):
         "seek 1 second backward in video"
-        self.mplayer_command("seek -1 pausing_keep")
+        self.player_command("seek -1 pausing_keep", None)
     def _video_seek_forward_1(self):
         "seek 1 second forward in video"
-        self.mplayer_command("seek 1 pausing_keep")
+        self.player_command("seek 1 pausing_keep", None)
     def _video_seek_forward_10(self):
         "seek 10 seconds forward in video"
-        self.mplayer_command("seek 10 pausing_keep")
+        self.player_command("seek 10 pausing_keep", '\x1b[C')
 VideoActions = VideoActions()
 
 # action implementation for normal page display (i.e. everything except overview mode)

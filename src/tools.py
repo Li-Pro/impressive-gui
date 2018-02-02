@@ -233,7 +233,11 @@ def StopMPlayer():
 
     # first, ask politely
     try:
-        MPlayerProcess.stdin.write('quit\n')
+        if Platform.use_omxplayer and VideoPlaying:
+            MPlayerProcess.stdin.write('q')
+        else:
+            MPlayerProcess.stdin.write('quit\n')
+        MPlayerProcess.stdin.flush()
         for i in xrange(10):
             if MPlayerProcess.poll() is None:
                 time.sleep(0.1)
@@ -244,7 +248,7 @@ def StopMPlayer():
 
     # if that didn't work, be rude
     if MPlayerProcess.poll() is None:
-        print >>sys.stderr, "MPlayer didn't exit properly, killing PID", MPlayerProcess.pid
+        print >>sys.stderr, "Audio/video player didn't exit properly, killing PID", MPlayerProcess.pid
         try:
             if os.name == 'nt':
                 win32api.TerminateProcess(win32api.OpenProcess(1, False, MPlayerProcess.pid), 0)
