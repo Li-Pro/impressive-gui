@@ -117,7 +117,11 @@ def PlayVideo(video):
             # video display only works if we briefly minimize and restore
             # the window ... and that's the good case: in -fs, keyboard
             # focus is messed up and we don't get any input!
+            if Win32FullscreenVideoHackTiming[0] > 0:
+                time.sleep(Win32FullscreenVideoHackTiming[0])
             win32gui.ShowWindow(Platform.GetWindowID(), 6)  # SW_MINIMIZE
+            if Win32FullscreenVideoHackTiming[1] > 0:
+                time.sleep(Win32FullscreenVideoHackTiming[1])
             win32gui.ShowWindow(Platform.GetWindowID(), 9)  # SW_RESTORE
         VideoPlaying = True
     except OSError:

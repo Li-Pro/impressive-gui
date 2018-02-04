@@ -92,3 +92,4 @@ UseBlurShader = True
 TimeTracking = False
 EventTestMode = False
 Bare = False
+Win32FullscreenVideoHackTiming = [0, 0]

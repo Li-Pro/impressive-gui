@@ -41,7 +41,7 @@ Page options:
                             -O first = show pages with captions
                             -O last  = show pages before pages with captions
   -Q,  --autoquit         quit after the last slide (no effect with --wrap)
-       --no-overview      disable overview page
+       --nooverview       disable overview page
 
 Display options:
   -t,  --transition <trans[,trans2...]>
@@ -50,7 +50,7 @@ Display options:
   -F,  --font <file>      use a specific TrueType font file for the OSD
   -S,  --fontsize <px>    specify the OSD font size in pixels
   -C,  --cursor <F[:X,Y]> use a .png image as the mouse cursor
-  -N,  --no-cursor        don't show a mouse cursor at all
+  -N,  --nocursor         don't show a mouse cursor at all
   -L,  --layout <spec>    set the OSD layout (please read the documentation)
   -z,  --zoom <factor>    set zoom factor (default: 2.0)
        --maxzoom <factor> maximum factor to render high-resolution zoom
@@ -268,7 +268,8 @@ def ParseOptions(argv):
             "tracking", "bind=", "controls=", "control-help", "evtest",
             "noquit", "bare", "no-overview", "nooverview", "no-cursor",
             "nocursor", "zoomdarkness=", "zoom-darkness=", "box-edge=",
-            "maxzoom=", "max-zoom=", "time-display", "zbox-edge="])
+            "maxzoom=", "max-zoom=", "time-display", "zbox-edge=",
+            "vht0=", "vht1="])
     except getopt.GetoptError, message:
         opterr(message)
 
@@ -546,6 +547,8 @@ def ParseOptions(argv):
             EnableOverview = not(EnableOverview)
         if opt in ("-N", "--no-cursor", "--nocursor"):
             EnableCursor = not(EnableCursor)
+        if opt.startswith("--vht"):  # DEBUG OPTION ONLY
+            Win32FullscreenVideoHackTiming[int(opt[5:])] = float(arg)
 
     for arg in args:
         AddFile(arg)
