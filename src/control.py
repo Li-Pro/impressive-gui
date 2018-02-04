@@ -340,13 +340,10 @@ def ZoomAnimation(targetx, targety, func, duration_override=None):
     GenerateSpotMesh()
     DrawCurrentPage(dark=(t if BoxZoom else 1.0))
 
-# enter zoom mode
-def EnterZoomMode(factor, targetx, targety):
-    global ZoomMode, ViewZoomFactor, ResZoomFactor, IsZoomed, HighResZoomFailed
-    ViewZoomFactor = factor
+# re-render zoomed page image
+def ReRenderZoom(factor):
+    global ResZoomFactor, IsZoomed, HighResZoomFailed
     ResZoomFactor = min(factor, MaxZoomFactor)
-    ZoomAnimation(targetx, targety, lambda t: t)
-    ZoomMode = True
     if (IsZoomed >= ResZoomFactor) or (ResZoomFactor < 1.1) or HighResZoomFailed:
         return
     gl.BindTexture(gl.TEXTURE_2D, Tcurrent)
@@ -362,6 +359,14 @@ def EnterZoomMode(factor, targetx, targety):
         return
     DrawCurrentPage()
     IsZoomed = ResZoomFactor
+
+# enter zoom mode
+def EnterZoomMode(factor, targetx, targety):
+    global ZoomMode, ViewZoomFactor
+    ViewZoomFactor = factor
+    ZoomAnimation(targetx, targety, lambda t: t)
+    ZoomMode = True
+    ReRenderZoom(factor)
 
 # leave zoom mode (if enabled)
 def LeaveZoomMode(allow_transition=True):

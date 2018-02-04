@@ -353,6 +353,11 @@ class PageDisplayActions(BaseDisplayActions):
         ActionValidIf((MouseWheelZoom or ZoomMode) and not(BoxZoom))
         ChangeZoom(ViewZoomFactor / ZoomStep, Platform.GetMousePos())
 
+    def _zoom_update(self):
+        "re-render the page in the current zoom resolution"
+        ActionValidIf(ZoomMode)
+        ReRenderZoom(ViewZoomFactor)
+
     def _fullscreen(self):
         "toggle fullscreen mode"
         SetFullscreen(not(Fullscreen))

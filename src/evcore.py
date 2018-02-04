@@ -289,6 +289,7 @@ def LoadDefaultBindings():
     y, z = zoom-enter, zoom-exit
     o = toggle-overview
     i = toggle-skip
+    u = zoom-update
     b, period = fade-to-black
     w, comma = fade-to-white
     return, kp_enter = overview-confirm, spotlight-enter, spotlight-exit
