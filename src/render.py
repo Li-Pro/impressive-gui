@@ -485,7 +485,7 @@ def LoadVideoPreview(page, zoom):
         except EnvironmentError:
             img = None
 
-    if not(img) and mplayerWorks:
+    if not(img) and mplayerWorks and not(Bare):
         cwd = os.getcwd()
         try:
             try:
