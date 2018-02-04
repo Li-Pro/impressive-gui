@@ -1,5 +1,11 @@
 <?php include("menu.php"); ?>
 
+<h1><span class="date">2018-02-04</span>0.11.3 and 0.12.0, the unexpected feature release</h1>
+<p>Sometimes things just don't work out as planned. 0.11.2 had a rather nasty bug that broke automatic presentations (the <code>-a</code>/<code>--auto</code> option), so 0.11.3 was planned as a bugfix release to take care of that and some other little issues that made hyperlinks not work properly in every situation, or even crash when clicking them in some PDFs.</p>
+<p>But then a very avid user of Impressive informed me of some modifications he did and ideas for other features, and I just couldn't keep myself from implementing it all ... so here we have it: 0.12.0, a totally unplanned feature release! It mainly does two things:<br />
+One, it greatly enhances zoom mode, with fractional zoom levels, mouse wheel zooming, and the so-called &raquo;box zoom&laquo; mode, where you can draw a box just like a highlight box, except that Impressive zooms in so the box fills the whole screen and darkens everything else.<br />
+Two, it takes video a little more seriously: Video files can now be specified as input files, just like images and PDFs. The video player backends have been a little modernized (particularly on Windows), and video is now supported on the Raspberry Pi as well.</p>
+
 <h1><span class="date">2017-12-19</span>0.11.2, a maintenance release</h1>
 <p>This version doesn't add any major features, but it's more stable and compatible with newer software environments. The largest change is a new MuPDF backend with better performance than ever, and the possibility to use MuPDF for PDF parsing. As a result, pdftk is no longer a hard requirement to open newer PDF documents; the only feature that still depends on it is automatic extraction of page titles. Even hyperlinks work without it.</p>
 

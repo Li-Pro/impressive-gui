@@ -8,7 +8,7 @@
 \title{Introducing Impressive}
 \author{Martin J. Fiedler}
 %\institute{Dream Chip Technologies GmbH}
-\date{version 0.11.0}
+\date{version 0.12.0}
 \subject{Impressive}
 \titlegraphic{\href{http://impressive.sourceforge.net/}{http://impressive.sourceforge.net/}}
 
@@ -40,24 +40,24 @@
 
 \subsection{Software Requirements}
 \begin{frame}{Software Requirements}
-    Impressive requires a few libraries and helper applications:
+    Impressive requires a few libraries \\ and helper applications:
     \begin{itemize}
-        \item Python 2.5 to 2.7
+        \item Python 2.7
         \item PyGame (SDL bindings for Python)
-        \item Python Imaging Library (PIL)
-        \item MuPDF or Poppler-utils
-        \item pdftk
+        \item Python Imaging Library (PIL or Pillow)
+        \item MuPDF-Tools
+        \item \emph{optional:} pdftk, MPlayer, FFmpeg
     \end{itemize}
-    Packages for these dependencies should be available for almost every
-    operating system. \\
-    For Windows, there's a convenient self-contained archive with
-    everything needed.
+    Packages for these dependencies should be available \\
+    for almost every operating system. \\
+    For Windows, there's a convenient self-contained archive \\
+    with everything needed.
 \end{frame}
 
 \subsection{Hardware Requirements}
 \begin{frame}{Hardware Requirements}
     \begin{itemize}
-        \item hardware accelerated OpenGL~2.0 or OpenGL~ES~2.0
+        \item hardware accelerated OpenGL~2.0 \\ or OpenGL~ES~2.0
             \begin{itemize}
                 \item any GPU from 2005 or later should do
                 \item integrated graphics or mobile GPUs are fine
@@ -74,7 +74,8 @@
 \subsection{How does it work?}
 \begin{frame}{How does it work?}
     \begin{enumerate}
-        \item create slides with the presentation software of your choice
+        \item create slides with the presentation software \\
+              of your choice
         \item export them to a PDF file
         \item \texttt{impressive MySlides.pdf}
             \begin{itemize}
@@ -94,30 +95,43 @@
 
 \subsection{Emphasis}
 \begin{frame}{Emphasis}
-    Impressive offers multiple ways of emphasizing parts of a page.
+    Impressive offers multiple ways of emphasizing \\
+    parts of a page.
     \vspace{0.5cm} \\
     \textbf{Option 1:} {\glqq}Spotlight{\grqq}
     \begin{itemize}
         \item toggle with \Enter
         \item a bright circular spot follows the mouse cursor
         \item everything else gets dark and blurry
-        \item spot size adjustable with \keystroke{+}/\keystroke{--} or the mouse wheel
+        \item spot size adjustable with \keystroke{+}/\keystroke{--} \\
+              or the mouse wheel
     \end{itemize}
 \end{frame}
-\begin{frame}{Highlight Boxes and Zoom}
+\begin{frame}{Highlight Boxes}
     \textbf{Option 2:} Highlight Boxes
     \begin{itemize}
         \item drag a box with the left mouse button
+        \item everything else gets dark and blurry
         \item any number of boxes per page
         \item delete a box by clicking it with the right mouse button
-        \item boxes stay even after leaving and re-entering the page
+        \item boxes stay even after leaving and re-entering \\ the page
     \end{itemize}
-    
-    \textbf{Option 3:} Zoom
+\end{frame}
+\begin{frame}{Zoom}
+    \textbf{Option 3:} Box Zoom
+    \begin{itemize}
+        \item hold \keystroke{Ctrl} while dragging a box \\
+              with the left mouse button
+        \item selected area zooms in so it covers the full screen
+        \item everything else is faded out
+    \end{itemize}
+    \vspace{0.5cm}
+    \textbf{Option 4:} Zoom and Pan
     \begin{itemize}
         \item \keystroke{Z} key toggles 2x zoom
-        \item visible part can be moved around
-              by dragging with the right mouse button
+        \item visible part can be moved around \\
+              by dragging with the middle mouse button
+        \item zoom level can be fine-tuned with the mouse wheel
     \end{itemize}
 \end{frame}
 
@@ -125,27 +139,27 @@
 \begin{frame}{Overview Page}
     \begin{itemize}
         \item press the \keystroke{Tab} key
-        \item Impressive zooms back to an overview screen showing all pages
-              of the presentation
+        \item Impressive zooms back to an overview screen \\
+              showing all pages of the presentation
         \item new page can be selected with mouse or keyboard
         \item left mouse button or \Enter zooms into selected page
-        \item right mouse button or \keystroke{Tab} cancels and returns
-              to the previously shown page
+        \item right mouse button or \keystroke{Tab} cancels \\
+              and returns to the previously shown page
     \end{itemize}
 \end{frame}
 
 \subsection{Customization}
 \begin{frame}{Customization}
     \begin{itemize}
-        \item command line parameters (lots of them!)
+        \item command line parameters \emph{(lots of them!)}
         \item {\glqq}Info Scripts{\grqq}
         \begin{itemize}
-            \item same name as the input file, but suffix \texttt{.info}, e.g. \\
-                  \texttt{slides.pdf} $\rightarrow$ \texttt{slides.pdf.info}
+            \item same name as the input file, but suffix \texttt{.info}, \\
+                  e.g. \texttt{slides.pdf} $\rightarrow$ \texttt{slides.pdf.info}
             \item real Python scripts, executed before the presentation starts
             \item can be used to set the document title or other settings
-            \item can be used to set up per-page settings: {\glqq}Page
-                  Properties{\grqq}
+            \item can be used to set up per-page settings: \\
+                  {\glqq}Page Properties{\grqq}
                 \begin{itemize}
                     \item title
                     \item transition effect
@@ -175,17 +189,20 @@ PageProps = {
 \begin{frame}{Other Features}
     \begin{itemize}
         \item clickable PDF hyperlinks inside the document
-        \item page cache in RAM or on disk, temporary (default) or persistent
-        \item background rendering
+        \item background rendering, pages cached in RAM or disk
         \item time display and measurement
         \item automatic, timed presentations
+        \begin{itemize}
+            \item can turn a Raspberry Pi into a digital signage system
+        \end{itemize}
         \item automatic reloading of the input file(s) on change
         \item playing sounds or videos or executing arbitrary Python code
               when entering a page
         \item fully customizable keyboard and mouse controls
+        \item zoom with the mouse wheel
     \end{itemize}
 \end{frame}
-\begin{frame}{Rarely Used Features}
+\begin{frame}{More Features}
     \begin{itemize}
         \item fade to black or white
         \item rotation in 90-degree steps
@@ -194,9 +211,9 @@ PageProps = {
         \item hide specific pages from the overview page
         \item customization of almost every timing or OSD parameter
         \item permanent storage of the highlight boxes
-        \item ``Render Mode'': doesn't show the presentation, but
-              renders the input PDF file into a directory with one PNG file
-              per page
+        \item ``Render Mode'': doesn't show the presentation, \\
+              but renders the input PDF file into a directory \\
+              with one PNG file per page
     \end{itemize}
 \end{frame}
 

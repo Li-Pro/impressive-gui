@@ -1,7 +1,8 @@
 #!/bin/bash
 #
 # Turns a Raspberry Pi into a simple digital signage system that shows one or
-# more PDF files from the SD card on booting, with no user interaction.
+# more PDF, image or video files from the SD card on booting, with no user
+# interaction.
 #
 # Features:
 # - starts early in the boot phase (before systemd, actually)
@@ -16,17 +17,18 @@
 #   impressive) or from the official website; make sure it's placed in a
 #   standard location, e.g. /usr/(local/)bin/impressive; note that at least
 #   version 0.11.3 is required
-# - install mupdf-tools (usually there's a choice which PDF renderer to use;
+# - install mupdf-tools (normally there's a choice which PDF renderer to use;
 #   not this time!)
 # - copy this script somewhere and make it executable, e.g.
 #       install -m 755 boot_impressive.sh /usr/local/sbin/boot_impressive
 # - add the following parameter to /boot/cmdline.txt:
 #       init=/usr/local/sbin/boot_impressive
 # - make sure that the option "disable_overscan=1" is present and active in
-#   /boot/config.txt
+#   /boot/config.txt, and that there's no line that reads like 
+#   "dtoverlay=vc4-(f)kms-v3d"
 # - create a directory "slides" on the FAT partition of the SD card
 #   (i.e. /boot/slides from the RasPi's point of view)
-# - put one or more .pdf files in that directory
+# - put one or more .pdf, image or video files in that directory
 # - (optional) create a file "options.txt" in that directory that contains
 #   additional command-line options for Impressive, e.g. "-a 30" to change
 #   slides every 30s instead of every 10s
@@ -58,7 +60,7 @@ mount -o ro /boot
 
 echo "Running Impressive with configured parameters ..."
 opts="--bare --no-overview --no-cursor -cz -a 10 -w $(grep -v '^#' /boot/options.txt 2>/dev/null | tr '\n' ' ')"
-( cd /boot/slides ; set -x ; impressive $opts *.pdf )
+( cd /boot/slides ; set -x ; impressive $opts * )
 
 echo
 echo "Impressive quit, resuming normal boot in 5 seconds."

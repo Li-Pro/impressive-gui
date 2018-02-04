@@ -1,3 +1,43 @@
+0.12.0 [2018-02-04]
+- many zoom mode related changes
+  - box-zoom mode: use Ctrl+LMB-drag to draw a box and zoom it to fit
+    the screen; everything else is darkened
+  - support for fractional zoom levels
+  - ability to zoom further in than the hardware's maximum texture size
+    (without additional sharpness though)
+  - maximum zoom detail re-rendering level now limited to hardware capabilities
+    or --maxzoom option
+  - mouse wheel zooming
+  - new effect of --nowheel option: can now enter zoom mode with mouse wheel
+  - zoom mode panning now also with MMB (like in GIMP, Inkscape etc.)
+- many video related changes
+  - allow videos in the file list (in addition to PDF files and images)
+  - made --auto not interrupt videos
+  - using omxplayer instead of MPlayer on Raspberry Pi
+  - Win32 build now ships with a much less outdated version of MPlayer
+  - changed MPlayer platform options
+  - added workaround for Win32 MPlayer fullscreen issue that hid the
+    Impressive window every time a video was played
+- made Impressive suitable for Raspberry Pi-based digital signage:
+  - added boot_impressive.sh script (SVN only) that replaces init
+  - added --bare option: disables any features that require temporary files
+  - added --nooverview option: disables the overview page
+  - added --nocursor option: disables any type of mouse cursor
+- made additional buttons of multi-button mice accessible as btn6, btn7, etc.
+- added options --box-edge, --zbox-edge and --zoomdarkess to configure
+  highlight box / spotlight / zoom box appearance
+- added --time-display option: start with time display and tracking
+- some Makefile improvements: install and uninstall targets, PREFIX parameter
+
+
+0.11.3 [2018-02-04]
+- fixed --auto mode that was broken in 0.11.2
+  (only worked properly for the first page)
+- fixed excessive mouse sensitivity in full-screen mode
+- fixed crashes when clicking hyperlinks in some PDFs
+- fixed non-working hyperlinks when more than one input document is specified
+
+
 0.11.2 [2017-12-19]
 - added new MuPDF renderer, uses no temporary files or named pipes on POSIX
   with MuPDF >= 1.4
