@@ -9,28 +9,28 @@ def HelpExit(code=0):
 
 Usage: """+os.path.basename(sys.argv[0])+""" [OPTION...] <INPUT(S)...>
 
-You may either play a PDF file, a directory containing image files or
-individual image files.
+Inputs may be PDF files, image files, video files or directories
+containing image files.
 
 Input options:
+  -h,  --help             show this help text and exit
   -r,  --rotate <n>       rotate pages clockwise in 90-degree steps
        --scale            scale images to fit screen (not used in PDF mode)
        --supersample      use supersampling (only used in PDF mode)
   -s                      --supersample for PDF files, --scale for image files
   -I,  --script <path>    set the path of the info script
-  -u,  --poll <seconds>   check periodically if the source file has been
-                          updated and reload it if it did
+  -u,  --poll <seconds>   check periodically if the source files have been
+                          updated and reload them if they did
   -X,  --shuffle          put input files into random order
-  -h,  --help             show this help text and exit
 
 Output options:
-  -o,  --output <dir>     don't display the presentation, only render to .png
        --fullscreen       start in fullscreen mode
   -ff, --fake-fullscreen  start in "fake fullscreen" mode
   -f,  --windowed         start in windowed mode
   -g,  --geometry <WxH>   set window size or fullscreen resolution
   -A,  --aspect <X:Y>     adjust for a specific display aspect ratio (e.g. 5:4)
   -G,  --gamma <G[:BL]>   specify startup gamma and black level
+  -o,  --output <dir>     don't display the presentation, only render to .png
 
 Page options:
   -i,  --initialpage <n>  start with page <n>
@@ -55,33 +55,33 @@ Display options:
   -z,  --zoom <factor>    set zoom factor (default: 2.0)
        --maxzoom <factor> maximum factor to render high-resolution zoom
   -x,  --fade             fade in at start and fade out at end
-       --spot-radius <px> set the initial radius of the spotlight, in pixels
        --invert           display slides in inverted colors
+       --noblur           use legacy blur implementation
+       --spot-radius <px> set the initial radius of the spotlight, in pixels
        --min-box-size <x> set minimum size of a highlight box, in pixels
        --box-edge <px>    size of highlight box borders, in pixels
        --zbox-edge <px>   size of zoom box borders, in pixels
        --darkness <p>     set highlight box mode darkness to <p> percent
        --zoomdarkness <p> set box-zoom mode darkness to <p> percent
-       --noblur           use legacy blur implementation
 
 Timing options:
-  -M,  --minutes          display time in minutes, not seconds
-       --clock            show current time instead of time elapsed
-       --tracking         enable time tracking mode
-       --time-display     enable time display (implies --tracking)
   -a,  --auto <seconds>   automatically advance to next page after some seconds
   -d,  --duration <time>  set the desired duration of the presentation and show
                           a progress bar at the bottom of the screen
   -y,  --auto-auto        if a duration is set, set the default time-out so
                           that it will be reached exactly
+  -q,  --page-progress    shows a progress bar based on the position in the
+                          presentation (based on pages, not time)
   -k,  --auto-progress    shows a progress bar for each page for auto-advance
+       --time-display     enable time display (implies --tracking)
+       --tracking         enable time tracking mode
+       --clock            show current time instead of time elapsed
+  -M,  --minutes          display time in minutes, not seconds
   -T,  --transtime <ms>   set transition duration in milliseconds
   -D,  --mousedelay <ms>  set mouse hide delay for fullscreen mode (in ms)
                           (0 = show permanently, 1 = don't show at all)
   -B,  --boxfade <ms>     set highlight box fade duration in milliseconds
   -Z,  --zoomtime <ms>    set zoom animation duration in milliseconds
-  -q,  --page-progress    shows a progress bar based on the position in the
-                          presentation (based on pages, not time)
 
 Control options:
        --control-help     display help about control configuration and exit
@@ -91,9 +91,9 @@ Control options:
   -W,  --nowheel          disable page navigation via mouse wheel, zoom instead
        --noquit           disable single-key shortcuts that quit the program
        --evtest           run Impressive in event test mode
-       --bare             don't use any special features (hyperlinks etc.)
 
 Advanced options:
+       --bare             don't use any special features (hyperlinks etc.)
   -c,  --cache <mode>     set page cache mode:
                             -c none       = disable caching completely
                             -c memory     = store cache in RAM, uncompressed
@@ -105,8 +105,8 @@ Advanced options:
   -P,  --renderer <path>  set path to PDF renderer executable (GhostScript,
                           Xpdf/Poppler pdftoppm, or MuPDF mudraw/pdfdraw)
   -V,  --overscan <px>    render PDF files <px> pixels larger than the screen
-       --nologo           disable startup logo and version number display
   -H,  --half-screen      show OSD on right half of the screen only
+       --nologo           disable startup logo and version number display
   -v,  --verbose          (slightly) more verbose operation
 
 For detailed information, visit""", __website__
