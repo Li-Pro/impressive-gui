@@ -412,7 +412,8 @@ def main():
     # prebuffer current and next page
     Pnext = 0
     RenderPage(Pcurrent, Tcurrent)
-    DrawCurrentPage()
+    if not FadeInOut:
+        DrawCurrentPage()
     PageEntered(update_time=False)
     PreloadNextPage(GetNextPage(Pcurrent, 1))
 
