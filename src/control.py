@@ -153,7 +153,7 @@ def PageEntered(update_time=True):
         PageEnterTime = Platform.GetTicks() - StartTime
     IsZoomed = 0  # no, we don't have a pre-zoomed image right now
     WantStatus = False  # don't show status unless it's changed interactively
-    PageTimeout = AutoAdvance
+    PageTimeout = AutoAdvanceTime if AutoAdvanceEnabled else 0
     shown = GetPageProp(Pcurrent, '_shown', 0)
     try:
         os.chdir(os.path.dirname(GetPageProp(Pcurrent, '_file')))

@@ -238,14 +238,15 @@ def ParseOptions(argv):
     global FileName, FileList, Fullscreen, Scaling, Supersample, CacheMode
     global TransitionDuration, MouseHideDelay, BoxFadeDuration, ZoomDuration
     global ScreenWidth, ScreenHeight, InitialPage, Wrap, TimeTracking
-    global AutoAdvance, RenderToDirectory, Rotation, DAR, Verbose
+    global AutoAdvanceTime, AutoAdvanceEnabled, AutoAutoAdvance
+    global RenderToDirectory, Rotation, DAR, Verbose
     global BackgroundRendering, UseAutoScreenSize, PollInterval, CacheFileName
     global PageRangeStart, PageRangeEnd, FontList, FontSize, Gamma, BlackLevel
     global EstimatedDuration, CursorImage, CursorHotspot, MinutesOnly, Overscan
     global PDFRendererPath, InfoScriptPath, EventTestMode, EnableCursor
     global AutoOverview, DefaultZoomFactor, FadeInOut, ShowLogo, Shuffle
     global QuitAtEnd, ShowClock, HalfScreen, SpotRadius, InvertPages
-    global MinBoxSize, AutoAutoAdvance, AutoAdvanceProgress, BoxFadeDarkness
+    global MinBoxSize, AutoAdvanceProgress, BoxFadeDarkness
     global WindowPos, FakeFullscreen, UseBlurShader, Bare, EnableOverview
     global PageProgress, BoxZoomDarkness, MaxZoomFactor, BoxEdgeSize
     global TimeDisplay, MouseWheelZoom, ZoomBoxEdgeSize
@@ -397,8 +398,12 @@ def ParseOptions(argv):
                 opterr("invalid parameter for --duration")
         if opt in ("-a", "--auto"):
             try:
-                AutoAdvance = int(float(arg) * 1000)
-                assert (AutoAdvance > 0) and (AutoAdvance <= 86400000)
+                if arg.lower().strip('.') in ("0", "00", "off", "none", "false"):
+                    AutoAdvanceEnabled = False
+                else:
+                    AutoAdvanceTime = int(float(arg) * 1000)
+                    assert (AutoAdvanceTime > 0) and (AutoAdvanceTime <= 86400000)
+                    AutoAdvanceEnabled = True
             except:
                 opterr("invalid parameter for --auto")
         if opt in ("-T", "--transtime"):

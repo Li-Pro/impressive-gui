@@ -14,7 +14,7 @@ def main():
     global PAR, DAR, TempFileName, Bare, MaxZoomFactor
     global BackgroundRendering, FileStats, RTrunning, RTrestart, StartTime
     global CursorImage, CursorVisible, InfoScriptPath
-    global HalfScreen, AutoAdvance, WindowPos
+    global HalfScreen, AutoAdvanceTime, AutoAdvanceEnabled, WindowPos
     global BoxFadeDarknessBase, BoxZoomDarknessBase, SpotRadiusBase
     global BoxIndexBuffer, UseBlurShader
 
@@ -365,8 +365,9 @@ def main():
                 time_left -= GetPageProp(p, 'transtime', TransitionDuration)
             p = pnext
         if pages and (time_left >= pages):
-            AutoAdvance = time_left / pages
-            print >>sys.stderr, "Setting auto-advance timeout to %.1f seconds." % (0.001 * AutoAdvance)
+            AutoAdvanceTime = time_left / pages
+            AutoAdvanceEnabled = True
+            print >>sys.stderr, "Setting auto-advance timeout to %.1f seconds." % (0.001 * AutoAdvanceTime)
         else:
             print >>sys.stderr, "Warning: Could not determine auto-advance timeout automatically."
 

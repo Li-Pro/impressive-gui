@@ -13,12 +13,12 @@ code.pre { white-space:pre; }
 <!--VERSION-->
 <p style="text-indent:0;">
 <a href="http://impressive.sourceforge.net/">http://impressive.sourceforge.net/</a><br />
-<b>Version:</b> 0.12.0<br />
+<b>Version:</b> 0.12.1-WIP<br />
 <b>Author:</b> <a href="mailto:martin.fiedler@gmx.net">Martin J. Fiedler</a><br />
-<b>Last updated:</b> 2018-02-04</p>
+<b>Last updated:</b> 2018-02-07</p>
 <!--END-->
 <!--man
-.TH IMPRESSIVE 1 2018-02-04 "Martin J. Fiedler" "Impressive Documentation">
+.TH IMPRESSIVE 1 2018-02-07 "Martin J. Fiedler" "Impressive Documentation">
 .SH "NAME"
 Impressive \- presentation tool with eye candy
 .SH "SYNOPSIS"
@@ -461,6 +461,11 @@ Note that box-zoom mode is mutually exclusive with highlight boxes and the spotl
 <dt><strong>RMB</strong> (right mouse button) over a highlight box</dt>
 <dd>If the right mouse button is clicked while the mouse cursor is above a highlight box, the box will be removed. If the last box on a page is removed, the page will turn bright and sharp again.</dd>
 
+<dt><strong>A</strong> key</dt>
+<dd>Toggle automatic slideshow mode.<br />
+If an automatic presentation has been started with the <code>-a</code>/<code>--auto</code> option, it is temporarily disabled until this key is pressed again. It is not automatically re-enabled after changing the page. If the <code>-a</code>/<code>--auto</code> has not been used, an automatic presentation with a timeout of 30 seconds is started when this key is pressed for the first time.<br />
+Note that if a page has a <code>timeout</code> PageProp, the specified timeout is <em>always</em> in effect when the page is entered, even if the automatic slideshow is otherwise disabled.</dd>
+
 <dt><strong>S</strong> key</dt>
 <dd>Save the info script associated with the current presentation. The main purpose for this is to permanently save highlight boxes or keyboard shortcuts, so they will be restored the next time this presentation is started.</dd>
 
@@ -567,6 +572,16 @@ If an event or action specified on the command line or in a configuration file i
 <h3>Supported Actions</h3>
 
 <p>The following list describes all actions supported by Impressive, together with the conditions under which they will match. Note that most actions will not match in overview mode and during video playback, unless mentioned otherwise in the description.</p><dl>
+
+<dt><code>auto-start</code></dt>
+<dd>(Re-)enable automatic presentation mode. If the current page has no <code>timeout</code> PageProp and no <code>-a</code>/<code>--auto</code> option has been specified, an automatic presentation is started with a 30-second page interval.</dd>
+
+<dt><code>auto-stop</code></dt>
+<dd>Disable automatic presentation mode. If the current page has a <code>timeout</code> PageProp or an <code>-a</code>/<code>--auto</code> option has been specified, the timeout for the current page is stopped.<br />
+The automatic presentation stays disabled after changing pages, unless a <code>timeout</code> PageProp is specified for the target page, which will take precedence over the otherwise disabled automatic presentation mode.</dd>
+
+<dt><code>auto-toggle</code></dt>
+<dd>Disables or (re-)enables automatic presentations, depending on the current state.</dd>
 
 <dt><code>box-add</code></dt>
 <dd>Draw a highlight box if the mouse has been moved since the button has been pressed down. This action must only be bound to a mouse button event, otherwise it will not function properly.</dd>

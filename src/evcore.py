@@ -283,6 +283,7 @@ def LoadDefaultBindings():
     f = fullscreen
     tab = overview-enter, overview-exit
     s = save
+    a = auto-toggle
     t = time-toggle
     r = time-reset
     c = box-clear

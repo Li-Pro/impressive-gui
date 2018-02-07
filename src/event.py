@@ -373,6 +373,33 @@ class PageDisplayActions(BaseDisplayActions):
         "fade to a white screen"
         FadeMode(1.0)
 
+    def _auto_stop(self):
+        "stop automatic slideshow"
+        global AutoAdvanceEnabled, PageTimeout
+        AutoAdvanceEnabled = False
+        PageTimeout = 0
+        Platform.ScheduleEvent('$page-timeout', 0)
+        if AutoAdvanceProgress:
+            DrawCurrentPage()
+    def _auto_start(self):
+        "start or resume automatic slideshow"
+        global AutoAdvanceEnabled, PageTimeout
+        AutoAdvanceEnabled = True
+        PageTimeout = AutoAdvanceTime
+        if (GetPageProp(Pcurrent, '_shown') == 1) or Wrap:
+            PageTimeout = GetPageProp(Pcurrent, 'timeout', PageTimeout)
+        dt = PageTimeout - (Platform.GetTicks() - PageEnterTime)
+        if dt > 0:
+            Platform.ScheduleEvent('$page-timeout', dt)
+        else:
+            TransitionTo(GetNextPage(Pcurrent, 1))
+    def _auto_toggle(self):
+        "toggle automatic slideshow"
+        if AutoAdvanceEnabled:
+            self._auto_stop()
+        else:
+            self._auto_start()
+
     def _time_toggle(self):
         "toggle time display and/or time tracking mode"
         global TimeDisplay
