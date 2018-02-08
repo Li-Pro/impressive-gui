@@ -31,7 +31,8 @@
 # - put one or more .pdf, image or video files in that directory
 # - (optional) create a file "options.txt" in that directory that contains
 #   additional command-line options for Impressive, e.g. "-a 30" to change
-#   slides every 30s instead of every 10s
+#   slides every 30s instead of every 10s;
+#   lines with a hash sign (#) at the beginning are ignored as comments
 # That's it. After rebooting, the slideshow should start automatically.
 
 function normal_boot {
@@ -59,7 +60,7 @@ mount -t proc none /proc
 mount -o ro /boot
 
 echo "Running Impressive with configured parameters ..."
-opts="--bare --no-overview --no-cursor -cz -a 10 -w $(grep -v '^#' /boot/options.txt 2>/dev/null | tr '\n' ' ')"
+opts="--bare --no-overview --no-cursor -cz -a 10 -w $(grep -v '^#' /boot/slides/options.txt 2>/dev/null | tr -d '\r' | tr '\n' ' ')"
 ( cd /boot/slides ; set -x ; impressive $opts * )
 
 echo
