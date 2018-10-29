@@ -55,7 +55,7 @@ def AddFile(name, title=None, implicit=False):
             print >>sys.stderr, "Warning: input file `%s' has unrecognized file type" % name
 
     elif os.path.isdir(name):
-        images = [os.path.join(name, f) for f in os.listdir(name) if IsImageFileName(f)]
+        images = [os.path.join(name, f) for f in os.listdir(name) if IsImageFile(f)]
         images.sort(lambda a, b: cmp(a.lower(), b.lower()))
         if not images:
             print >>sys.stderr, "Warning: no image files in directory `%s'" % name
