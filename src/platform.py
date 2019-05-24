@@ -70,7 +70,15 @@ class Platform_PyGame(object):
         pygame.quit()
 
     def SetWindowTitle(self, text):
-        pygame.display.set_caption(text, __title__)
+        if not isinstance(text, unicode):
+            try:
+                text = unicode(text, 'utf-8')
+            except UnicodeDecodeError:
+                text = unicode(text, 'windows-1252', 'replace')
+        try:
+            pygame.display.set_caption(text, __title__)
+        except UnicodeEncodeError:
+            pygame.display.set_caption(text.encode('utf-8'), __title__)
     def GetWindowID(self):
         return pygame.display.get_wm_info()['window']
 
