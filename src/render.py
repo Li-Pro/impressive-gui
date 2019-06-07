@@ -290,6 +290,11 @@ def InitPDFRenderer():
     print >>sys.stderr, "       Display of PDF files will not be supported."
 
 
+def ApplyRotation(img, rot):
+    rot = (rot or 0) & 3
+    if not rot: return img
+    return img.transpose({1:Image.ROTATE_270, 2:Image.ROTATE_180, 3:Image.ROTATE_90}[rot])
+
 # generate a dummy image
 def DummyPage():
     img = Image.new('RGB', (ScreenWidth, ScreenHeight))
@@ -348,7 +353,7 @@ def RenderPDF(page, MayAdjustResolution, ZoomMode):
         return DummyPage()
 
     # apply rotation
-    if rot: img = img.rotate(90 * (4 - rot))
+    img = ApplyRotation(img, rot)
 
     # compute final output image size based on PAR
     if not parscale:
@@ -433,11 +438,7 @@ def LoadImage(page, zoom=False, img=None):
             return DummyPage()
 
     # apply rotation
-    rot = GetPageProp(page, 'rotate')
-    if rot is None:
-        rot = Rotation
-    if rot:
-        img = img.rotate(90 * (4 - rot))
+    img = ApplyRotation(img, GetPageProp(page, 'rotate', Rotation))
 
     # determine destination size
     newsize = ZoomToFit((img.size[0], int(img.size[1] * PAR + 0.5)),
