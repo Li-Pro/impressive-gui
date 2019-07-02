@@ -154,6 +154,12 @@ class PDFParser:
                 raise PDFError, "object does not match the intended type"
         return data
 
+    def resolve(self, obj):
+        if isinstance(obj, PDFref):
+            return self.getobj(obj)
+        else:
+            return obj
+
     def parse_xref_section(self, start, count):
         xref = {}
         for obj in xrange(start, start + count):
@@ -210,7 +216,7 @@ class PDFParser:
                 self.page_count = page
                 self.obj2page[obj] = page
                 self.page2obj[page] = obj
-                self.box[page] = node.get('CropBox', cbox) or node.get('MediaBox', mbox)
+                self.box[page] = self.resolve(node.get('CropBox', cbox) or node.get('MediaBox', mbox))
                 self.rotate[page] = node.get('Rotate', rotate)
                 self.annots[page] = [a.ref for a in anode]
         except (KeyError, TypeError, ValueError):
