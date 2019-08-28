@@ -1,5 +1,9 @@
 <?php include("menu.php"); ?>
 
+<h1><span class="date">2019-08-28</span>Some maintenance in 0.12.1</h1>
+<p>After one and a half years, there is now a new release that fixes a few issues, mainly with new library versions. The only new feature is that automatic slideshows can now be paused temporarily by pressing the [A] key. Furthermore, Impressive should now run on Raspberry Pi 4, but (contrary to how it was for earlier RasPi generations) only inside an X11 session.</p>
+<p>This is most likely the last version of Impressive that requires Python 2.7 to run; behind the curtains, preparations are made for a next version that will run on Python 3 as well.</p>
+
 <h1><span class="date">2018-02-04</span>0.11.3 and 0.12.0, the unexpected feature release</h1>
 <p>Sometimes things just don't work out as planned. 0.11.2 had a rather nasty bug that broke automatic presentations (the <code>-a</code>/<code>--auto</code> option), so 0.11.3 was planned as a bugfix release to take care of that and some other little issues that made hyperlinks not work properly in every situation, or even crash when clicking them in some PDFs.</p>
 <p>But then a very avid user of Impressive informed me of some modifications he did and ideas for other features, and I just couldn't keep myself from implementing it all ... so here we have it: 0.12.0, a totally unplanned feature release! It mainly does two things:<br />

@@ -2,7 +2,7 @@
 # -*- coding: iso-8859-1 -*-
 #
 # Impressive, a fancy presentation tool
-# Copyright (C) 2005-2018 Martin J. Fiedler <martin.fiedler@gmx.net>
+# Copyright (C) 2005-2019 Martin J. Fiedler <martin.fiedler@gmx.net>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -18,7 +18,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 __title__   = "Impressive"
-__version__ = "0.12.1-WIP"
+__version__ = "0.12.1"
 __rev__     = None
 __author__  = "Martin J. Fiedler"
 __email__   = "martin.fiedler@gmx.net"

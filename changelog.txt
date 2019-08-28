@@ -1,3 +1,15 @@
+0.12.1 [2019-08-28]
+- fixed crash in crash reporter with recent Pillow versions
+- fixed crash with recent PyGame versions when non-latin characters appeared
+  in slide titles
+- fixed page rotation
+- fixed -x/--fade mode
+- fixed directory playback mode
+- basic Raspberry Pi 4 compatibility (untested; requires X11)
+- more robust PDF hyperlink parser (page boxes can now be PDF references)
+- added option to temporarily inhibit automatic slideshows
+  - default keybinding: [A] key, actions: auto-start, auto-stop, auto-toggle
+
 0.12.0 [2018-02-04]
 - many zoom mode related changes
   - box-zoom mode: use Ctrl+LMB-drag to draw a box and zoom it to fit
