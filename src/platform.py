@@ -240,6 +240,10 @@ class Platform_Unix(Platform_PyGame):
         return Platform_PyGame.GetScreenSize(self)
 
 
+class Platform_RasPi4(Platform_Unix):
+    use_omxplayer = True
+
+
 class Platform_EGL(Platform_Unix):
     name = 'egl'
     egllib = "EGL"
@@ -408,7 +412,16 @@ class Platform_BCM2835(Platform_EGL):
 
 libbcm_host = ctypes.util.find_library("bcm_host")
 if libbcm_host:
-    Platform = Platform_BCM2835(libbcm_host)
+    try:
+        with open("/sys/firmware/devicetree/base/model") as f:
+            model = f.read()
+    except EnvironmentError:
+        model = ""
+    m = re.search(r'pi\s*(\d+)', model, flags=re.I)
+    if m and (int(m.group(1)) >= 4):
+        Platform = Platform_RasPi4()
+    else:
+        Platform = Platform_BCM2835(libbcm_host)
 elif os.name == "nt":
     Platform = Platform_Win32()
 else:

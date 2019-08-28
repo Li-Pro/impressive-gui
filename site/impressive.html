@@ -104,18 +104,22 @@ Regarding external dependencies, the section above applies as well; in addition,
 
 <p>Impressive runs on Rasbperry Pi Single-Board Computers with bearable performance, if the following notes are taken into consideration:</p>
 <ul>
+<li>On Raspberry Pi generations 1, 2 and 3:<ul>
 <li>Overscan must be off (set <code>disable_overscan=1</code> in <code>/boot/config.txt</code>, or run <code>raspi-config</code> &rarr; Advanced Menu &rarr; Overscan).</li>
 <li>The classic Broadcom OpenGL ES driver stack must be used, <strong>not</strong> the Fake-KMS or Full-KMS Mesa drivers (disable <code>dtoverlay=vc4-</code>(<code>f</code>)<code>kms-v3d</code> in <code>/boot/config.txt</code>, or run <code>raspi-config</code> &rarr; Advanced Menu &rarr; GL Driver &rarr; Legacy: Original non-GL desktop driver).</li>
 <li>Doesn't require X11 &ndash; can also be run from a normal text console in Raspbian Lite.</li>
 <li>Can be run from X11, but only in fullscreen mode.</li>
+</ul></li>
+<li>On the Raspberry Pi 4, Impressive behaves like the desktop version.<ul>
+<li>Must be run from X11, can use windowed mode.</li></ul></li>
 <li>Video playback uses omxplayer instead of MPlayer. This has the following advantages and drawbacks:<ul>
 <li>Only H.264 and (if licensed on the specific device) MPEG-2 video codecs are supported.</li>
-<li>These are, howver, hardware-decoded with full performance.</li>
+<li>These are, however, hardware-decoded with full performance.</li>
 <li>Fine-grained seeking (1 second / 10 second) is not supported. 1-second seek operations are ignored, 10-second seek maps to 30-second seek.</li>
 </ul></li>
 <li>Since microSD storage is <em>very</em> slow on the Raspberry Pi, consider using the <code>-cz</code>/<code>--cache compressed</code> option for better performance. This will consume more RAM though, which is also a scarce resource on the device, but typical presentation slides with uniformly colored backgrounds compress very well and shouldn't be a problem.</li>
 </ul>
-<p>Using Impressive, it is possible to convert a Raspberry Pi into an automated &raquo;digital signage&laquo; system, i.e. a system with the sole purpose of repeatedly showing a single presentation, which can consist of one or more PDF files, image files, or videos. Currently, there's no automated installation for this mode; however the following script (which is included in an SVN checkout as well) contains the necessary code and installation instructions (for advanced users):<br />
+<p>Using Impressive, it is possible to convert a Raspberry Pi 1 to 3 into an automated &raquo;digital signage&laquo; system, i.e. a system with the sole purpose of repeatedly showing a single presentation, which can consist of one or more PDF files, image files, or videos. Currently, there's no automated installation for this mode; however the following script (which is included in an SVN checkout as well) contains the necessary code and installation instructions (for advanced users):<br />
 <a style="margin-left:32px;" href="https://svn.emphy.de/impressive/trunk/impressive/boot_impressive.sh">https://svn.emphy.de/impressive/trunk/impressive/boot_impressive.sh</a></p>
 
 <!-------------------------------------------------------------------------------->
