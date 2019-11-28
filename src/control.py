@@ -77,7 +77,7 @@ def BoxFade(func):
 def ResetTimer():
     global StartTime, PageEnterTime
     if TimeTracking and not(FirstPage):
-        print "--- timer was reset here ---"
+        print("--- timer was reset here ---")
     StartTime = Platform.GetTicks()
     PageEnterTime = 0
 
@@ -99,8 +99,8 @@ def PlayVideo(video):
             if Fullscreen:
                 opts.append("-fs")
             else:
-                print >>sys.stderr, "Sorry, but Impressive only supports video on your operating system if fullscreen"
-                print >>sys.stderr, "mode is used."
+                print("Sorry, but Impressive only supports video on your operating system if fullscreen", file=sys.stderr)
+                print("mode is used.", file=sys.stderr)
                 VideoPlaying = False
                 MPlayerProcess = None
                 return
@@ -108,7 +108,7 @@ def PlayVideo(video):
         video = [video]
     NextPageAfterVideo = False
     try:
-        MPlayerProcess = subprocess.Popen(opts + video, stdin=subprocess.PIPE)
+        MPlayerProcess = Popen(opts + video, stdin=subprocess.PIPE)
         if Platform.use_omxplayer:
             gl.Clear(gl.COLOR_BUFFER_BIT)
             Platform.SwapBuffers()
@@ -171,8 +171,8 @@ def PageEntered(update_time=True):
             if sound and not(video):
                 StopMPlayer()
                 try:
-                    MPlayerProcess = subprocess.Popen( \
-                        [MPlayerPath, "-quiet", "-really-quiet", "-novideo", sound], \
+                    MPlayerProcess = Popen(
+                        [MPlayerPath, "-quiet", "-really-quiet", "-novideo", sound],
                         stdin=subprocess.PIPE)
                 except OSError:
                     MPlayerProcess = None
@@ -197,14 +197,14 @@ def PageLeft(overview=False):
         SafeCall(GetPageProp(Pcurrent, 'OnLeave'))
     if TimeTracking:
         t1 = Platform.GetTicks() - StartTime
-        dt = (t1 - PageEnterTime + 500) / 1000
+        dt = (t1 - PageEnterTime + 500) // 1000
         if overview:
             p = "over"
         else:
             p = "%4d" % Pcurrent
-        print "%s%9s%9s%9s" % (p, FormatTime(dt), \
-                                  FormatTime(PageEnterTime / 1000), \
-                                  FormatTime(t1 / 1000))
+        print("%s%9s%9s%9s" % (p, FormatTime(dt),
+                                  FormatTime(PageEnterTime // 1000),
+                                  FormatTime(t1 // 1000)))
 
 # create an instance of a transition class
 def InstantiateTransition(trans_class):
@@ -213,7 +213,7 @@ def InstantiateTransition(trans_class):
     except GLInvalidShaderError:
         return None
     except GLShaderCompileError:
-        print >>sys.stderr, "Note: all %s transitions will be disabled" % trans_class.__name__
+        print("Note: all %s transitions will be disabled" % trans_class.__name__, file=sys.stderr)
         return None
 
 # perform a transition to a specified page
@@ -355,10 +355,10 @@ def ReRenderZoom(factor):
         pass  # clear all OpenGL errors
     gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGB, int(ResZoomFactor * TexWidth), int(ResZoomFactor * TexHeight), 0, gl.RGB, gl.UNSIGNED_BYTE, PageImage(Pcurrent, True))
     if gl.GetError():
-        print >>sys.stderr, "I'm sorry, but your graphics card is not capable of rendering presentations"
-        print >>sys.stderr, "in this resolution. Either the texture memory is exhausted, or there is no"
-        print >>sys.stderr, "support for large textures (%dx%d). Please try to run Impressive in a" % (TexWidth, TexHeight)
-        print >>sys.stderr, "smaller resolution using the -g command-line option."
+        print("I'm sorry, but your graphics card is not capable of rendering presentations", file=sys.stderr)
+        print("in this resolution. Either the texture memory is exhausted, or there is no", file=sys.stderr)
+        print("support for large textures (%dx%d). Please try to run Impressive in a" % (TexWidth, TexHeight), file=sys.stderr)
+        print("smaller resolution using the -g command-line option.", file=sys.stderr)
         HighResZoomFailed = True
         return
     DrawCurrentPage()
@@ -425,11 +425,11 @@ def IncrementSpotSize(delta):
 def PrepareTransitions():
     Unspecified = 0xAFFED00F
     # STEP 1: randomly assign transitions where the user didn't specify them
-    cnt = sum([1 for page in xrange(1, PageCount + 1) \
+    cnt = sum([1 for page in range(1, PageCount + 1) \
                if GetPageProp(page, 'transition', Unspecified) == Unspecified])
-    newtrans = ((cnt / len(AvailableTransitions) + 1) * AvailableTransitions)[:cnt]
+    newtrans = ((cnt // len(AvailableTransitions) + 1) * AvailableTransitions)[:cnt]
     random.shuffle(newtrans)
-    for page in xrange(1, PageCount + 1):
+    for page in range(1, PageCount + 1):
         if GetPageProp(page, 'transition', Unspecified) == Unspecified:
             SetPageProp(page, '_transition', newtrans.pop())
     # STEP 2: instantiate transitions
@@ -463,10 +463,10 @@ def TimerTick():
 def EnableTimeTracking(force=False):
     global TimeTracking
     if force or (TimeDisplay and not(TimeTracking) and not(ShowClock) and FirstPage):
-        print >>sys.stderr, "Time tracking mode enabled."
+        print("Time tracking mode enabled.", file=sys.stderr)
         TimeTracking = True
-        print "page duration    enter    leave"
-        print "---- -------- -------- --------"
+        print("page duration    enter    leave")
+        print("---- -------- -------- --------")
 
 # set cursor visibility
 def SetCursor(visible):
@@ -488,7 +488,7 @@ def HandleShortcutKey(key, current=0):
     if (len(key) == 1) or ((key >= "f1") and (key <= "f9")):
         # Note: F10..F12 are implicitly included due to lexicographic sorting
         page = None
-        for check_page, props in PageProps.iteritems():
+        for check_page, props in PageProps.items():
             if props.get('shortcut') == key:
                 page = check_page
                 break

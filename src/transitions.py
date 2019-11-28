@@ -206,14 +206,15 @@ class Wipe(Transition):
         SimpleQuad.draw()
     def prepare_mask(self):
         scale = 1.0 / (self.rx - 1)
-        xx = [i * scale for i in xrange((self.rx + 3) & (~3))]
+        xx = [i * scale for i in range((self.rx + 3) & (~3))]
         scale = 1.0 / (self.ry - 1)
-        yy = [i * scale for i in xrange(self.ry)]
+        yy = [i * scale for i in range(self.ry)]
         def iter2d():
             for y in yy:
                 for x in xx:
                     yield (x, y)
-        return ''.join(chr(max(0, min(255, int(self.f(x, y) * 255.0 + 0.5)))) for x, y in iter2d())
+        # detour via bytearray() required for Python 2 compatibility
+        return bytes(bytearray(max(0, min(255, int(self.f(x, y) * 255.0 + 0.5))) for x, y in iter2d()))
     def f(self, x, y):
         return 0.5
 class WipeLeft(Wipe):
@@ -286,7 +287,7 @@ class WipeClouds(Wipe):
     blur = 5
     def prepare_mask(self):
         assert self.rx == self.ry
-        noise = str2img('L', (self.rx * 4, self.ry * 2), ''.join(map(chr, (random.randrange(256) for i in xrange(self.rx * self.ry * 8)))))
+        noise = Image.frombytes('L', (self.rx * 4, self.ry * 2), bytes(bytearray(random.randrange(256) for i in range(self.rx * self.ry * 8))))
         img = Image.new('L', (1, 1), random.randrange(256))
         alpha = 1.0
         npos = 0
@@ -301,7 +302,7 @@ class WipeClouds(Wipe):
                 alpha)
             npos += next
         img = ImageOps.equalize(ImageOps.autocontrast(img))
-        for i in xrange(self.blur):
+        for i in range(self.blur):
             img = img.filter(ImageFilter.BLUR)
         img = img.crop((border, border, img.size[0] - 2 * border, img.size[1] - 2 * border)).resize((self.rx, self.ry), Image.ANTIALIAS)
         return img2str(img)

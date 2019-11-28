@@ -3,7 +3,7 @@
 # read and write the PageProps and FileProps meta-dictionaries
 def GetProp(prop_dict, key, prop, default=None):
     if not key in prop_dict: return default
-    if type(prop) == types.StringType:
+    if isinstance(prop, basestring):
         return prop_dict[key].get(prop, default)
     for subprop in prop:
         try:
@@ -44,7 +44,7 @@ def SetFileProp(page, prop, value):
     SetProp(FileProps, page, prop, value)
 
 # the Impressive logo (256x64 pixels grayscale PNG)
-LOGO = """iVBORw0KGgoAAAANSUhEUgAAAQAAAABACAAAAADQNvZiAAAL8ElEQVR4Xu2Ze1hVVfrHv+cc7siAEiF4AW1QEkmD8pJUWlkaaSWWk9pk5ZT5szKvPydvoVhqKuWY9jhkmjZpmZmO9wwzLwhiCImAeEFEkJtyk/se17tZ66yz9zlp+IcPD3z++Z79ujxrne963/XupWjytNCCy5QtuXm/vueAxmBAk8dnWyhpWkhFszTA7VR7qMy
+LOGO = b"""iVBORw0KGgoAAAANSUhEUgAAAQAAAABACAAAAADQNvZiAAAL8ElEQVR4Xu2Ze1hVVfrHv+cc7siAEiF4AW1QEkmD8pJUWlkaaSWWk9pk5ZT5szKvPydvoVhqKuWY9jhkmjZpmZmO9wwzLwhiCImAeEFEkJtyk/se17tZ66yz9zlp+IcPD3z++Z79ujxrne963/XupWjytNCCy5QtuXm/vueAxmBAk8dnWyhpWkhFszTA7VR7qMy
 ajz+PEUS/RXO7omnyDP/9eBKNNuCdg1Pn/PYUmiQR4HRutAEeiwyA0yo0RVwGg1PYaAO6OQKAfys0Qbq6gHO60QacVQCgoAxNkPa4PQPsmOQumQIoU9BI5gYCyHy/CRuAqb8Pq4jZi0byakcA36MpG4Avv0SjcaQ1ZNxxA5S0xnWB26YTfccZ3Bl8wMmquEMG/BV3MgPcwTmJZmnAX8D55U4ZcA+T8hwArd3xJ3H0gnU8nGENVzfbGRCLW8Xe2
 2BpQN/+NwgE0ZV9DgMRPGHp11Gj3SGwD5+8KubtMKM+AwrHLNmdU3S1Mml2F+0K+zPaAHAY/fH6mY+D4/X2ocLKK3nb5z4CS3quPphXXJaxZf6TkPH75KeLpSUXdix+wWQtA0pOMAljk3WChAvN30GMf3Xflarcor0LnobAWKncYAmIbexzOgDD6CMKkTOczzX1okLs84FEhmJB3edekImgaAjw6Dn24Te+rsU1CifaHmY8V9YpnKNmC5znVoh
 w2kixBSYR/C8Yx9nDRkjMoEXdC8JuernC+aYVz4AOjtIxHsAkDfDf91UfED7fqg4MOL2oPYjHk7pBYOevKao3knvoj4h0dP1BHtgneYodOO8eaA+O76lxRnB67z74CAjnuDnO4HTZkCw2RVMBR+ivwYzbFCbfpKrpHf+RCzgj4oPIAFqiMMDUSTXgheTHIFh5N2CKlPbdaykEHe2gwTu2j9aAnDLP7R4wE7a3MyT6Jt4NFcOX9EkQ9imIRcGQ6
@@ -62,7 +62,7 @@ ws69GDyQ6QDOPuoUdCKl8S4g3P+kAi/FsCDhiirBizP18zq8z4s8HwIxrvcb7UL6iN6A8L3OlAn+xC2D
 FvZWrsysTOv6/z1EIkoc+dAAqB3qNPCfqen5wGu9hTz9xgoeVmMBYqOzqlUQl+uY/9NeB4mjo+DxoGwTnxwRvVgCDowFArWqlgxFAvWyTE5OaOghM9mQx38ACT/ZUCVQVFOSn7oyrgwVGBz5aT/CQMF/vwtTU06lJ9ZAwdA65PyQoJzllRzpk2oWEhPQoSkn5OR5mTPf39oiPuwYNfV/Bgf/AGp2eHdCubUXqDU7UqNPhdvAoZjIzCk0XIxqLn
 OLN3IAzzduAFgMKrzZXA8R7cTPOgGZugNvdzdoA0QWbtQEtGdBiQEl+MzagqSdAiwEttPA/JcotzChXXBQAAAAASUVORK5CYII="""
 # the default cursor (19x23 pixel RGBA PNG)
-DEFAULT_CURSOR = """iVBORw0KGgoAAAANSUhEUgAAABMAAAAXCAYAAADpwXTaAAADCklEQVR42qWUXWwMURTH787MznbWbm1VtdWP0KBN+pFWlQRVQlJBQkR4lGqioY0IibSprAchHgQhoh76hAQPJB4IRdBobdFstbZ4oJLup9au3c5Md3fmjnPHdE2qZVsn+c3snDv3v/9zzt2lEcRbx90rnAk/d7x2xdF/BAWwFmv6jm1bal4db95Xp
+DEFAULT_CURSOR = b"""iVBORw0KGgoAAAANSUhEUgAAABMAAAAXCAYAAADpwXTaAAADCklEQVR42qWUXWwMURTH787MznbWbm1VtdWP0KBN+pFWlQRVQlJBQkR4lGqioY0IibSprAchHgQhoh76hAQPJB4IRdBobdFstbZ4oJLup9au3c5Md3fmjnPHdE2qZVsn+c3snDv3v/9zzt2lEcRbx90rnAk/d7x2xdF/BAWwFmv6jm1bal4db95Xp
 uVmLcbEJfQ9Y0Fu8YZ1yzsvnTu6G3LG2YopPM+HbfMWohTObC0pWXLjWrv9DOS52YjJAi8EKJpBqbZMxNAMlZeXdeTOzdP36/duzYF1w4yciSI/gmUJxLIQw7CIomiUZrOu37m9puukvW51sn0kL2FBEN0Yy2qClGswUIiijYjjUvJXrijuaLt4uCGZPv7qmTAWIGIKMMeajliTGQQNqkOGYbiCxTmXr7e3XC0tXmT5mxhNLtVrq3KWLS3YQxw
 RjCyHBD6IFPUVclUMHGeqWFVVWJuXm/Gku2cwNK0zr9fvJc5UdwqGqVoRZ56rOjMAFMWon1NTLZU11WXdZ0/Vb56qj2ri0eOXwzAAnBDEGKWl56oCk2FZNqOoMP9e24XG5sl9VMv0+0eM9XW7mhijkSXPpF+M0YRkOY7iMVFfbsKE1cJtrN1UXmrmUjr6XUMi0lmVYKKj5Hjo3dnSshENU9WXS75IxgoOhfmxWEwurSwvaIX96mCYCbFoNBrEW
 MqnMK0JSurx6HcNhxwOR8TnHx33eALjXt+o4A8EBUVReNjnBgaALGBoQkwWRRGOB1ZFDJhSBV90OoIHmuxOWZZ98E4Q4HVEgDDgAUiZyoQYjsbiI2SSMpRKynrv+jR2sKmlF4TewLpD20RExrXNMY24dpcTYvBj94F1RHC7vdH9Dcf6eF5wwtpDwKk5wZMnoY/fzqIxH3EWiQhS46ETAz7/t3eQfwqQe2g6gT/OGYkfobBHisfkVvv5vg8fP/d
@@ -74,13 +74,6 @@ def img2str(img):
         return img.tobytes()
     else:
         return img.tostring()
-
-# create a PIL image from a string
-def str2img(mode, size, data):
-    if hasattr(Image, "frombytes"):
-        return Image.frombytes(mode, size, data)
-    else:
-        return Image.fromstring(mode, size, data)
 
 # determine the next power of two
 def npot(x):
@@ -96,9 +89,9 @@ def b2s(b):
 # extract a number at the beginning of a string
 def num(s):
     s = s.strip()
-    r = ""
-    while s[0] in "0123456789":
-        r += s[0]
+    r = b""
+    while s[0:1] in b"0123456789":
+        r += s[0:1]
         s = s[1:]
     try:
         return int(r)
@@ -119,11 +112,11 @@ def my_stat(filename):
 
 # determine (pagecount,width,height) of a PDF file
 def analyze_pdf(filename):
-    f = file(filename,"rb")
+    f = open(filename,"rb")
     pdf = f.read()
     f.close()
-    box = map(float, pdf.split("/MediaBox",1)[1].split("]",1)[0].split("[",1)[1].strip().split())
-    return (max(map(num, pdf.split("/Count")[1:])), box[2]-box[0], box[3]-box[1])
+    box = tuple(map(float, pdf.split(b"/MediaBox",1)[1].split(b"]",1)[0].split(b"[",1)[1].strip().split()))
+    return (max(map(num, pdf.split(b"/Count")[1:])), box[2]-box[0], box[3]-box[1])
 
 # unescape &#123; literals in PDF files
 re_unescape = re.compile(r'&#[0-9]+;')
@@ -141,12 +134,16 @@ def unescape_pdf(s):
 
 # parse pdftk output
 def pdftkParse(filename, page_offset=0):
-    f = file(filename, "r")
+    f = open(filename, "rb")
     InfoKey = None
     BookmarkTitle = None
     Title = None
     Pages = 0
     for line in f:
+        try:
+            line = line.decode('utf-8')
+        except UnicodeDecodeError:  # pdftk's output may not be UTF-8-clean
+            line = line.decode('windows-1252', 'replace')
         try:
             key, value = [item.strip() for item in line.split(':', 1)]
         except ValueError:
@@ -172,7 +169,7 @@ def pdftkParse(filename, page_offset=0):
     f.close()
     if AutoOverview:
         SetPageProp(page_offset + 1, '_overview', True)
-        for page in xrange(page_offset + 2, page_offset + Pages):
+        for page in range(page_offset + 2, page_offset + Pages):
             SetPageProp(page, '_overview', \
                         not(not(GetPageProp(page + AutoOverview - 1, '_title'))))
         SetPageProp(page_offset + Pages, '_overview', True)
@@ -183,6 +180,7 @@ def mutoolParse(f, page_offset=0):
     title = None
     pages = 0
     for line in f:
+        line = line.decode()
         m = re.match("pages:\s*(\d+)", line, re.I)
         if m and not(pages):
             pages = int(m.group(1))
@@ -204,13 +202,13 @@ def NormalizeRect(X0, Y0, X1, Y1):
 def InsideBox(x, y, box):
     return (x >= box[0]) and (y >= box[1]) and (x < box[2]) and (y < box[3])
 def FindBox(x, y, boxes):
-    for i in xrange(len(boxes)):
+    for i in range(len(boxes)):
         if InsideBox(x, y, boxes[i]):
             return i
     raise ValueError
 
 # zoom an image size to a destination size, preserving the aspect ratio
-def ZoomToFit(size, dest=None):
+def ZoomToFit(size, dest=None, force_int=False):
     if not dest:
         dest = (ScreenWidth + Overscan, ScreenHeight + Overscan)
     newx = dest[0]
@@ -218,14 +216,14 @@ def ZoomToFit(size, dest=None):
     if newy > dest[1]:
         newy = dest[1]
         newx = size[0] * newy / size[1]
+    if force_int:
+        return (int(newx), int(newy))
     return (newx, newy)
 
 # get the overlay grid screen coordinates for a specific page
 def OverviewPos(page):
-    return ( \
-        int(page % OverviewGridSize) * OverviewCellX + OverviewOfsX, \
-        int(page / OverviewGridSize) * OverviewCellY + OverviewOfsY  \
-    )
+    return ((page %  OverviewGridSize) * OverviewCellX + OverviewOfsX,
+            (page // OverviewGridSize) * OverviewCellY + OverviewOfsY)
 
 def StopMPlayer():
     global MPlayerProcess, VideoPlaying, NextPageAfterVideo
@@ -238,7 +236,7 @@ def StopMPlayer():
         else:
             MPlayerProcess.stdin.write('quit\n')
         MPlayerProcess.stdin.flush()
-        for i in xrange(10):
+        for i in range(10):
             if MPlayerProcess.poll() is None:
                 time.sleep(0.1)
             else:
@@ -248,7 +246,7 @@ def StopMPlayer():
 
     # if that didn't work, be rude
     if MPlayerProcess.poll() is None:
-        print >>sys.stderr, "Audio/video player didn't exit properly, killing PID", MPlayerProcess.pid
+        print("Audio/video player didn't exit properly, killing PID", MPlayerProcess.pid, file=sys.stderr)
         try:
             if os.name == 'nt':
                 win32api.TerminateProcess(win32api.OpenProcess(1, False, MPlayerProcess.pid), 0)
@@ -274,24 +272,25 @@ def ClockTime(minutes):
         return time.strftime("%H:%M:%S")
 
 def FormatTime(t, minutes=False):
+    t = int(t)
     if minutes and (t < 3600):
-        return "%d min" % (t / 60)
+        return "%d min" % (t // 60)
     elif minutes:
-        return "%d:%02d" % (t / 3600, (t / 60) % 60)
+        return "%d:%02d" % (t // 3600, (t // 60) % 60)
     elif t < 3600:
-        return "%d:%02d" % (t / 60, t % 60)
+        return "%d:%02d" % (t // 60, t % 60)
     else:
         ms = t % 3600
-        return "%d:%02d:%02d" % (t / 3600, ms / 60, ms % 60)
+        return "%d:%02d:%02d" % (t // 3600, ms // 60, ms % 60)
 
 def SafeCall(func, args=[], kwargs={}):
     if not func: return None
     try:
         return func(*args, **kwargs)
     except:
-        print >>sys.stderr, "----- Unhandled Exception ----"
+        print("----- Unhandled Exception ----", file=sys.stderr)
         traceback.print_exc(file=sys.stderr)
-        print >>sys.stderr, "----- End of traceback -----"
+        print("----- End of traceback -----", file=sys.stderr)
 
 def Quit(code=0):
     global CleanExit
@@ -299,6 +298,6 @@ def Quit(code=0):
         CleanExit = True
     StopMPlayer()
     Platform.Done()
-    print >>sys.stderr, "Total presentation time: %s." % \
-                        FormatTime((Platform.GetTicks() - StartTime) / 1000)
+    print("Total presentation time: %s." % \
+                        FormatTime((Platform.GetTicks() - StartTime) / 1000), file=sys.stderr)
     sys.exit(code)

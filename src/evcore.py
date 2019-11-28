@@ -1,6 +1,6 @@
 ##### EVENT-TO-ACTION BINDING CODE #############################################
 
-SpecialKeyNames = set(filter(None, """
+SpecialKeyNames = set("""
 ampersand asterisk at backquote backslash backspace break capslock caret clear
 comma down escape euro end exclaim greater hash help home insert kp_divide
 kp_enter kp_equals kp_minus kp_multiply kp_plus lalt last lctrl left leftbracket
@@ -8,12 +8,12 @@ leftparen less lmeta lshift lsuper menu minus mode numlock pagedown pageup pause
 period plus power print question quote quotedbl ralt rctrl return right
 rightbracket rightparen rmeta rshift rsuper scrollock semicolon slash space
 sysreq tab underscore up
-""".split()))
-KnownEvents = set(list(SpecialKeyNames) + filter(None, """
+""".split())
+KnownEvents = set(list(SpecialKeyNames) + """
 a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9
 kp0 kp1 kp2 kp3 kp4 kp5 kp6 kp7 kp8 kp9 f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12
 lmb mmb rmb wheeldown wheelup
-""".split()) + ["btn%d" % i for i in xrange(1, 20)])
+""".split() + ["btn%d" % i for i in range(1, 20)])
 
 # event handling model:
 # - Platform.GetEvent() generates platform-neutral event (= string) that
@@ -114,7 +114,7 @@ def ValidateEvent(ev, error_prefix=None):
         error_prefix += ": "
     else:
         error_prefix = ""
-    print >>sys.stderr, "ERROR: %signoring unknown event '%s'" % (error_prefix, ev)
+    print("ERROR: %signoring unknown event '%s'" % (error_prefix, ev), file=sys.stderr)
     return False
 
 def ValidateAction(ev, error_prefix=None):
@@ -124,7 +124,7 @@ def ValidateAction(ev, error_prefix=None):
         error_prefix += ": "
     else:
         error_prefix = ""
-    print >>sys.stderr, "ERROR: %signoring unknown action '%s'" % (error_prefix, ev)
+    print("ERROR: %signoring unknown action '%s'" % (error_prefix, ev), file=sys.stderr)
     return False
 
 def BindEvent(events, actions=None, clear=False, remove=False, error_prefix=None):
@@ -220,25 +220,25 @@ def ParseInputBindingFile(filename):
             if line:
                 BindEvent(line, error_prefix="%s:%d" % (filename, n))
         f.close()
-    except IOError, e:
-        print >>sys.stderr, "ERROR: failed to read the input configuration file '%s' -" % filename, e
+    except IOError as e:
+        print("ERROR: failed to read the input configuration file '%s' -" % filename, e, file=sys.stderr)
 
 def EventHelp():
     evlist = ["a-z", "0-9", "kp0-kp9", "f1-f12"] + sorted(list(SpecialKeyNames))
-    print "Event-to-action binding syntax:"
-    print "  <event> [,<event2...>] = <action> [,<action2...>]"
-    print "  By default, this will *add* actions to an event."
-    print "  To *overwrite* the current binding for an event, use ':=' instead of '='."
-    print "  To remove actions from an event, use '-=' instead of '='."
-    print "  Join multiple bindings with a semi-colon (';')."
-    print "Special commands:"
-    print "  clearall       = clear all bindings"
-    print "  defaults       = load default bindings"
-    print "  include <file> = load bindings from a file"
-    print "Binding files use the same syntax with one binding per line;"
-    print "comments start with a '#' symbol."
-    print
-    print "Recognized keyboard event names:"
+    print("Event-to-action binding syntax:")
+    print("  <event> [,<event2...>] = <action> [,<action2...>]")
+    print("  By default, this will *add* actions to an event.")
+    print("  To *overwrite* the current binding for an event, use ':=' instead of '='.")
+    print("  To remove actions from an event, use '-=' instead of '='.")
+    print("  Join multiple bindings with a semi-colon (';').")
+    print("Special commands:")
+    print("  clearall       = clear all bindings")
+    print("  defaults       = load default bindings")
+    print("  include <file> = load bindings from a file")
+    print("Binding files use the same syntax with one binding per line;")
+    print("comments start with a '#' symbol.")
+    print()
+    print("Recognized keyboard event names:")
     while evlist:
         line = "  "
         while evlist and ((len(line) + len(evlist[0])) < 78):
@@ -246,27 +246,27 @@ def EventHelp():
         line = line.rstrip()
         if not evlist:
             line = line.rstrip(',')
-        print line
-    print "Recognized mouse event names:"
-    print "  lmb, mmb, rmb (= left, middle and right mouse buttons),"
-    print "  wheelup, wheeldown,"
-    print "  btnX (additional buttons, use --evtest to check their mapping)"
-    print
-    print "Recognized actions:"
+        print(line)
+    print("Recognized mouse event names:")
+    print("  lmb, mmb, rmb (= left, middle and right mouse buttons),")
+    print("  wheelup, wheeldown,")
+    print("  btnX (additional buttons, use --evtest to check their mapping)")
+    print()
+    print("Recognized actions:")
     maxalen = max(map(len, KnownActions))
     for action in sorted(KnownActions):
         doc = KnownActions[action]
         if doc:
-            print "  %s - %s" % (action.ljust(maxalen), doc)
+            print("  %s - %s" % (action.ljust(maxalen), doc))
         else:
-            print "  %s" % action
-    print
+            print("  %s" % action)
+    print()
     if not EventMap: return
-    print "Current bindings:"
+    print("Current bindings:")
     maxelen = max(map(len, EventMap))
     for event in sorted(EventMap):
         if EventMap[event]:
-            print "  %s = %s" % (event.ljust(maxelen), ", ".join(EventMap[event]))
+            print("  %s = %s" % (event.ljust(maxelen), ", ".join(EventMap[event])))
 
 def LoadDefaultBindings():
     BindEvent("""clearall

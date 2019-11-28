@@ -1,5 +1,12 @@
 <?php include("menu.php"); ?>
 
+<h1><span class="date">2019-11-21</span>A Linux-specific hotfix in 0.13.0-beta1a</h1>
+<p>While testing on various machines, a rather nasty bug has been found on Linux: If the PyGame library has been installed using pip (Python's own package manager) instead of a distribution package, it would simply crash hard. 0.13.0-beta1a explicitly fixes this. Windows is not affected at all, so there's no new Win32 package.</p>
+
+<h1><span class="date">2019-11-20</span>Towards Python 3 with 0.13.0-beta1</h1>
+<p>The next major version bump is immanent, but this time, it isn't much about features on the surface, but rather profound changes under the hood: With a lot of help from the Fedora project, Impressive has finally been made compatible with Python 3.x. This is important because Python 2.x is discontinued and will no longer be supported in 2020. The amount of changes needed to ensure this Python 3 compatibility is quite large though, and as the version string indicates, there may still be some issues lurking around, even though it proved stable in my testing so far.</p>
+<p>Other than that, there aren't many changes: The Win32 package is now built with Python 3 too, and for 64-bit architectures. The page count for the <code>--page-progress</code> option can now be limited (to compensate for backup slides, for example), the overview animation time can be configured independently from the zoom animation time, and more than one progress bar can now be displayed at once.</p>
+
 <h1><span class="date">2019-08-28</span>Some maintenance in 0.12.1</h1>
 <p>After one and a half years, there is now a new release that fixes a few issues, mainly with new library versions. The only new feature is that automatic slideshows can now be paused temporarily by pressing the [A] key. Furthermore, Impressive should now run on Raspberry Pi 4, but (contrary to how it was for earlier RasPi generations) only inside an X11 session.</p>
 <p>This is most likely the last version of Impressive that requires Python 2.7 to run; behind the curtains, preparations are made for a next version that will run on Python 3 as well.</p>

@@ -32,7 +32,7 @@ class Platform_PyGame(object):
         flags = OPENGL | DOUBLEBUF
         if Fullscreen:
             if FakeFullscreen:
-                print >>sys.stderr, "Using \"fake-fullscreen\" mode."
+                print("Using \"fake-fullscreen\" mode.", file=sys.stderr)
                 flags |= NOFRAME
                 if not WindowPos:
                     WindowPos = (0,0)
@@ -44,16 +44,35 @@ class Platform_PyGame(object):
         pygame.key.set_repeat(500, 30)
 
     def LoadOpenGL(self):
+        sdl = None
+        
+        # PyGame installations done with pip may come with its own SDL library,
+        # in which case we must not use the default system-wide SDL;
+        # so we need to find out the local library's path
         try:
-            sdl = CDLL(ctypes.util.find_library("SDL") or ctypes.util.find_library("SDL-1.2") or "SDL", RTLD_GLOBAL)
+            libdir = os.path.join(pygame.__path__[0], ".libs")
+            pattern = re.compile(r'(lib)?SDL(?!_[a-zA-Z]+).*?\.(dll|so(\..*)?)$', re.I)
+            libs = [os.path.join(libdir, lib) for lib in sorted(os.listdir(libdir)) if pattern.match(lib)]
+            if libs: sdl = libs[0]
+        except (AttributeError, EnvironmentError):
+            pass
+
+        # generic case: load the system-wide SDL
+        sdl = sdl or ctypes.util.find_library("SDL") or ctypes.util.find_library("SDL-1.2") or "SDL"
+
+        # load the library
+        try:
+            sdl = CDLL(sdl, RTLD_GLOBAL)
             get_proc_address = CFUNCTYPE(c_void_p, c_char_p)(('SDL_GL_GetProcAddress', sdl))
         except OSError:
             raise ImportError("failed to load the SDL library")
         except AttributeError:
             raise ImportError("failed to load SDL_GL_GetProcAddress from the SDL library")
+
+        # load the symbols
         def loadsym(name, prototype):
             try:
-                addr = get_proc_address(name)
+                addr = get_proc_address(name.encode())
             except EnvironmentError:
                 return None
             if not addr:
@@ -70,11 +89,6 @@ class Platform_PyGame(object):
         pygame.quit()
 
     def SetWindowTitle(self, text):
-        if not isinstance(text, unicode):
-            try:
-                text = unicode(text, 'utf-8')
-            except UnicodeDecodeError:
-                text = unicode(text, 'windows-1252', 'replace')
         try:
             pygame.display.set_caption(text, __title__)
         except UnicodeEncodeError:
@@ -211,7 +225,7 @@ class Platform_Win32(Platform_PyGame):
                 pass
             # if that fails, load the extension function via wglGetProcAddress
             try:
-                addr = get_proc_address(name)
+                addr = get_proc_address(name.encode())
             except EnvironmentError:
                 addr = None
             if not addr:
@@ -227,9 +241,9 @@ class Platform_Unix(Platform_PyGame):
         re_res = re.compile(r'\s*(\d+)x(\d+)\s+\d+\.\d+\*')
         res = None
         try:
-            xrandr = subprocess.Popen(["xrandr"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            xrandr = Popen(["xrandr"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             for line in xrandr.stdout:
-                m = re_res.match(line)
+                m = re_res.match(line.decode())
                 if m:
                     res = tuple(map(int, m.groups()))
             xrandr.wait()
@@ -387,8 +401,8 @@ class Platform_BCM2835(Platform_EGL):
         if WindowPos:
             x0, y0 = WindowPos
         else:
-            x0 = (self.screen_size[0] - width)  / 2
-            y0 = (self.screen_size[1] - height) / 2
+            x0 = (self.screen_size[0] - width)  // 2
+            y0 = (self.screen_size[1] - height) // 2
         x0 = max(min(x0, self.screen_size[0] - width),  0)
         y0 = max(min(y0, self.screen_size[1] - height), 0)
 
@@ -407,7 +421,7 @@ class Platform_BCM2835(Platform_EGL):
 
         # finally, tell PyGame what just happened
         pygame.display.set_mode((width, height), 0)
-        pygame.mouse.set_pos((width / 2, height / 2))
+        pygame.mouse.set_pos((width // 2, height // 2))
 
 
 libbcm_host = ctypes.util.find_library("bcm_host")

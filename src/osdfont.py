@@ -1,14 +1,21 @@
 ##### OSD FONT RENDERER ########################################################
 
+typesUnicodeType = type(u'unicode')
+typesStringType = type(b'bytestring')
+
 # force a string or sequence of ordinals into a unicode string
 def ForceUnicode(s, charset='iso8859-15'):
-    if type(s) == types.UnicodeType:
+    if type(s) == typesUnicodeType:
         return s
-    if type(s) == types.StringType:
-        return unicode(s, charset, 'ignore')
-    if type(s) in (types.TupleType, types.ListType):
+    if type(s) == typesStringType:
+        return s.decode(charset, 'ignore')
+    if isinstance(s, (tuple, list, range)):
+        try:
+            unichr
+        except NameError:
+            unichr = chr
         return u''.join(map(unichr, s))
-    raise TypeError, "string argument not convertible to Unicode"
+    raise TypeError("string argument not convertible to Unicode")
 
 # search a system font path for a font file
 def SearchFont(root, name):
@@ -17,7 +24,7 @@ def SearchFont(root, name):
     infix = ""
     fontfile = []
     while (len(infix) < 10) and not(fontfile):
-        fontfile = filter(os.path.isfile, glob.glob(root + infix + name))
+        fontfile = list(filter(os.path.isfile, glob.glob(root + infix + name)))
         infix += "*/"
     if not fontfile:
         return None
@@ -74,7 +81,7 @@ class GLFont:
                 self.font = LoadFont(search_path, check_name, size)
                 if self.font: break
         if not self.font:
-            raise IOError, "font file not found"
+            raise IOError("font file not found")
         self.img = Image.new('LA', (width, height))
         self.alpha = Image.new('L', (width, height))
         self.extend = ImageFilter.MaxFilter()
@@ -134,7 +141,7 @@ class GLFont:
             self.current_y += self.max_height
             self.max_height = 0
         if self.current_y + h > self.height:
-            raise ValueError, "bitmap too small for all the glyphs"
+            raise ValueError("bitmap too small for all the glyphs")
         box = self.GlyphBox()
         box.orig_x = self.current_x
         box.orig_y = self.current_y
@@ -179,7 +186,7 @@ class GLFont:
 
     def AlignTextEx(self, x, u, align=Left):
         if not align: return x
-        return x - (self.GetTextWidthEx(u) / align)
+        return x - self.GetTextWidthEx(u) // align
 
     class FontShader(GLShader):
         vs = """
@@ -208,16 +215,16 @@ class GLFont:
         if not self.vertices:
             self.vertices = None
             return
-        char_count = len(self.vertices) / 16
+        char_count = len(self.vertices) // 16
         if char_count > 16383:
-            print >>sys.stderr, "Internal Error: too many characters (%d) to display in one go, truncating." % char_count
+            print("Internal Error: too many characters (%d) to display in one go, truncating." % char_count, file=sys.stderr)
             char_count = 16383
 
         # create an index buffer large enough for the text
         if not(self.index_buffer) or (self.index_buffer_capacity < char_count):
             self.index_buffer_capacity = (char_count + 63) & (~63)
             data = []
-            for b in xrange(0, self.index_buffer_capacity * 4, 4):
+            for b in range(0, self.index_buffer_capacity * 4, 4):
                 data.extend([b+0, b+2, b+1, b+1, b+2, b+3])
             if not self.index_buffer:
                 self.index_buffer = gl.GenBuffers()
@@ -286,7 +293,7 @@ def DrawOSD(x, y, text, halign=Auto, valign=Auto, alpha=1.0):
         else:
             halign = Left
     if HalfScreen and (halign == Left):
-        x += ScreenWidth / 2
+        x += ScreenWidth // 2
     if valign == Auto:
         if y < 0:
             y += ScreenHeight
@@ -294,7 +301,7 @@ def DrawOSD(x, y, text, halign=Auto, valign=Auto, alpha=1.0):
         else:
             valign = Down
         if valign != Down:
-            y -= OSDFont.GetLineHeight() / valign
+            y -= OSDFont.GetLineHeight() // valign
     OSDFont.Draw((x, y), text, align=halign, alpha=alpha)
 
 # very high-level draw function
@@ -305,7 +312,7 @@ def DrawOSDEx(position, text, alpha_factor=1.0):
         x = (1 - 2 * xpos) * OSDMargin
         halign = Auto
     else:
-        x = ScreenWidth / 2
+        x = ScreenWidth // 2
         halign = Center
     DrawOSD(x, y, text, halign, alpha = OSDAlpha * alpha_factor)
 

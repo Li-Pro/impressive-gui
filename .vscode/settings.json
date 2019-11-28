@@ -1,0 +1,19 @@
+{
+    "files.exclude": {
+        "_git": true,
+        "_releases": true,
+        "**/.bak.*": true,
+        "**/*~": true
+    },
+    "search.exclude": {
+        "impressive.py": true
+    },
+    "spellright.language": [
+        "en"
+    ],
+    "spellright.documentTypes": [
+        "markdown",
+        "latex",
+        "html"
+    ]
+}

@@ -28,11 +28,11 @@ class PDFRendererBase(object):
 
         # search for a working binary and run it to get a list of its options
         self.command = None
-        for program_spec in map(str.split, ([binary] if binary else self.binaries)):
+        for program_spec in (x.split() for x in ([binary] if binary else self.binaries)):
             test_binary = FindBinary(program_spec[0])
             try:
-                p = subprocess.Popen([test_binary] + program_spec[1:] + self.test_run_args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                data = p.stdout.read()
+                p = Popen([test_binary] + program_spec[1:] + self.test_run_args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                data = p.stdout.read().decode()
                 p.wait()
             except OSError:
                 continue
@@ -56,14 +56,14 @@ class PDFRendererBase(object):
             args = Nice + args
         try:
             if redirect:
-                process = subprocess.Popen(args, stdout=subprocess.PIPE)
+                process = Popen(args, stdout=subprocess.PIPE)
             else:
-                process = subprocess.Popen(args)
+                process = Popen(args)
             if not wait:
                 return process
             if process.wait() != 0:
                 raise RenderError("rendering failed")
-        except OSError, e:
+        except OSError as e:
             raise RenderError("could not start renderer - %s" % e)
 
     def load(self, imgfile, autoremove=False):
@@ -72,7 +72,7 @@ class PDFRendererBase(object):
             img.load()
         except (KeyboardInterrupt, SystemExit):
             raise
-        except IOError, e:
+        except IOError as e:
             raise RenderError("could not read image file - %s" % e)
         if autoremove:
             self.remove(imgfile)
@@ -108,11 +108,11 @@ class MuPDFRenderer(PDFRendererBase):
         if pipe:
             try:
                 out, err = proc.communicate()
-            except EnvironmentError, e:
+            except EnvironmentError as e:
                 raise RenderError("could not run renderer - %s" % e)
             if not out:
                 raise RenderError("renderer returned empty image")
-            return self.load(cStringIO.StringIO(out))
+            return self.load(io.BytesIO(out))
         else:
             return self.load(imgfile, autoremove=True)
 AvailableRenderers.append(MuPDFRenderer)
@@ -136,7 +136,7 @@ class MuPDFLegacyRenderer(PDFRendererBase):
             if self.buffer:
                 return self.buffer
             # the reader thread might still be busy reading the last
-            # chunks of the data and converting them into a StringIO;
+            # chunks of the data and converting them into a BytesIO;
             # let's give it some time
             maxwait = time.time() + (0.1 if self.error else 0.5)
             while not(self.buffer) and (time.time() < maxwait):
@@ -147,9 +147,9 @@ class MuPDFLegacyRenderer(PDFRendererBase):
     def ReaderThread(comm):
         try:
             f = open(comm.imgfile, 'rb')
-            comm.buffer = cStringIO.StringIO(f.read())
+            comm.buffer = io.BytesIO(f.read())
             f.close()
-        except IOError, e:
+        except IOError as e:
             comm.error = "could not open FIFO for reading - %s" % e
 
     def render(self, filename, page, res, antialias=True):
@@ -277,17 +277,17 @@ def InitPDFRenderer():
             continue
         try:
             PDFRenderer = r_class(PDFRendererPath)
-            print >>sys.stderr, "PDF renderer:", PDFRenderer.name
+            print("PDF renderer:", PDFRenderer.name, file=sys.stderr)
             return PDFRenderer
-        except RendererUnavailable, e:
+        except RendererUnavailable as e:
             if Verbose:
-                print >>sys.stderr, "Not using %s for PDF rendering:" % r_class.name, e
+                print("Not using %s for PDF rendering:" % r_class.name, e, file=sys.stderr)
             else:
                 fail_reasons.append((r_class.name, str(e)))
-    print >>sys.stderr, "ERROR: PDF renderer initialization failed."
+    print("ERROR: PDF renderer initialization failed.", file=sys.stderr)
     for item in fail_reasons:
-        print >>sys.stderr, "       - %s: %s" % item
-    print >>sys.stderr, "       Display of PDF files will not be supported."
+        print("       - %s: %s" % item, file=sys.stderr)
+    print("       Display of PDF files will not be supported.", file=sys.stderr)
 
 
 def ApplyRotation(img, rot):
@@ -298,8 +298,8 @@ def ApplyRotation(img, rot):
 # generate a dummy image
 def DummyPage():
     img = Image.new('RGB', (ScreenWidth, ScreenHeight))
-    img.paste(LogoImage, ((ScreenWidth  - LogoImage.size[0]) / 2,
-                          (ScreenHeight - LogoImage.size[1]) / 2))
+    img.paste(LogoImage, ((ScreenWidth  - LogoImage.size[0]) // 2,
+                          (ScreenHeight - LogoImage.size[1]) // 2))
     return img
 
 # load a page from a PDF file
@@ -348,8 +348,8 @@ def RenderPDF(page, MayAdjustResolution, ZoomMode):
     # call the renderer
     try:
         img = PDFRenderer.render(SourceFile, RealPage, useres, use_aa)
-    except RenderError, e:
-        print >>sys.stderr, "ERROR: failed to render page %d:" % page, e
+    except RenderError as e:
+        print("ERROR: failed to render page %d:" % page, e, file=sys.stderr)
         return DummyPage()
 
     # apply rotation
@@ -366,7 +366,7 @@ def RenderPDF(page, MayAdjustResolution, ZoomMode):
     # if the image size is strange, re-adjust the rendering resolution
     tolerance = max(4, (ScreenWidth + ScreenHeight) / 400)
     if MayAdjustResolution and (max(abs(got[0] - out[0]), abs(got[1] - out[1])) >= tolerance):
-        newout = ZoomToFit((img.size[0], img.size[1] * PAR))
+        newout = ZoomToFit((img.size[0], img.size[1] * PAR), force_int=True)
         rscale = (float(newout[0]) / img.size[0], float(newout[1]) / img.size[1])
         if rot & 1:
             newres = (res[0] * rscale[1], res[1] * rscale[0])
@@ -417,8 +417,8 @@ def RenderPDF(page, MayAdjustResolution, ZoomMode):
             w = int(img.size[0] * scale + 0.5)
             h = int(img.size[1] * scale + 0.5)
             if (w <= img.size[0]) and (h <= img.size[1]):
-                x0 = (img.size[0] - w) / 2
-                y0 = (img.size[1] - h) / 2
+                x0 = (img.size[0] - w) // 2
+                y0 = (img.size[1] - h) // 2
                 img = img.crop((x0, y0, x0 + w, y0 + h))
 
     return img
@@ -434,7 +434,7 @@ def LoadImage(page, zoom=False, img=None):
         except (KeyboardInterrupt, SystemExit):
             raise
         except:
-            print >>sys.stderr, "Image file `%s' is broken." % GetPageProp(page, '_file')
+            print("Image file `%s' is broken." % GetPageProp(page, '_file'), file=sys.stderr)
             return DummyPage()
 
     # apply rotation
@@ -442,7 +442,7 @@ def LoadImage(page, zoom=False, img=None):
 
     # determine destination size
     newsize = ZoomToFit((img.size[0], int(img.size[1] * PAR + 0.5)),
-                        (ScreenWidth, ScreenHeight))
+                        (ScreenWidth, ScreenHeight), force_int=True)
     # don't scale if the source size is too close to the destination size
     if abs(newsize[0] - img.size[0]) < 2: newsize = img.size
     # don't scale if the source is smaller than the destination
@@ -470,7 +470,7 @@ def LoadVideoPreview(page, zoom):
         try:
             ffmpegWorks = False
             reason = "failed to call FFmpeg"
-            out, dummy = subprocess.Popen([ffmpegPath,
+            out, dummy = Popen([ffmpegPath,
                             "-loglevel", "fatal",
                             "-i", GetPageProp(page, '_file'),
                             "-vframes", "1", "-pix_fmt", "rgb24",
@@ -478,7 +478,7 @@ def LoadVideoPreview(page, zoom):
                             stdout=subprocess.PIPE).communicate()
             ffmpegWorks = True
             reason = "FFmpeg output is not valid"
-            out = cStringIO.StringIO(out)
+            out = io.BytesIO(out)
             img = Image.open(out)
             img.load()
         except (KeyboardInterrupt, SystemExit):
@@ -495,7 +495,7 @@ def LoadVideoPreview(page, zoom):
                 if TempFileName:
                     os.chdir(os.path.dirname(TempFileName))
                 reason = "failed to call MPlayer"
-                dummy = subprocess.Popen([MPlayerPath,
+                dummy = Popen([MPlayerPath,
                             "-really-quiet", "-nosound",
                             "-frames", "1", "-vo", "png",
                             GetPageProp(page, '_file')],
@@ -514,7 +514,7 @@ def LoadVideoPreview(page, zoom):
     if img:
         return LoadImage(page, zoom, img)
     else:
-        print >>sys.stderr, "Can not generate preview image for video file `%s' (%s)." % (GetPageProp(page, '_file'), reason)
+        print("Can not generate preview image for video file `%s' (%s)." % (GetPageProp(page, '_file'), reason), file=sys.stderr)
         return DummyPage()
 ffmpegWorks = True
 mplayerWorks = True
@@ -560,12 +560,12 @@ def PageImage(page, ZoomMode=False, RenderMode=False):
         # create black background image to paste real image onto
         if ZoomMode:
             TextureImage = Image.new('RGB', (int(ResZoomFactor * TexWidth), int(ResZoomFactor * TexHeight)))
-            TextureImage.paste(img, ((int(ResZoomFactor * ScreenWidth)  - img.size[0]) / 2, \
-                                     (int(ResZoomFactor * ScreenHeight) - img.size[1]) / 2))
+            TextureImage.paste(img, (int((ResZoomFactor * ScreenWidth  - img.size[0]) / 2),
+                                     int((ResZoomFactor * ScreenHeight - img.size[1]) / 2)))
         else:
             TextureImage = Image.new('RGB', (TexWidth, TexHeight))
-            x0 = (ScreenWidth  - img.size[0]) / 2
-            y0 = (ScreenHeight - img.size[1]) / 2
+            x0 = (ScreenWidth  - img.size[0]) // 2
+            y0 = (ScreenHeight - img.size[1]) // 2
             TextureImage.paste(img, (x0, y0))
             SetPageProp(page, '_box', (x0, y0, x0 + img.size[0], y0 + img.size[1]))
             FixHyperlinks(page)
@@ -580,29 +580,29 @@ def PageImage(page, ZoomMode=False, RenderMode=False):
             Loverview.acquire()
             try:
                 # first, fill the underlying area with black (i.e. remove the dummy logo)
-                blackness = Image.new('RGB', (OverviewCellX - OverviewBorder, \
+                blackness = Image.new('RGB', (OverviewCellX - OverviewBorder,
                                               OverviewCellY - OverviewBorder))
-                OverviewImage.paste(blackness, (pos[0] + OverviewBorder / 2, \
+                OverviewImage.paste(blackness, (pos[0] + OverviewBorder // 2,
                                                 pos[1] + OverviewBorder))
                 del blackness
                 # then, scale down the original image and paste it
                 if HalfScreen:
-                    img = img.crop((0, 0, img.size[0] / 2, img.size[1]))
+                    img = img.crop((0, 0, img.size[0] // 2, img.size[1]))
                 sx = OverviewCellX - 2 * OverviewBorder
                 sy = OverviewCellY - 2 * OverviewBorder
                 if HighQualityOverview:
                     t0 = time.time()
                     img.thumbnail((sx, sy), Image.ANTIALIAS)
                     if (time.time() - t0) > 0.5:
-                        print >>sys.stderr, "Note: Your system seems to be quite slow; falling back to a faster,"
-                        print >>sys.stderr, "      but slightly lower-quality overview page rendering mode"
+                        print("Note: Your system seems to be quite slow; falling back to a faster,", file=sys.stderr)
+                        print("      but slightly lower-quality overview page rendering mode", file=sys.stderr)
                         HighQualityOverview = False
                 else:
                     img.thumbnail((sx * 2, sy * 2), Image.NEAREST)
                     img.thumbnail((sx, sy), Image.BILINEAR)
-                OverviewImage.paste(img, \
-                   (pos[0] + (OverviewCellX - img.size[0]) / 2, \
-                    pos[1] + (OverviewCellY - img.size[1]) / 2))
+                OverviewImage.paste(img,
+                   (pos[0] + (OverviewCellX - img.size[0]) // 2,
+                    pos[1] + (OverviewCellY - img.size[1]) // 2))
             finally:
                 Loverview.release()
             SetPageProp(page, '_overview_rendered', True)
@@ -629,10 +629,10 @@ def RenderPage(page, target):
         pass  # clear all OpenGL errors
     gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGB, TexWidth, TexHeight, 0, gl.RGB, gl.UNSIGNED_BYTE, PageImage(page))
     if gl.GetError():
-        print >>sys.stderr, "I'm sorry, but your graphics card is not capable of rendering presentations"
-        print >>sys.stderr, "in this resolution. Either the texture memory is exhausted, or there is no"
-        print >>sys.stderr, "support for large textures (%dx%d). Please try to run Impressive in a" % (TexWidth, TexHeight)
-        print >>sys.stderr, "smaller resolution using the -g command-line option."
+        print("I'm sorry, but your graphics card is not capable of rendering presentations", file=sys.stderr)
+        print("in this resolution. Either the texture memory is exhausted, or there is no", file=sys.stderr)
+        print("support for large textures (%dx%d). Please try to run Impressive in a" % (TexWidth, TexHeight), file=sys.stderr)
+        print("smaller resolution using the -g command-line option.", file=sys.stderr)
         sys.exit(1)
 
 # background rendering thread
@@ -647,18 +647,18 @@ def RenderThread(p1, p2):
             if RTrestart: break
             SafeCall(ParsePDF, [pdf])
         if RTrestart: continue
-        for page in xrange(1, PageCount + 1):
+        for page in range(1, PageCount + 1):
             if RTrestart: break
             if (page != p1) and (page != p2) \
             and (page >= PageRangeStart) and (page <= PageRangeEnd):
                 SafeCall(PageImage, [page])
     RTrunning = False
     if CacheMode >= FileCache:
-        print >>sys.stderr, "Background rendering finished, used %.1f MiB of disk space." %\
-              (CacheFilePos / 1048576.0)
+        print("Background rendering finished, used %.1f MiB of disk space." %\
+              (CacheFilePos / 1048576.0), file=sys.stderr)
     elif CacheMode >= MemCache:
-        print >>sys.stderr, "Background rendering finished, using %.1f MiB of memory." %\
-              (sum(map(len, PageCache.itervalues())) / 1048576.0)
+        print("Background rendering finished, using %.1f MiB of memory." %\
+              (sum(map(len, PageCache.values())) / 1048576.0), file=sys.stderr)
 
 
 ##### RENDER MODE ##############################################################
@@ -668,20 +668,20 @@ def DoRender():
     TexWidth = ScreenWidth
     TexHeight = ScreenHeight
     if os.path.exists(RenderToDirectory):
-        print >>sys.stderr, "Destination directory `%s' already exists," % RenderToDirectory
-        print >>sys.stderr, "refusing to overwrite anything."
+        print("Destination directory `%s' already exists," % RenderToDirectory, file=sys.stderr)
+        print("refusing to overwrite anything.", file=sys.stderr)
         return 1
     try:
         os.mkdir(RenderToDirectory)
-    except OSError, e:
-        print >>sys.stderr, "Cannot create destination directory `%s':" % RenderToDirectory
-        print >>sys.stderr, e.strerror
+    except OSError as e:
+        print("Cannot create destination directory `%s':" % RenderToDirectory, file=sys.stderr)
+        print(e.strerror, file=sys.stderr)
         return 1
-    print >>sys.stderr, "Rendering presentation into `%s'" % RenderToDirectory
-    for page in xrange(1, PageCount + 1):
+    print("Rendering presentation into `%s'" % RenderToDirectory, file=sys.stderr)
+    for page in range(1, PageCount + 1):
         PageImage(page, RenderMode=True).save("%s/page%04d.png" % (RenderToDirectory, page))
         sys.stdout.write("[%d] " % page)
         sys.stdout.flush()
-    print >>sys.stderr
-    print >>sys.stderr, "Done."
+    print(file=sys.stderr)
+    print("Done.", file=sys.stderr)
     return 0

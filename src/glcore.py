@@ -163,9 +163,9 @@ class OpenGL(object):
             else:
                 setattr(self, func.name, funcptr)
             if func.name == "GetString":
-                GLVendor = self.GetString(self.VENDOR) or ""
-                GLRenderer = self.GetString(self.RENDERER) or ""
-                GLVersion = self.GetString(self.VERSION) or ""
+                GLVendor = self.GetString(self.VENDOR).decode() or ""
+                GLRenderer = self.GetString(self.RENDERER).decode() or ""
+                GLVersion = self.GetString(self.VERSION).decode() or ""
         self._init()
 
     def GenTextures(self, n=1):
@@ -200,7 +200,7 @@ class OpenGL(object):
         self._BufferData(target, cast(size, c_void_p), cast(data, c_void_p), usage)
 
     def ShaderSource(self, shader, source):
-        source = c_char_p(source)
+        source = c_char_p(source.encode())
         self._ShaderSource(shader, 1, pointer(source), None)
 
     def GetShaderi(self, shader, pname):
@@ -329,11 +329,11 @@ class GLShader(object):
                 log = "" 
             if force_log or ((loglevel >= self.LOG_IF_NOT_EMPTY) and log):
                 if status:
-                    print >>sys.stderr, "Info: log for %s %s:" % (self.__class__.__name__, action)
+                    print("Info: log for %s %s:" % (self.__class__.__name__, action), file=sys.stderr)
                 else:
-                    print >>sys.stderr, "Error: %s %s failed - log information follows:" % (self.__class__.__name__, action)
+                    print("Error: %s %s failed - log information follows:" % (self.__class__.__name__, action), file=sys.stderr)
                 for line in log.split('\n'):
-                    print >>sys.stderr, '>', line.rstrip()
+                    print('>', line.rstrip(), file=sys.stderr)
             if not status:
                 raise GLShaderCompileError("failure during %s %s" % (self.__class__.__name__, action))
         def handle_shader(type_enum, type_name, src):
@@ -359,7 +359,7 @@ class GLShader(object):
             elif hasattr(self, attr):
                 name = attr
                 loc = getattr(self, name)
-            gl.BindAttribLocation(self.program, loc, name)
+            gl.BindAttribLocation(self.program, loc, name.encode())
         gl.LinkProgram(self.program)
         handle_shader_log(gl.GetProgrami(self.program, gl.LINK_STATUS),
                           lambda: gl.GetProgramInfoLog(self.program),
@@ -369,7 +369,7 @@ class GLShader(object):
             if isinstance(name, basestring) and not(hasattr(self, attr)):
                 setattr(self, name, int(gl.GetAttribLocation(self.program, name)))
         for u in uniforms:
-            loc = int(gl.GetUniformLocation(self.program, u[0]))
+            loc = int(gl.GetUniformLocation(self.program, u[0].encode()))
             setattr(self, u[0], loc)
             if u[1] is not None:
                 gl.Uniform(loc, *u[1:])
@@ -389,7 +389,7 @@ class GLShader(object):
         except AttributeError:
             try:
                 self._instance = self()
-            except GLShaderCompileError, e:
+            except GLShaderCompileError as e:
                 self._instance = None
                 raise
             return self._instance

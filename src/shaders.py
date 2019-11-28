@@ -137,18 +137,18 @@ class ProgressBarShader(GLShader):
     vs = """
         attribute highp vec2 aPos;
         uniform highp vec4 uPosTransform;
-        uniform lowp vec4 uColor0;
-        uniform lowp vec4 uColor1;
-        varying lowp vec4 vColor;
+        varying mediump float vGrad;
         void main() {
             gl_Position = vec4(uPosTransform.xy + aPos * uPosTransform.zw, 0.0, 1.0);
-            vColor = mix(uColor0, uColor1, aPos.y);
+            vGrad = 1.0 - 2.0 * aPos.y;
         }
     """
     fs = """
-        varying lowp vec4 vColor;
+        uniform lowp vec4 uColor0;
+        uniform lowp vec4 uColor1;
+        varying mediump float vGrad;
         void main() {
-            gl_FragColor = vColor;
+            gl_FragColor = mix(uColor0, uColor1, 1.0 - abs(vGrad));
         }
     """
     attributes = { 0: 'aPos' }

@@ -18,7 +18,7 @@ def AddFile(name, title=None, implicit=False):
         name = name[1:]
         dirname = os.path.dirname(name)
         try:
-            f = file(name, "r")
+            f = open(name, "r")
             next_title = None
             for line in f:
                 line = [part.strip() for part in line.split('#', 1)]
@@ -31,7 +31,7 @@ def AddFile(name, title=None, implicit=False):
                     AddFile(os.path.normpath(os.path.join(dirname, subfile)), title, implicit=True)
             f.close()
         except IOError:
-            print >>sys.stderr, "Error: cannot read list file `%s'" % name
+            print("Error: cannot read list file `%s'" % name, file=sys.stderr)
         return
 
     # generate absolute path
@@ -52,13 +52,13 @@ def AddFile(name, title=None, implicit=False):
             FileList.append(name)
             if title: SetFileProp(name, 'title', title)
         else:
-            print >>sys.stderr, "Warning: input file `%s' has unrecognized file type" % name
+            print("Warning: input file `%s' has unrecognized file type" % name, file=sys.stderr)
 
     elif os.path.isdir(name):
         images = [os.path.join(name, f) for f in os.listdir(name) if IsImageFile(f)]
-        images.sort(lambda a, b: cmp(a.lower(), b.lower()))
+        images.sort(key=lambda f: f.lower())
         if not images:
-            print >>sys.stderr, "Warning: no image files in directory `%s'" % name
+            print("Warning: no image files in directory `%s'" % name, file=sys.stderr)
         for img in images:
             AddFile(img, implicit=True)
 
@@ -67,4 +67,4 @@ def AddFile(name, title=None, implicit=False):
         if files:
             for f in files: AddFile(f, implicit=True)
         else:
-            print >>sys.stderr, "Error: input file `%s' not found" % name
+            print("Error: input file `%s' not found" % name, file=sys.stderr)

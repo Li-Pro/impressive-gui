@@ -1,4 +1,7 @@
-import Image
+from __future__ import print_function
+
+from PIL import Image
+from builtins import bytes
 
 Height = 32
 Width = 64
@@ -7,9 +10,9 @@ FileName = "../site/menu_%s.png"
 GradStart = 0.875
 GradEnd = 0.75
 
-BaseGradient = [GradStart + (y / float(Height - 1)) * (GradEnd - GradStart) for y in xrange(Height)]
+BaseGradient = [GradStart + (y / float(Height - 1)) * (GradEnd - GradStart) for y in range(Height)]
 def tf(x): return x*x * (3 - 2*x)
-TransitionL = [tf((x + 0.5) / Width) for x in xrange(Width)]
+TransitionL = [tf((x + 0.5) / Width) for x in range(Width)]
 TransitionR = TransitionL[:]
 TransitionR.reverse()
 NoTransition = Width * [1.0]
@@ -30,20 +33,20 @@ DitherMatrix = (
 
 def makeimg(name, color, trans):
     name = FileName % name
-    print name
+    print(name)
     data = []
-    for y in xrange(Height):
+    for y in range(Height):
         b = BaseGradient[y] * DarkenFactor[y]
         lf = LightenFactor[y]
         ilf = 1.0 - lf
-        for x in xrange(len(trans)):
+        for x in range(len(trans)):
             t = trans[x]
             d = (DitherMatrix[y & 3][x & 3] + 0.5) / 16
             for c in color:
                 i = (1.0 - t + t * c) * b
                 i = lf + ilf * i
-                data.append(chr(max(0, min(255, int(i * 255 + d)))))
-    Image.fromstring('RGB', (len(trans), Height), "".join(data)).save(name)
+                data.append(max(0, min(255, int(i * 255 + d))))
+    Image.frombytes('RGB', (len(trans), Height), bytes(data)).save(name)
 
 makeimg("n", NormalColor, NoTransition)
 makeimg("c_c", CurrentColor, NoTransition)

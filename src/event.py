@@ -61,7 +61,7 @@ class BaseDisplayActions(BaseActions):
                 return
             # invalidate everything we used to know about the input files
             InvalidateCache()
-            for props in PageProps.itervalues():
+            for props in PageProps.values():
                 for prop in ('_overview_rendered', '_box', '_href'):
                     if prop in props: del props[prop]
             LoadInfoScript()
@@ -140,6 +140,7 @@ class PageDisplayActions(BaseDisplayActions):
         if PanValid and ZoomMode:
             if not(Panning) and (abs(x - PanBaseX) > 1) and (abs(y - PanBaseY) > 1):
                 Panning = True
+            # ZoomArea is guaranteed to be float
             ZoomX0 = PanAnchorX + (PanBaseX - x) * ZoomArea / ScreenWidth
             ZoomY0 = PanAnchorY + (PanBaseY - y) * ZoomArea / ScreenHeight
             ZoomX0 = min(max(ZoomX0, 0.0), 1.0 - ZoomArea)
@@ -169,7 +170,7 @@ class PageDisplayActions(BaseDisplayActions):
         ActionValidIf(not(ZoomMode))
         tx, ty = MouseToScreen(Platform.GetMousePos())
         EnterZoomMode(DefaultZoomFactor,
-                      (1.0 - 1.0 / DefaultZoomFactor) * tx, \
+                      (1.0 - 1.0 / DefaultZoomFactor) * tx,
                       (1.0 - 1.0 / DefaultZoomFactor) * ty)
     def _zoom_exit(self):
         "leave zoom mode"
@@ -235,10 +236,14 @@ class PageDisplayActions(BaseDisplayActions):
         Marking = False
         if BoxTooSmall():
             raise ActionNotHandled()
-        z = min(1.0 / abs(MarkUL[0] - MarkLR[0]), 1.0 / abs(MarkUL[1] - MarkLR[1]))
+        zxRatio = 0.5 if HalfScreen else 1.0
+        z = min(zxRatio / abs(MarkUL[0] - MarkLR[0]), 1.0 / abs(MarkUL[1] - MarkLR[1]))
         if z <= 1:
             return DrawCurrentPage()
-        tx = (MarkUL[0] + MarkLR[0]) * 0.5
+        if HalfScreen:
+            tx = MarkLR[0]
+        else:
+            tx = (MarkUL[0] + MarkLR[0]) * 0.5
         ty = (MarkUL[1] + MarkLR[1]) * 0.5
         tx = tx + (tx - 0.5) / (z - 1.0)
         ty = ty + (ty - 0.5) / (z - 1.0)
@@ -259,7 +264,7 @@ class PageDisplayActions(BaseDisplayActions):
         x, y = Platform.GetMousePos()
         for valid, target, x0, y0, x1, y1 in GetPageProp(Pcurrent, '_href', []):
             if valid and (x >= x0) and (x < x1) and (y >= y0) and (y < y1):
-                if type(target) == types.IntType:
+                if isinstance(target, int):
                     TransitionTo(target, allow_transition=allow_transition)
                 elif target:
                     RunURL(target)
@@ -351,6 +356,7 @@ class PageDisplayActions(BaseDisplayActions):
     def _zoom_out(self):
         "zoom out a small bit"
         ActionValidIf((MouseWheelZoom or ZoomMode) and not(BoxZoom))
+        # ZoomStep is guaranteed to be float
         ChangeZoom(ViewZoomFactor / ZoomStep, Platform.GetMousePos())
 
     def _zoom_update(self):
@@ -444,6 +450,7 @@ class PageDisplayActions(BaseDisplayActions):
 
     def _gamma_decrease(self):
         "decrease gamma"
+        # GammaStep is guaranteed to be float
         SetGamma(new_gamma=Gamma / GammaStep)
     def _gamma_increase(self):
         "increase gamma"

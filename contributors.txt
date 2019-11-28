@@ -1,0 +1,46 @@
+++ core developers ++
+
+Martin Fiedler <martin.fiedler@gmx.net>
+- main developer
+
+
+++ major contributors ++
+
+Michael J Gruber <mjg@fedoraproject.org>
+- most of the Python 3 porting work
+
+
+++ feature and bugfix contributors ++
+
+Liviu Andronic <landronimirc@gmail.com>
+- configurable minimum highlight box size
+
+Ernst Blecha <ernst.blecha@gmail.com>
+- half-screen mode
+
+Luke Campagnola <luke.campagnola@gmail.com>
+- gamma and contrast controls
+
+Andrew Gilbert <andrewg800@gmail.com>
+- "autoquit" option
+
+Ronan Le Hy <rlehy@free.fr>
+- first prototype of PagePeel transition
+
+Tobias Maier <tobias.maier@stud.unibas.ch>
+- auto-overview option
+
+Geoffrey Preud'homme <geoffrey@frogeye.fr>
+- page progress maximum option
+- separate overview zoom animation time
+- multiple progress bars
+
+Pavel Sanda <ps@twin.jikos.cz>
+- "noclicks" option
+- "clock" option
+
+Antonio Terceiro <terceiro@softwarelivre.org>
+- FadeOutFadeIn transition
+
+Martin Zuther <mzuther@mzuther.de>
+- bugfixes

@@ -1,8 +1,9 @@
-#!/usr/bin/env python2
-# -*- coding: iso-8859-1 -*-
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
 # Impressive, a fancy presentation tool
 # Copyright (C) 2005-2019 Martin J. Fiedler <martin.fiedler@gmx.net>
+#                         and contributors
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2, as
@@ -17,8 +18,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+from __future__ import print_function, division, unicode_literals
+
 __title__   = "Impressive"
-__version__ = "0.12.1"
+__version__ = "0.13.0-WIP"
 __rev__     = None
 __author__  = "Martin J. Fiedler"
 __email__   = "martin.fiedler@gmx.net"
@@ -28,10 +31,14 @@ import sys
 if __rev__ and (("WIP" in __version__) or ("rc" in __version__) or ("alpha" in __version__) or ("beta" in __version__)):
     __version__ += " (SVN r%s)" % __rev__
 def greet():
-    print >>sys.stderr, "Welcome to", __title__, "version", __version__
+    print("Welcome to", __title__, "version", __version__, file=sys.stderr)
 if __name__ == "__main__":
     greet()
 
+def execfile(f, c):
+    with open(f, 'rb') as h:
+        code = compile(h.read(), f, 'exec')
+        exec(code, c)
 
 execfile("src/defaults.py", globals())
 execfile("src/init.py", globals())
@@ -61,7 +68,7 @@ execfile("src/options.py", globals())
 def run():
     try:
         run_main()
-    except SystemExit, e:
+    except SystemExit as e:
         return e.code
 
 # use this function if you use Impressive as a library and want to call any
@@ -77,5 +84,5 @@ if __name__ == "__main__":
         run_main()
     finally:
         if not(CleanExit) and (os.name == 'nt') and getattr(sys, "frozen", False):
-            print
+            print()
             raw_input("<-- press ENTER to quit the program --> ")

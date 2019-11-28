@@ -5,7 +5,7 @@ def if_op(cond, res_then, res_else):
     else:    return res_else
 
 def HelpExit(code=0):
-    print """A nice presentation tool.
+    print("""A nice presentation tool.
 
 Usage: """+os.path.basename(sys.argv[0])+""" [OPTION...] <INPUT(S)...>
 
@@ -72,6 +72,7 @@ Timing options:
                           that it will be reached exactly
   -q,  --page-progress    shows a progress bar based on the position in the
                           presentation (based on pages, not time)
+       --progress-last    set the last page for --page-progress
   -k,  --auto-progress    shows a progress bar for each page for auto-advance
        --time-display     enable time display (implies --tracking)
        --tracking         enable time tracking mode
@@ -81,7 +82,8 @@ Timing options:
   -D,  --mousedelay <ms>  set mouse hide delay for fullscreen mode (in ms)
                           (0 = show permanently, 1 = don't show at all)
   -B,  --boxfade <ms>     set highlight box fade duration in milliseconds
-  -Z,  --zoomtime <ms>    set zoom animation duration in milliseconds
+  -Z,  --zoomtime <ms>    set zoom and overview animation time in milliseconds
+       --overtime <ms>    set only overview animation duration in milliseconds
 
 Control options:
        --control-help     display help about control configuration and exit
@@ -109,11 +111,11 @@ Advanced options:
        --nologo           disable startup logo and version number display
   -v,  --verbose          (slightly) more verbose operation
 
-For detailed information, visit""", __website__
+For detailed information, visit""", __website__)
     sys.exit(code)
 
 def ListTransitions():
-    print "Available transitions:"
+    print("Available transitions:")
     standard = dict([(tc.__name__, None) for tc in AvailableTransitions])
     trans = [(tc.__name__, tc.__doc__) for tc in AllTransitions]
     trans.append(('None', "no transition"))
@@ -124,14 +126,14 @@ def ListTransitions():
             star = '*'
         else:
             star = ' '
-        print star, name.ljust(maxlen), '-', desc
-    print "(transitions with * are enabled by default)"
+        print(star, name.ljust(maxlen), '-', desc)
+    print("(transitions with * are enabled by default)")
     sys.exit(0)
 
 def TryTime(s, regexp, func):
     m = re.match(regexp, s, re.I)
     if not m: return 0
-    return func(map(int, m.groups()))
+    return func(list(map(int, m.groups())))
 def ParseTime(s):
     return TryTime(s, r'([0-9]+)s?$', lambda m: m[0]) \
         or TryTime(s, r'([0-9]+)m$', lambda m: m[0] * 60) \
@@ -140,11 +142,11 @@ def ParseTime(s):
         or TryTime(s, r'([0-9]+)[h:]([0-9]+)[m:]([0-9]+)s?$', lambda m: m[0] * 3600 + m[1] * 60 + m[2])
 
 def opterr(msg, extra_lines=[]):
-    print >>sys.stderr, "command line parse error:", msg
+    print("command line parse error:", msg, file=sys.stderr)
     for line in extra_lines:
-        print >>sys.stderr, line
-    print >>sys.stderr, "use `%s -h' to get help" % sys.argv[0]
-    print >>sys.stderr, "or visit", __website__, "for full documentation"
+        print(line, file=sys.stderr)
+    print("use `%s -h' to get help" % sys.argv[0], file=sys.stderr)
+    print("or visit", __website__, "for full documentation", file=sys.stderr)
     sys.exit(2)
 
 def SetTransitions(list):
@@ -236,7 +238,7 @@ def ParseAutoOverview(arg):
 
 def ParseOptions(argv):
     global FileName, FileList, Fullscreen, Scaling, Supersample, CacheMode
-    global TransitionDuration, MouseHideDelay, BoxFadeDuration, ZoomDuration
+    global TransitionDuration, MouseHideDelay, BoxFadeDuration, ZoomDuration, OverviewDuration
     global ScreenWidth, ScreenHeight, InitialPage, Wrap, TimeTracking
     global AutoAdvanceTime, AutoAdvanceEnabled, AutoAutoAdvance
     global RenderToDirectory, Rotation, DAR, Verbose
@@ -248,21 +250,27 @@ def ParseOptions(argv):
     global QuitAtEnd, ShowClock, HalfScreen, SpotRadius, InvertPages
     global MinBoxSize, AutoAdvanceProgress, BoxFadeDarkness
     global WindowPos, FakeFullscreen, UseBlurShader, Bare, EnableOverview
-    global PageProgress, BoxZoomDarkness, MaxZoomFactor, BoxEdgeSize
+    global PageProgress, ProgressLast, BoxZoomDarkness, MaxZoomFactor, BoxEdgeSize
     global TimeDisplay, MouseWheelZoom, ZoomBoxEdgeSize
     DefaultControls = True
 
+    # on Python 2, ensure that all command-line strings are encoded properly
+    if basestring != str:
+        enc = sys.getfilesystemencoding()
+        if enc in ('cp437', 'cp852'): enc = 'cp1252'  # work-around for latin Win32
+        argv = [a.decode(enc, 'replace') for a in argv]
+
     try:  # unused short options: jnJKRUY
-        opts, args = getopt.getopt(argv, \
-            "vhfg:sc:i:wa:t:lo:r:T:D:B:Z:P:A:mbp:u:F:S:G:d:C:ML:I:O:z:xXqV:QHykWe:E:N", \
+        opts, args = getopt.getopt(argv,
+            "vhfg:sc:i:wa:t:lo:r:T:D:B:Z:P:A:mbp:u:F:S:G:d:C:ML:I:O:z:xXqV:QHykWe:E:N",
            ["help", "fullscreen", "geometry=", "scale", "supersample",
             "nocache", "initialpage=", "wrap", "auto=", "listtrans", "output=",
             "rotate=", "transition=", "transtime=", "mousedelay=", "boxfade=",
-            "zoom=", "gspath=", "renderer=", "aspect=", "memcache", \
+            "zoom=", "gspath=", "renderer=", "aspect=", "memcache",
             "noback", "pages=", "poll=", "font=", "fontsize=", "gamma=",
             "duration=", "cursor=", "minutes", "layout=", "script=", "cache=",
-            "cachefile=", "autooverview=", "zoomtime=", "fade", "nologo",
-            "shuffle", "page-progress", "overscan=", "autoquit", "noclicks",
+            "cachefile=", "autooverview=", "zoomtime=", "overtime=", "fade", "nologo",
+            "shuffle", "page-progress", "progress-last=", "overscan=", "autoquit", "noclicks",
             "clock", "half-screen", "spot-radius=", "invert", "min-box-size=",
             "auto-auto", "auto-progress", "darkness=", "no-clicks", "nowheel",
             "no-wheel", "fake-fullscreen", "windowed", "verbose", "noblur",
@@ -271,7 +279,7 @@ def ParseOptions(argv):
             "nocursor", "zoomdarkness=", "zoom-darkness=", "box-edge=",
             "maxzoom=", "max-zoom=", "time-display", "zbox-edge=",
             "vht0=", "vht1="])
-    except getopt.GetoptError, message:
+    except getopt.GetoptError as message:
         opterr(message)
 
     for opt, arg in opts:
@@ -301,10 +309,10 @@ def ParseOptions(argv):
         if opt in ("-c", "--cache"):
             CacheMode = ParseCacheMode(arg)
         if opt == "--nocache":
-            print >>sys.stderr, "Note: The `--nocache' option is deprecated, use `--cache none' instead."
+            print("Note: The `--nocache' option is deprecated, use `--cache none' instead.", file=sys.stderr)
             CacheMode = NoCache
         if opt in ("-m", "--memcache"):
-            print >>sys.stderr, "Note: The `--memcache' option is deprecated, use `--cache memory' instead."
+            print("Note: The `--memcache' option is deprecated, use `--cache memory' instead.", file=sys.stderr)
             CacheMode = MemCache
         if opt == "--cachefile":
             CacheFileName = arg
@@ -327,16 +335,16 @@ def ParseOptions(argv):
             ShowLogo = not(ShowLogo)
         if opt in ("--noclicks", "--no-clicks"):
             if not DefaultControls:
-                print >>sys.stderr, "Note: The default control settings have been modified, the `--noclicks' option might not work as expected."
+                print("Note: The default control settings have been modified, the `--noclicks' option might not work as expected.", file=sys.stderr)
             BindEvent("lmb, rmb, ctrl+lmb, ctrl+rmb -= goto-next, goto-prev, goto-next-notrans, goto-prev-notrans")
         if opt in ("-W", "--nowheel", "--no-wheel"):
             if not DefaultControls:
-                print >>sys.stderr, "Note: The default control settings have been modified, the `--nowheel' option might not work as expected."
+                print("Note: The default control settings have been modified, the `--nowheel' option might not work as expected.", file=sys.stderr)
             BindEvent("wheelup, wheeldown, ctrl+wheelup, ctrl+wheeldown -= goto-next, goto-prev, goto-next-notrans, goto-prev-notrans, overview-next, overview-prev")
             MouseWheelZoom = True
         if opt in ("--noquit", "--no-quit"):
             if not DefaultControls:
-                print >>sys.stderr, "Note: The default control settings have been modified, the `--noquit' option might not work as expected."
+                print("Note: The default control settings have been modified, the `--noquit' option might not work as expected.", file=sys.stderr)
             BindEvent("q,escape -= quit")            
         if opt in ("-e", "--bind"):
             BindEvent(arg, error_prefix="--bind")
@@ -368,7 +376,7 @@ def ParseOptions(argv):
         if opt in ("-H", "--half-screen"):
             HalfScreen = not(HalfScreen)
             if HalfScreen:
-                ZoomDuration = 0
+                OverviewDuration = 0
         if opt == "--invert":
             InvertPages = not(InvertPages)
         if opt in ("-P", "--gspath", "--renderer"):
@@ -426,10 +434,16 @@ def ParseOptions(argv):
                 opterr("invalid parameter for --boxfade")
         if opt in ("-Z", "--zoomtime"):
             try:
-                ZoomDuration = int(arg)
+                ZoomDuration = OverviewDuration = int(arg)
                 assert (ZoomDuration >= 0) and (ZoomDuration < 32768)
             except:
                 opterr("invalid parameter for --zoomtime")
+        if opt in ("--overtime"):
+            try:
+                OverviewDuration = int(arg)
+                assert (OverviewDuration >= 0) and (OverviewDuration < 32768)
+            except:
+                opterr("invalid parameter for --overtime")
         if opt == "--spot-radius":
             try:
                 SpotRadius = int(arg)
@@ -485,6 +499,12 @@ def ParseOptions(argv):
             except:
                 opterr("invalid parameter for --pages")
             InitialPage = PageRangeStart
+        if opt == "--progress-last":
+            try:
+                ProgressLast = int(arg)
+                assert ProgressLast > 0
+            except:
+                opterr("invalid parameter for --progress-last")
         if opt in ("-A", "--aspect"):
             try:
                 if ':' in arg:
@@ -511,7 +531,7 @@ def ParseOptions(argv):
                     arg = arg.split(':')
                     assert len(arg) > 1
                     CursorImage = ':'.join(arg[:-1])
-                    CursorHotspot = map(int, arg[-1].split(','))
+                    CursorHotspot = tuple(map(int, arg[-1].split(',')))
                 else:
                     CursorImage = arg
                 assert (BlackLevel >= 0) and (BlackLevel < 255)

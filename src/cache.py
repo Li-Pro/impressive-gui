@@ -27,11 +27,11 @@ def UpdateCacheMagic():
     global CacheMagic
     pool = [PageCount, ScreenWidth, ScreenHeight, b2s(Scaling), b2s(Supersample), b2s(Rotation)]
     flist = list(FileProps.keys())
-    flist.sort(lambda a,b: cmp(a.lower(), b.lower()))
+    flist.sort(key=lambda f: f.lower())
     for f in flist:
         pool.append(f)
         pool.extend(list(GetFileProp(f, 'stat', [])))
-    CacheMagic = md5obj("\0".join(map(str, pool))).hexdigest()
+    CacheMagic = hashlib.md5(b'\0'.join(repr(x).encode('utf-8') for x in pool)).hexdigest().encode('ascii')
 
 # set the persistent cache file position to the current end of the file
 def UpdatePCachePos():
@@ -41,9 +41,9 @@ def UpdatePCachePos():
 
 # rewrite the header of the persistent cache
 def WritePCacheHeader(reset=False):
-    pages = ["%08x" % PageCache.get(page, 0) for page in range(1, PageCount+1)]
+    pages = [b"%08x" % PageCache.get(page, 0) for page in range(1, PageCount+1)]
     CacheFile.seek(0)
-    CacheFile.write(CacheMagic + "".join(pages))
+    CacheFile.write(CacheMagic + b"".join(pages))
     if reset:
         CacheFile.truncate()
     UpdatePCachePos()
@@ -134,20 +134,20 @@ def InitPCache():
 
     # try to open the pre-existing cache file
     try:
-        CacheFile = file(CacheFileName, "rb+")
+        CacheFile = open(CacheFileName, "rb+")
     except IOError:
         CacheFile = None
 
     # check the cache magic
     UpdateCacheMagic()
     if CacheFile and (CacheFile.read(32) != CacheMagic):
-        print >>sys.stderr, "Cache file mismatch, recreating cache."
+        print("Cache file mismatch, recreating cache.", file=sys.stderr)
         CacheFile.close()
         CacheFile = None
 
     if CacheFile:
         # if the magic was valid, import cache data
-        print >>sys.stderr, "Using already existing persistent cache file."
+        print("Using already existing persistent cache file.", file=sys.stderr)
         for page in range(1, PageCount+1):
             offset = int(CacheFile.read(8), 16)
             if offset:
@@ -156,9 +156,9 @@ def InitPCache():
     else:
         # if the magic was invalid or the file didn't exist, (re-)create it
         try:
-            CacheFile = file(CacheFileName, "wb+")
+            CacheFile = open(CacheFileName, "wb+")
         except IOError:
-            print >>sys.stderr, "Error: cannot write the persistent cache file (`%s')" % CacheFileName
-            print >>sys.stderr, "Falling back to temporary file cache."
+            print("Error: cannot write the persistent cache file (`%s')" % CacheFileName, file=sys.stderr)
+            print("Falling back to temporary file cache.", file=sys.stderr)
             CacheMode = FileCache
         WritePCacheHeader()

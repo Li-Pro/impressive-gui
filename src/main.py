@@ -24,7 +24,7 @@ def main():
         TempFileName = tempfile.mktemp(prefix="impressive-", suffix="_tmp")
     except EnvironmentError:
         if not Bare:
-            print >>sys.stderr, "Could not allocate temporary file, reverting to --bare mode."
+            print("Could not allocate temporary file, reverting to --bare mode.", file=sys.stderr)
         Bare = True
 
     # some input guesswork
@@ -44,7 +44,7 @@ def main():
         size = Platform.GetScreenSize()
         if size:
             ScreenWidth, ScreenHeight = size
-            print >>sys.stderr, "Detected screen size: %dx%d pixels" % (ScreenWidth, ScreenHeight)
+            print("Detected screen size: %dx%d pixels" % (ScreenWidth, ScreenHeight), file=sys.stderr)
     if DAR is None:
         PAR = 1.0
         DAR = float(ScreenWidth) / float(ScreenHeight)
@@ -68,7 +68,7 @@ def main():
         if ispdf:
             # PDF input -> initialize renderers and if none available, reject
             if not InitPDFRenderer():
-                print >>sys.stderr, "Ignoring unrenderable input file '%s'." % name
+                print("Ignoring unrenderable input file '%s'." % name, file=sys.stderr)
                 continue
 
             # try to pre-parse the PDF file
@@ -92,19 +92,20 @@ def main():
             # phase 2: use pdftk
             if pdftkPath and TempFileName:
                 try:
-                    assert 0 == subprocess.Popen([pdftkPath, name, "dump_data", "output", TempFileName + ".txt"]).wait()
+                    assert 0 == Popen([pdftkPath, name, "dump_data_utf8", "output", TempFileName + ".txt"]).wait()
                     title, pages = pdftkParse(TempFileName + ".txt", PageCount)
                     if title and (len(FileList) == 1):
                         DocumentTitle = title
                 except KeyboardInterrupt:
                     raise
                 except:
+                    print("pdftkParse() FAILED")
                     pass
 
             # phase 3: use mutool (if pdftk wasn't successful)
             if not(pages) and mutoolPath:
                 try:
-                    proc = subprocess.Popen([mutoolPath, "info", name], stdout=subprocess.PIPE)
+                    proc = Popen([mutoolPath, "info", name], stdout=subprocess.PIPE)
                     title, pages = mutoolParse(proc.stdout)
                     assert 0 == proc.wait()
                     if title and (len(FileList) == 1):
@@ -122,7 +123,7 @@ def main():
 
         # validity check
         if not pages:
-            print >>sys.stderr, "WARNING: The input file `%s' could not be analyzed." % name
+            print("WARNING: The input file `%s' could not be analyzed." % name, file=sys.stderr)
             continue
 
         # add pages and files into PageProps and FileProps
@@ -142,7 +143,7 @@ def main():
 
     # no pages? strange ...
     if not PageCount:
-        print >>sys.stderr, "The presentation doesn't have any pages, quitting."
+        print("The presentation doesn't have any pages, quitting.", file=sys.stderr)
         sys.exit(1)
 
     # if rendering is wanted, do it NOW
@@ -164,26 +165,26 @@ def main():
         InitialPage = GetNextPage(0, 1)
     Pcurrent = InitialPage
     if (Pcurrent <= 0) or (Pcurrent > PageCount):
-        print >>sys.stderr, "Attempt to start the presentation at an invalid page (%d of %d), quitting." % (InitialPage, PageCount)
+        print("Attempt to start the presentation at an invalid page (%d of %d), quitting." % (InitialPage, PageCount), file=sys.stderr)
         sys.exit(1)
 
     # initialize graphics
     try:
         Platform.StartDisplay()
-    except Exception, e:
-        print >>sys.stderr, "FATAL: failed to create rendering surface in the desired resolution (%dx%d)" % (ScreenWidth, ScreenHeight)
-        print >>sys.stderr, "       detailed error message:", e
+    except Exception as e:
+        print("FATAL: failed to create rendering surface in the desired resolution (%dx%d)" % (ScreenWidth, ScreenHeight), file=sys.stderr)
+        print("       detailed error message:", e, file=sys.stderr)
         sys.exit(1)
     if Fullscreen:
         Platform.SetMouseVisible(False)
         CursorVisible = False
-    if (Gamma <> 1.0) or (BlackLevel <> 0):
+    if (Gamma != 1.0) or (BlackLevel != 0):
         SetGamma(force=True)
 
     # initialize OpenGL
     try:
         gl = Platform.LoadOpenGL()
-        print >>sys.stderr, "OpenGL renderer:", GLRenderer
+        print("OpenGL renderer:", GLRenderer, file=sys.stderr)
 
         # check if graphics are unaccelerated
         renderer = GLRenderer.lower().replace(' ', '').replace('(r)', '')
@@ -191,8 +192,8 @@ def main():
         or (renderer in ("mesaglxindirect", "gdigeneric")) \
         or renderer.startswith("software") \
         or ("llvmpipe" in renderer):
-            print >>sys.stderr, "WARNING: Using an OpenGL software renderer. Impressive will work, but it will"
-            print >>sys.stderr, "         very likely be too slow to be usable."
+            print("WARNING: Using an OpenGL software renderer. Impressive will work, but it will", file=sys.stderr)
+            print("         very likely be too slow to be usable.", file=sys.stderr)
 
         # check for old hardware that can't deal with the blur shader
         for substr in ("i915", "intel915", "intel945", "intelq3", "intelg3", "inteligd", "gma900", "gma950", "gma3000", "gma3100", "gma3150"):
@@ -203,12 +204,12 @@ def main():
         extensions = set((gl.GetString(gl.EXTENSIONS) or "").split())
         if (GLVersion < "2") and (not("GL_ARB_shader_objects" in extensions) or not("GL_ARB_texture_non_power_of_two" in extensions)):
             raise ImportError("OpenGL version %r is below 2.0 and the necessary extensions are unavailable" % GLVersion)
-    except ImportError, e:
-        if GLVendor: print >>sys.stderr, "OpenGL vendor:", GLVendor
-        if GLRenderer: print >>sys.stderr, "OpenGL renderer:", GLRenderer
-        if GLVersion: print >>sys.stderr, "OpenGL version:", GLVersion
-        print >>sys.stderr, "FATAL:", e
-        print >>sys.stderr, "This likely means that your graphics driver or hardware is too old."
+    except ImportError as e:
+        if GLVendor: print("OpenGL vendor:", GLVendor, file=sys.stderr)
+        if GLRenderer: print("OpenGL renderer:", GLRenderer, file=sys.stderr)
+        if GLVersion: print("OpenGL version:", GLVersion, file=sys.stderr)
+        print("FATAL:", e, file=sys.stderr)
+        print("This likely means that your graphics driver or hardware is too old.", file=sys.stderr)
         sys.exit(1)
 
     # some further OpenGL configuration
@@ -223,9 +224,9 @@ def main():
             UseBlurShader = False
     if Verbose:
         if UseBlurShader:
-            print >>sys.stderr, "Using blur-and-desaturate shader for highlight box and spotlight mode."
+            print("Using blur-and-desaturate shader for highlight box and spotlight mode.", file=sys.stderr)
         else:
-            print >>sys.stderr, "Using legacy multi-pass blur for highlight box and spotlight mode."
+            print("Using legacy multi-pass blur for highlight box and spotlight mode.", file=sys.stderr)
     gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
     BoxIndexBuffer = HighlightIndexBuffer(4)
 
@@ -245,7 +246,7 @@ def main():
     if (maxsize > ScreenWidth) and (maxsize <= 65536):
         MaxZoomFactor = min(MaxZoomFactor, maxsize / ScreenWidth, maxsize / ScreenHeight)
     if Verbose:
-        print >>sys.stderr, "Maximum texture size is %.0f pixels, using maximum zoom level of %.1f." % (maxsize, MaxZoomFactor)
+        print("Maximum texture size is %.0f pixels, using maximum zoom level of %.1f." % (maxsize, MaxZoomFactor), file=sys.stderr)
 
     # set up some variables
     PixelX = 1.0 / ScreenWidth
@@ -253,7 +254,7 @@ def main():
     ScreenAspect = float(ScreenWidth) / float(ScreenHeight)
 
     # prepare logo image
-    LogoImage = Image.open(cStringIO.StringIO(LOGO.decode('base64')))
+    LogoImage = Image.open(io.BytesIO(codecs.decode(LOGO, 'base64')))
     LogoTexture = gl.make_texture(gl.TEXTURE_2D, filter=gl.NEAREST, img=LogoImage)
     DrawLogo()
     Platform.SwapBuffers()
@@ -264,15 +265,15 @@ def main():
         DrawLogo()
         titles = []
         for key in ('title', '_title'):
-            titles.extend([p[key] for p in PageProps.itervalues() if key in p])
+            titles.extend([p[key] for p in PageProps.values() if key in p])
         if titles:
             OSDFont.AddString("".join(titles))
     except ValueError:
-        print >>sys.stderr, "The OSD font size is too large, the OSD will be rendered incompletely."
+        print("The OSD font size is too large, the OSD will be rendered incompletely.", file=sys.stderr)
     except IOError:
-        print >>sys.stderr, "Could not open OSD font file, disabling OSD."
+        print("Could not open OSD font file, disabling OSD.", file=sys.stderr)
     except (NameError, AttributeError, TypeError):
-        print >>sys.stderr, "Your version of PIL is too old or incomplete, disabling OSD."
+        print("Your version of PIL is too old or incomplete, disabling OSD.", file=sys.stderr)
 
     # handle event test mode
     if EventTestMode:
@@ -286,7 +287,7 @@ def main():
                 img = Image.open(CursorImage).convert('RGBA')
                 img.load()
             except:
-                print >>sys.stderr, "Could not open the mouse cursor image, using standard cursor."
+                print("Could not open the mouse cursor image, using standard cursor.", file=sys.stderr)
                 img = None
         CursorImage = PrepareCustomCursor(img)
     else:
@@ -303,14 +304,14 @@ def main():
     # overview preparations
     if EnableOverview:
         # initialize overview metadata
-        OverviewPageMap=[i for i in xrange(1, PageCount + 1) \
+        OverviewPageMap=[i for i in range(1, PageCount + 1) \
             if GetPageProp(i, ('overview', '_overview'), True) \
             and (i >= PageRangeStart) and (i <= PageRangeEnd)]
         OverviewPageCount = max(len(OverviewPageMap), 1)
         OverviewPageMapInv = {}
-        for page in xrange(1, PageCount + 1):
+        for page in range(1, PageCount + 1):
             OverviewPageMapInv[page] = len(OverviewPageMap) - 1
-            for i in xrange(len(OverviewPageMap)):
+            for i in range(len(OverviewPageMap)):
                 if OverviewPageMap[i] >= page:
                     OverviewPageMapInv[page] = i
                     break
@@ -322,10 +323,10 @@ def main():
         if HalfScreen:
             # in half-screen mode, temporarily override ScreenWidth
             saved_screen_width = ScreenWidth
-            ScreenWidth /= 2
-        OverviewCellX = int(ScreenWidth  / OverviewGridSize)
-        OverviewCellY = int(ScreenHeight / OverviewGridSize)
-        OverviewOfsX = int((ScreenWidth  - OverviewCellX * OverviewGridSize)/2)
+            ScreenWidth //= 2
+        OverviewCellX = ScreenWidth  // OverviewGridSize
+        OverviewCellY = ScreenHeight // OverviewGridSize
+        OverviewOfsX = (ScreenWidth  - OverviewCellX * OverviewGridSize) // 2
         OverviewOfsY = int((ScreenHeight - OverviewCellY * \
                        int((OverviewPageCount + OverviewGridSize - 1) / OverviewGridSize)) / 2)
         while OverviewBorder and (min(OverviewCellX - 2 * OverviewBorder, OverviewCellY - 2 * OverviewBorder) < 16):
@@ -340,9 +341,9 @@ def main():
         border = max(OverviewLogoBorder, 2 * OverviewBorder)
         maxsize = (OverviewCellX - border, OverviewCellY - border)
         if (dummy.size[0] > maxsize[0]) or (dummy.size[1] > maxsize[1]):
-            dummy.thumbnail(ZoomToFit(dummy.size, maxsize), Image.ANTIALIAS)
-        margX = int((OverviewCellX - dummy.size[0]) / 2)
-        margY = int((OverviewCellY - dummy.size[1]) / 2)
+            dummy.thumbnail(ZoomToFit(dummy.size, maxsize, force_int=True), Image.ANTIALIAS)
+        margX = (OverviewCellX - dummy.size[0]) // 2
+        margY = (OverviewCellY - dummy.size[1]) // 2
         dummy = dummy.convert(mode='RGB')
         for page in range(OverviewPageCount):
             pos = OverviewPos(page)
@@ -365,15 +366,15 @@ def main():
                 time_left -= GetPageProp(p, 'transtime', TransitionDuration)
             p = pnext
         if pages and (time_left >= pages):
-            AutoAdvanceTime = time_left / pages
+            AutoAdvanceTime = time_left // pages
             AutoAdvanceEnabled = True
-            print >>sys.stderr, "Setting auto-advance timeout to %.1f seconds." % (0.001 * AutoAdvanceTime)
+            print("Setting auto-advance timeout to %.1f seconds." % (0.001 * AutoAdvanceTime), file=sys.stderr)
         else:
-            print >>sys.stderr, "Warning: Could not determine auto-advance timeout automatically."
+            print("Warning: Could not determine auto-advance timeout automatically.", file=sys.stderr)
 
     # set up background rendering
     if not HaveThreads:
-        print >>sys.stderr, "Note: Background rendering isn't available on this platform."
+        print("Note: Background rendering isn't available on this platform.", file=sys.stderr)
         BackgroundRendering = False
 
     # if caching is enabled, pre-render all pages
@@ -389,7 +390,7 @@ def main():
         def prerender_action_handler(action):
             if action in ("$quit", "*quit"):
                 Quit()
-        for page in range(InitialPage, PageCount + 1) + range(1, InitialPage):
+        for page in list(range(InitialPage, PageCount + 1)) + list(range(1, InitialPage)):
             while True:
                 ev = Platform.GetEvent(poll=True)
                 if not ev: break
@@ -453,14 +454,14 @@ def main():
 def DoEventTestMode():
     last_event = "(None)"
     need_redraw = True
-    cx = ScreenWidth / 2
-    y1 = ScreenHeight / 5
-    y2 = (ScreenHeight * 4) / 5
+    cx = ScreenWidth // 2
+    y1 = ScreenHeight // 5
+    y2 = (ScreenHeight * 4) // 5
     if OSDFont:
         dy = OSDFont.GetLineHeight()
     Platform.ScheduleEvent('$dummy', 1000)  # required to ensure that time measurement works :(
-    print >>sys.stderr, "Entering Event Test Mode."
-    print " timestamp | delta-time | event"
+    print("Entering Event Test Mode.", file=sys.stderr)
+    print(" timestamp | delta-time | event")
     t0 = Platform.GetTicks()
     while True:
         if need_redraw:
@@ -483,7 +484,7 @@ def DoEventTestMode():
             Quit()
         elif ev and ev.startswith('*'):
             now = Platform.GetTicks()
-            print "%7d ms | %7d ms | %s" % (int(now), int(now - t0), ev[1:])
+            print("%7d ms | %7d ms | %s" % (int(now), int(now - t0), ev[1:]))
             t0 = now
             last_event = ev[1:]
             need_redraw = True
@@ -500,41 +501,45 @@ def run_main():
         except KeyboardInterrupt:
             pass
         except:
-            print >>sys.stderr
-            print >>sys.stderr, 79 * "="
-            print >>sys.stderr, "OOPS! Impressive crashed!"
-            print >>sys.stderr, "This shouldn't happen. Please report this incident to the author, including the"
-            print >>sys.stderr, "full output of the program, particularly the following lines. If possible,"
-            print >>sys.stderr, "please also send the input files you used."
-            print >>sys.stderr
-            print >>sys.stderr, "Impressive version:", __version__
-            print >>sys.stderr, "Python version:", sys.version
-            print >>sys.stderr, "PyGame version:", pygame.__version__
+            print(file=sys.stderr)
+            print(79 * "=", file=sys.stderr)
+            print("OOPS! Impressive crashed!", file=sys.stderr)
+            print("This shouldn't happen. Please report this incident to the author, including the", file=sys.stderr)
+            print("full output of the program, particularly the following lines. If possible,", file=sys.stderr)
+            print("please also send the input files you used.", file=sys.stderr)
+            print(file=sys.stderr)
+            print("Impressive version:", __version__, file=sys.stderr)
+            print("Python version:", sys.version, file=sys.stderr)
+            print("PyGame version:", pygame.__version__, file=sys.stderr)
             if hasattr(Image, "__version__"):  # Pillow >= 5.2
-                print >>sys.stderr, "PIL version: Pillow", Image.__version__
+                print("PIL version: Pillow", Image.__version__, file=sys.stderr)
             elif hasattr(Image, "PILLOW_VERSION"):  # Pillow < 7.0
-                print >>sys.stderr, "PIL version: Pillow", Image.PILLOW_VERSION
+                print("PIL version: Pillow", Image.PILLOW_VERSION, file=sys.stderr)
             elif hasattr(Image, "VERSION"):  # classic PIL or Pillow 1.x
-                print >>sys.stderr, "PIL version: classic", Image.VERSION
+                print("PIL version: classic", Image.VERSION, file=sys.stderr)
             else:
-                print >>sys.stderr, "PIL version: unknown"            
+                print("PIL version: unknown", file=sys.stderr)            
             if PDFRenderer:
-                print >>sys.stderr, "PDF renderer:", PDFRenderer.name
+                print("PDF renderer:", PDFRenderer.name, file=sys.stderr)
             else:
-                print >>sys.stderr, "PDF renderer: None"
-            if GLVendor: print >>sys.stderr, "OpenGL vendor:", GLVendor
-            if GLRenderer: print >>sys.stderr, "OpenGL renderer:", GLRenderer
-            if GLVersion: print >>sys.stderr, "OpenGL version:", GLVersion
+                print("PDF renderer: None", file=sys.stderr)
+            if GLVendor: print("OpenGL vendor:", GLVendor, file=sys.stderr)
+            if GLRenderer: print("OpenGL renderer:", GLRenderer, file=sys.stderr)
+            if GLVersion: print("OpenGL version:", GLVersion, file=sys.stderr)
             if hasattr(os, 'uname'):
                 uname = os.uname()
-                print >>sys.stderr, "Operating system: %s %s (%s)" % (uname[0], uname[2], uname[4])
+                print("Operating system: %s %s (%s)" % (uname[0], uname[2], uname[4]), file=sys.stderr)
             else:
-                print >>sys.stderr, "Python platform:", sys.platform
+                print("Python platform:", sys.platform, file=sys.stderr)
             if os.path.isfile("/usr/bin/lsb_release"):
-                lsb_release = subprocess.Popen(["/usr/bin/lsb_release", "-sd"], stdout=subprocess.PIPE)
-                print >>sys.stderr, "Linux distribution:", lsb_release.stdout.read().strip()
+                lsb_release = Popen(["/usr/bin/lsb_release", "-sd"], stdout=subprocess.PIPE)
+                print("Linux distribution:", lsb_release.stdout.read().decode().strip(), file=sys.stderr)
                 lsb_release.wait()
-            print >>sys.stderr, "Command line:", ' '.join(('"%s"'%arg if (' ' in arg) else arg) for arg in sys.argv)
+            if basestring != str:
+                cmdline = b' '.join((b'"%s"'%arg if (b' ' in arg) else arg) for arg in sys.argv)
+            else:
+                cmdline = ' '.join(('"%s"'%arg if (' ' in arg) else arg) for arg in sys.argv)
+            print("Command line:", cmdline, file=sys.stderr)
             traceback.print_exc(file=sys.stderr)
     finally:
         StopMPlayer()

@@ -13,12 +13,12 @@ code.pre { white-space:pre; }
 <!--VERSION-->
 <p style="text-indent:0;">
 <a href="http://impressive.sourceforge.net/">http://impressive.sourceforge.net/</a><br />
-<b>Version:</b> 0.12.1<br />
+<b>Version:</b> 0.13.0<br />
 <b>Author:</b> <a href="mailto:martin.fiedler@gmx.net">Martin J. Fiedler</a><br />
-<b>Last updated:</b> 2019-08-28</p>
+<b>Last updated:</b> 2019-11-20</p>
 <!--END-->
 <!--man
-.TH IMPRESSIVE 1 2019-08-28 "Martin J. Fiedler" "Impressive Documentation">
+.TH IMPRESSIVE 1 2019-11-20 "Martin J. Fiedler" "Impressive Documentation">
 .SH "NAME"
 Impressive \- presentation tool with eye candy
 .SH "SYNOPSIS"
@@ -70,7 +70,7 @@ A more comfortable method is installing Impressive in the &raquo;Send To&laquo; 
 
 <p>Another way to get Impressive is downloading the platform-independent source code version. The most important file in this archive is <code>impressive.py</code>, which contains all the code of Impressive and can be run like any executable on Unix-like systems. However, the following external libraries and utilities have to be installed as well for Impressive to work:</p>
 <ul>
-<li><strong>Python 2</strong>.7 &mdash; <a href="http://www.python.org/">www.python.org</a> <em>(required)</em> &ndash; Python 3.x will <em>not</em> work!</li>
+<li><strong>Python</strong> 2.7, 3.6 or newer &mdash; <a href="http://www.python.org/">www.python.org</a> <em>(required)</em></li>
 <li><strong>PyGame</strong> (the SDL binding for Python) &mdash; <a href="http://www.pygame.org/">www.pygame.org</a> <em>(required)</em></li>
 <li><strong>PIL</strong>, the Python Imaging Library, or <strong>Pillow</strong>, a compatible fork of it &mdash; <a href="http://www.pythonware.com/products/pil/">www.pythonware.com/products/pil</a> <em>(required)</em></li>
 <li><strong>pdftk</strong> 1.44 or higher for retrieving PDF metadata (page titles) &mdash; <a href="http://www.accesspdf.com/pdftk/">www.accesspdf.com/pdftk</a> <em>(recommended; required if MuPDF is not available)</em></li>
@@ -172,7 +172,7 @@ If the name of an external file is specified, the position of the hotspot (the p
 
 <dt><code>-d <em>&lt;time&gt;</em></code> or <code>--duration <em>&lt;time&gt;</em></code></dt>
 <dd>Specifies the expected run time of the presentation. The <em>time</em> parameter can be either a number of seconds or a human-readable time like <code>1:23</code> (1 minute and 23 seconds), <code>4:56h</code> (4 hours and 56 minutes), <code>3m45s</code> (3 minutes and 45 seconds), <code>5m</code> (5 minutes) or <code>1:23:45</code> (1 hour, 23 minutes and 45 seconds).<br />
-If an expected duration is specified, Impressive will show a semi-transparent green progress bar at the lower edge of the screen, indicating how much time has already passed. If the time is up, the bar will occupy the whole edge and fade to yellow (at 125% of the expected time) to red (at 150% or more).</dd>
+If an expected duration is specified, Impressive will show a semi-transparent green progress bar at the bottom edge of the screen, indicating how much time has already passed. If the time is up, the bar will occupy the whole edge and fade to yellow (at 125% of the expected time) to red (at 150% or more).</dd>
 
 <dt><code>-D <em>&lt;ms&gt;</em></code> or <code>--mousedelay <em>&lt;ms&gt;</em></code></dt>
 <dd>Sets the time (in milliseconds) the mouse cursor is shown in fullscreen mode if it is not moved. There are two special values: 0 (zero) shows the mouse cursor permanently, 1 (one) hides it completely. The default value is 3000&nbsp;ms.</dd>
@@ -190,10 +190,10 @@ If an expected duration is specified, Impressive will show a semi-transparent gr
 <dd>If this option is specified, Impressive will not start a normal presentation, but instead enter the so-called &raquo;Event Test Mode&laquo; after the display has been initialized. In this mode, Impressive will simply capture all keyboard and mouse events and display the name of the last event on the screen. In addition, events will be logged to standard output. This mode helps with determining the event names for each key when creating a custom control configuration (see the <a href="#controls">Control Configuration</a> section).</dd>
 
 <dt><code>-f</code></dt>
-<dd>Sets the window/fullscreen mode Impressive shall start up with. This option can be specified multiple times; each times it is found, the next of the three options is selected, in the follwing order:<ul style="margin-top:0; margin-bottom:0;">
+<dd>Sets the window/fullscreen mode Impressive shall start up with. This option can be specified multiple times; each times it is found, the next of the three options is selected, in the following order:<ul style="margin-top:0; margin-bottom:0;">
 <li><!--man (1.) -->True <strong>fullscreen mode</strong>, including setting the video mode. This is the default mode.</li>
 <li><!--man (2.) --><strong>Windowed</strong> mode, where Impressive runs in a standard window.</li>
-<li><!--man (3.) -->&raquo;<strong>Fake-fullscreen</strong>&laquo; mode, where fullscreen is emulated by uding a window without border that fills the whole screen. Setting the display resolution is not possible in this mode.</li>
+<li><!--man (3.) -->&raquo;<strong>Fake-fullscreen</strong>&laquo; mode, where fullscreen is emulated by using a window without border that fills the whole screen. Setting the display resolution is not possible in this mode.</li>
 </ul>Each of these modes has a corresponding long option that enables it directly (<code>--fullscreen</code>, <code>--windowed</code> and <code>--fake-fullscreen</code>).<br />
 <!--man:off-->
 <strong>Note:</strong> On Windows systems, toggling fullscreen mode while Impressive runs does <em>not</em> work. So, the command-line options are the only way to set whether fullscreen mode shall be used or not.
@@ -220,7 +220,7 @@ Furthermore, if the additional parameters <em>posX</em> and <em>posY</em> are pr
 <dd>If this option is specified, Impressive writes a short command line help screen to standard output and does not start a presentation.</dd>
 
 <dt><code>-H</code> or <code>--half-screen</code></dt>
-<dd>This option makes Impressive show the overview page and OSD elements on the right half of the screen only. The overview page will only show the left half of the slides as previews. Using a multi-monitor setup with a wide virtual screen and specially crafted slides (e.g. those that can be generated with LaTeX's <code>beamer</code> class), this makes it possible to have presenter's notes on the second screen.<br />
+<dd>This option makes Impressive show the overview page and OSD elements on the right half of the screen only. The overview page will only show the left half of the slides as previews. The box-zoom boxes will also be shown on the left half. Using a multi-monitor setup with a wide virtual screen and specially crafted slides (e.g. those that can be generated with LaTeX's <code>beamer</code> class), this makes it possible to have presenter's notes on the second screen.<br />
 Note that transitions and animations are still operating on the whole screen, making some of them (like <code>PagePeel</code>) look ugly. Impressive also disables the overview zoom animation in half-screen mode; it can be re-enabled by explicitly setting it to another value with a later command line option (<code>--zoomtime</code>).<br />
 Another limitation is that the allocation of the screen halves (slides left, overview right) is fixed.</dd>
 
@@ -234,8 +234,8 @@ Another limitation is that the allocation of the screen halves (slides left, ove
 <dd>This option makes Impressive invert the colors of each page, turning black to white and vice-versa. Note that it is a full RGB inversion, so it will, for example, turn dark green to light purple (and vice-versa) too.</dd>
 
 <dt><code>-k</code> or <code>--auto-progress</code></dt>
-<dd>This option makes Impressive show a progress bar at the bottom of the screen, visualizing the timeout on pages that have one (either specified as a page property or using the <code>--auto</code> command-line option). Nothing is done on pages that don't have a timeout.<br />
-The progress bar shown by this option takes precedence over the <code>--duration</code> or <code>--page-progress</code> bars: If one of these options is specified as well, the timeout progress bar will be shown on pages with a timeout, and the other progress bar will be shown on pages without one.</dd>
+<dd>This option makes Impressive show a progress bar, visualizing the timeout on pages that have one (either specified as a page property or using the <code>--auto</code> command-line option). Nothing is done on pages that don't have a timeout.<br />
+If the <code>--duration</code> or <code>--page-progress</code> bars are enabled too, the <code>--auto-progress</code> bar is shown on the top of the screen; otherwise, it's shown on the bottom.</dd>
 
 <dt><code>-l</code> or <code>--listtrans</code></dt>
 <dd>If this option is specified, Impressive writes a list of all available transition classes to standard output and does not start a presentation. Transitions that are enabled by default are marked with a star (<code>*</code>) left of the class name.</dd>
@@ -255,7 +255,7 @@ Note that regardless of this setting, Impressive always checks the graphics hard
 
 <dt><code>--noblur</code></dt>
 <dd>By default, Impressive uses a fragment shader to blur and desaturate the image when in highlight box or spotlight mode. This is usually the faster and nicer-looking method; however, some very old hardware implementations can't deal with that shader and fall back to an unusably slow software implementation. Impressive tries to detect scenarios where this would happen and automatically falls back to a different implementation.<br />
-There might be situations where this machanism fails and Impressive tries to use the non-functional shader anyway. In these cases, the <code>--noblur</code> option can be used to enforce the fallback implementation.</dd>
+There might be situations where this mechanism fails and Impressive tries to use the non-functional shader anyway. In these cases, the <code>--noblur</code> option can be used to enforce the fallback implementation.</dd>
 
 <dt><code>-N</code> or <code>--nocursor</code></dt>
 <dd>This option disables any display of a mouse cursor, i.e. neither the system (&raquo;hardware&laquo;) not bitmap (&raquo;software&laquo;) cursor is shown at any time. This is mainly useful for automated presentations, where no mouse interaction is needed.</dd>
@@ -285,6 +285,9 @@ The following modes are available:<dl>
 <dt><code>last</code></dt><dd>All pages <strong>before</strong> a page with a PDF title will be shown on the overview page. The purpose is to show the <strong>final</strong> state of multi-step slides on the overview page.</dd>
 </dl>Again, the mode may be abbreviated arbitrarily, down to one character, just like with the <code>-c</code> option above..</dd>
 
+<dt><code>--overtime <em>&lt;ms&gt;</em></code></dt>
+<dd>Sets the duration (in milliseconds) of the overview page zoom-in/zoom-out effects, without affecting the zoom or box-zoom animation time. Default value: 250 ms.</dd>
+
 <dt><code>-p <em>&lt;start&gt;</em>-<em>&lt;end&gt;</em></code> or <code>--pages <em>&lt;start&gt;</em>-<em>&lt;end&gt;</em></code></dt>
 <dd>Using this option, the range of the page displayed can be narrowed down. The presentation will start at the first page in the range. All pages outside of the range will not be shown on the overview page and will not be cached. However, they can be entered manually when cycling through the presentation. Due to the fact that these pages are uncached, preparation of the display will take considerably longer.</dd>
 
@@ -292,7 +295,12 @@ The following modes are available:<dl>
 <dd>This option can be used to override the Xpdf / GhostScript path autodetection. The full path to the executable of either GhostScript (<code>gs</code> or <code>gs.exe</code>) or Xpdf's <code>pdftoppm</code> utility must be specified.</dd>
 
 <dt><code>-q</code> or <code>--page-progress</code></dt>
-<dd>If this option is enabled, Impressive will show a light-blue semi-transparent progress bar at the lower edge of the screen that shows the position inside the presentation, i.e. the relation between the current page number and the total number of pages. Note that this progress bar will not be shown if the duration progress bar (<code>-d</code> option) is also enabled.</dd>
+<dd>If this option is enabled, Impressive will show a light-blue semi-transparent progress bar at the bottom edge of the screen that shows the position inside the presentation, i.e. the relation between the current page number and the total number of pages.<br />
+If the <code>-d</code>/<code>--duration</code> progress bar is enabled too, the <code>--page-progress</code> bar will be stacked above that.</dd>
+
+<dt><code>--progress-last <em>&lt;number&gt;</em></code></dt>
+<dd>This option sets the page number at which the slide the <code>--page-progress</code> progress bar should end. This can be useful to ignore backup slides.<br />
+This option does not have any effect if <code>-q</code>/<code>--page-progress</code> is not used.</dd>
 
 <dt><code>-Q</code> or <code>--autoquit</code></dt>
 <dd>If this option is specified, Impressive quits automatically when trying to navigate to the page after the last page or the page before the first page.<br />
@@ -316,7 +324,7 @@ This option does not have any effect if <code>--wrap</code> is used.</dd>
 <dt><code>--time-display</code></dt>
 <dd>This option enables display of the elapsed presentation time, as if the <strong>T</strong> key has been pressed immediately after startup. This implies time tracking mode (<code>--tracking</code> option).</dd>
 
-<dt><code>-t <em>&lt;ms&gt;</em></code> or <code>--transition <em>&lt;trans1[,trans2...]&gt;</em></code></dt>
+<dt><code>-t <em>&lt;trans1[,trans2...]&gt;</em></code> or <code>--transition <em>&lt;trans1[,trans2...]&gt;</em></code></dt>
 <dd>Using this switch, the set of transitions Impressive will randomly draw at page changes can be specified. If only one transition class is specified, this class will be used for all pages that do not have another transition explicitly assigned in their page properties. Multiple transitions have to be separated by commas; they will be used in random order. The <code>-l</code> option can be used to get a list of available transitions.</dd>
 
 <dt><code>-T <em>&lt;ms&gt;</em></code> or <code>--transtime <em>&lt;ms&gt;</em></code></dt>
@@ -364,7 +372,8 @@ Note that this option only works properly if the default controls are used. If t
 <dd>Specifies how much the non-selected parts of the screen shall become darker in box-zoom mode. The value is specified in percent, with 90 being the default. A value of zero would mean no darkening at all (parts outside of the zoom box would still be perfectly visible), and a value of 100 would make everything but the selected region black.</dd>
 
 <dt><code>-Z <em>&lt;ms&gt;</em></code> or <code>--zoomtime <em>&lt;ms&gt;</em></code></dt>
-<dd>Sets the duration (in milliseconds) of the overview page zoom-in/zoom-out effects. Default value: 250 ms.</dd>
+<dd>Sets the duration (in milliseconds) of the zoom, box-zoom and overview page zoom-in/zoom-out effects, all at once. Default value: 250&nbsp;ms.<br />
+If separate animation time settings for overview zoom and zoom/box-zoom are desired, the <code>-Z</code>/<code>--zoomtime</code> option must be specified <em>before</em> the <code>--overtime</code> option.</dd>
 
 <dt><code>--cachefile <em>&lt;filename&gt;</em></code></dt>
 <dd>Activates persistent cache mode and specifies the name of the cache file to use.</dd>
@@ -769,7 +778,7 @@ In other words, it is a sequence of event names joined with commas, followed by 
 <p>Impressive offers a powerful way to customize individual presentations using so-called info scripts. An info script is a text file having the same name and located in the same directory as the presentation file itself, except for the additional suffix <code>.info</code>. Thus, a presentation file called <code>BrandNewProduct.pdf</code> would have a info script with the name <code>BrandNewProduct.pdf.info</code>. If multiple arguments were specified on the command line, the info script will be called just <code>.info</code> (a dot file, so to speak). If a directory name was specified as the only argument, either a file called <code><em>DirectoryName</em>.info</code> or a file called <code>.info</code> <em>inside</em> the directory will be used, depending on whether a path separator was specified at the end of the directory name or not &ndash; Impressive simply appends <code>.info</code> to whatever the input path name was.<br />
 In any case, the default file name can be overridden by the <code>-I</code> command line option.</p>
 
-<p>Info scripts are actually Python scripts with full access to Impressive's global data structures and functions. (It is possible to write real interactive applications using info scripts.) Thus, they can modify a broad range of settings concerning Impressive. This manual will only cover the most basic ones.</p>
+<p>Info scripts are actually Python scripts with full access to Impressive's global data structures and functions. (It is possible, though heavily discouraged, to write real interactive applications using info scripts.) This has some good and bad side effects. The bad news first: The info scripts must be compatible with the Python version used by Impressive itself; it's best to write them in a way that's compatible with both Python 2.7 (with the <code>__future__</code> imports <code>print_function</code>, <code>unicode_literals</code> and <code>division</code>) and Python 3.x. Furthermore, there's no built-in security; in other words: <strong>don't trust info scripts you received from somebody else.</strong> The good news, however, is that they can modify a broad range of settings concerning Impressive. This manual will only cover the most basic ones.</p>
 
 <h3>Page Properties</h3>
 
@@ -820,7 +829,7 @@ Please not that this function is still somewhat experimental. It uses an externa
 <dd>If this property is present and set to 1 or <code>True</code>, the media file specified in the <code>sound</code> or <code>video</code> properties will be played every time the page is entered, not just the first time.</dd>
 
 <dt><code>progress</code></dt>
-<dd>If this property is set to zero, the presentation progress bar (which is usually set up with the <code>-d</code>/<code>--duration</code> command line switch) will not be shown on this page. In practice, it might be useful to hide the bar from the first page so that it is not visible during the introduction.</dd>
+<dd>If this property is set to zero, the presentation progress bars (which are set up with the <code>-d</code>/<code>--duration</code>, <code>-q</code>/<code>--page-progress</code> or <code>-k</code>/<code>--auto-progress</code> command line switches) will not be shown on this page. In practice, it might be useful to hide the bar(s) from the first page so that they are not visible during the introduction.</dd>
 
 <dt><code>reset</code></dt>
 <dd>If this property is set to 1 or <code>True</code>, the timer will be reset each time this page is left, just as if the <strong>R</strong> has been pressed. If the special value 2 or <code>FirstTimeOnly</code> is used, the reset will only take place if the page was shown for the first time. Again, this is particularly useful on the first page: A combination of <code>progress:False, reset:FirstTimeOnly</code> makes it possible to set up the presentation long before it actually begins &ndash; the first page can be showed as long as desired, actual timing starts at the second page.</dd>
@@ -830,7 +839,7 @@ Please not that this function is still somewhat experimental. It uses an externa
 
 <dt><code>OnEnter</code>, <code>OnLeave</code>, <code>OnEnterOnce</code>, <code>OnLeaveOnce</code></dt>
 <dd>These properties can contain a Python callable (i.e. a function reference or lambda expression) that is executed when the page is entered or left. The <code>~Once</code> variants will only be executed when the page is entered or left for the first time. The callable must not take any arguments. This feature can be used to associate arbitrary Python code with specific pages, for example to execute external programs.<br />
-<strong>Warning:</strong> Lambda expressions cannot be properly processed by the Info Script save function (<strong>S</strong> key). If Impressive encounters lambda expressions when saving, it will remove them. In addition, it will not overwrite the original info script, but generate an extra file that needs to be merged withe the original script by hand.</dd>
+<strong>Warning:</strong> Lambda expressions cannot be properly processed by the Info Script save function (<strong>S</strong> key). If Impressive encounters lambda expressions when saving, it will remove them. In addition, it will not overwrite the original info script, but generate an extra file that needs to be merged with the original script by hand.</dd>
 
 <dt><code>keys</code></dt>
 <dd>This property can be assigned a dictionary that maps alphanumerical keys to Python functions. For example, <code>'keys': { 'x': SomeFunction }</code> will invoke <code>SomeFunction()</code> if the lowercase character 'x' is typed while the page is displayed. Regarding the functions, the same restrictions as for the <code>OnEnter</code>/<code>OnLeave</code> family apply: the function must not take any parameters and lambda functions can not be saved. Also note that it is not possible to overwrite Impressive's pre-defined key bindings with this method.</dd>
@@ -918,7 +927,7 @@ See the GNU General Public License for more details.</p>
 <li>bug reports</li>
 <li>feature suggestions</li>
 <li>fan mail</li>
-<li>corrections regarding the web page (I'm not a native speaker &ndash; any grammatical, ortographical or stylistic corrections or suggestions are welcome!)</li>
+<li>corrections regarding the web page (I'm not a native speaker &ndash; any grammatical, orthographical or stylistic corrections or suggestions are welcome!)</li>
 <li>new silly quotations for the web page's title bar :)</li>
 </ul>
 

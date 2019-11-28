@@ -1,5 +1,20 @@
 ##### OPENGL RENDERING #########################################################
 
+# draw a single progress bar
+def DrawProgressBar(r, g, b, a, rel, y=1.0, size=ProgressBarSizeFactor):
+    if (a <= 0.0) or (rel <= 0.0):
+        return
+    if HalfScreen:
+        left, rel = 0.5, 0.5 + 0.5 * rel
+    else:
+        left = 0.0
+    ProgressBarShader.get_instance().draw(
+        left, y - size,
+        rel,  y + size,
+        color0=(r, g, b, 0.0),
+        color1=(r, g, b, a)
+    )
+
 # draw OSD overlays
 def DrawOverlays(trans_time=0.0):
     reltime = Platform.GetTicks() - StartTime
@@ -7,17 +22,8 @@ def DrawOverlays(trans_time=0.0):
 
     if (EstimatedDuration or PageProgress or (PageTimeout and AutoAdvanceProgress)) \
     and (OverviewMode or GetPageProp(Pcurrent, 'progress', True)):
-        r, g, b = ProgressBarColorPage
-        a = ProgressBarAlpha
-        if PageTimeout and AutoAdvanceProgress:
-            rel = (reltime - PageEnterTime) / float(PageTimeout)
-            if TransitionRunning:
-                a = int(a * (1.0 - TransitionPhase))
-            elif PageLeaveTime > PageEnterTime:
-                # we'll be called one frame after the transition finished, but
-                # before the new page has been fully activated => don't flash
-                a = 0
-        elif EstimatedDuration:
+        y, size = 1.0, ProgressBarSizeFactor
+        if EstimatedDuration:
             rel = (0.001 * reltime) / EstimatedDuration
             if rel < 1.0:
                 r, g, b = ProgressBarColorNormal
@@ -29,19 +35,27 @@ def DrawOverlays(trans_time=0.0):
                           (rel - ProgressBarWarningFactor) / (ProgressBarCriticalFactor - ProgressBarWarningFactor))
             else:
                 r, g, b = ProgressBarColorCritical
-        else:  # must be PageProgress
-            rel = (Pcurrent + trans_time * (Pnext - Pcurrent)) / PageCount
-        if HalfScreen:
-            zero = 0.5
-            rel = 0.5 + 0.5 * rel
-        else:
-            zero = 0.0
-        ProgressBarShader.get_instance().draw(
-            zero, 1.0 - ProgressBarSizeFactor,
-            rel,  1.0,
-            color0=(r, g, b, 0.0),
-            color1=(r, g, b, a)
-        )
+            DrawProgressBar(r, g, b, ProgressBarAlpha, rel, y)
+            y -= ProgressBarSizeFactor
+            size *= 0.7  # if there's a stacked page-progress bar, make it smaller
+        if PageProgress:
+            rel = (Pcurrent + trans_time * (Pnext - Pcurrent)) / (ProgressLast or PageCount)
+            r, g, b = ProgressBarColorPage
+            DrawProgressBar(r, g, b, ProgressBarAlpha, rel, y, size)
+            y -= ProgressBarSizeFactor
+        if PageTimeout and AutoAdvanceProgress:
+            r, g, b = ProgressBarColorPage
+            a = ProgressBarAlpha
+            rel = (reltime - PageEnterTime) / float(PageTimeout)
+            if TransitionRunning:
+                a = int(a * (1.0 - TransitionPhase))
+            elif PageLeaveTime > PageEnterTime:
+                # we'll be called one frame after the transition finished, but
+                # before the new page has been fully activated => don't flash
+                a = 0
+            if y < 1.0:
+                y = 0.0  # move to top if there were already bars at the bottom
+            DrawProgressBar(r, g, b, a, rel, y)
 
     if OSDFont:
         OSDFont.BeginDraw()
@@ -51,11 +65,11 @@ def DrawOverlays(trans_time=0.0):
             if ShowClock:
                 DrawOSDEx(OSDTimePos, ClockTime(MinutesOnly))
             else:
-                t = reltime / 1000
+                t = reltime // 1000
                 DrawOSDEx(OSDTimePos, FormatTime(t, MinutesOnly))
         if CurrentOSDComment and (OverviewMode or not(TransitionRunning)):
-            DrawOSD(ScreenWidth/2, \
-                    ScreenHeight - 3*OSDMargin - FontSize, \
+            DrawOSD(ScreenWidth // 2,
+                    ScreenHeight - 3*OSDMargin - FontSize,
                     CurrentOSDComment, Center, Up)
         OSDFont.EndDraw()
 
@@ -225,7 +239,7 @@ def DrawLogo():
     )
     if OSDFont:
         gl.Enable(gl.BLEND)
-        OSDFont.Draw((int(ScreenWidth * x0), ScreenHeight / 2 + 48), \
+        OSDFont.Draw((int(ScreenWidth * x0), ScreenHeight // 2 + 48), \
                      __version__.split()[0], align=Center, alpha=0.25, beveled=False)
         gl.Disable(gl.BLEND)
 
@@ -321,11 +335,11 @@ def PrepareCustomCursor(cimg):
     global CursorTexture, CursorHotspot, CursorSX, CursorSY, CursorTX, CursorTY
     if not cimg:
         CursorHotspot = (1,0)
-        cimg = Image.open(cStringIO.StringIO(DEFAULT_CURSOR.decode('base64')))
+        cimg = Image.open(io.BytesIO(codecs.decode(DEFAULT_CURSOR, 'base64')))
     w, h = cimg.size
     tw, th = map(npot, cimg.size)
     if (tw > 256) or (th > 256):
-        print >>sys.stderr, "Custom cursor is ridiculously large, reverting to normal one."
+        print("Custom cursor is ridiculously large, reverting to normal one.", file=sys.stderr)
         return False
     img = Image.new('RGBA', (tw, th))
     img.paste(cimg, (0, 0))

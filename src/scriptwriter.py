@@ -13,9 +13,9 @@ def LoadInfoScript():
     except IOError:
         pass
     except:
-        print >>sys.stderr, "----- Exception in info script ----"
+        print("----- Exception in info script ----", file=sys.stderr)
         traceback.print_exc(file=sys.stderr)
-        print >>sys.stderr, "----- End of traceback -----"
+        print("----- End of traceback -----", file=sys.stderr)
     NewPageProps = PageProps
     PageProps = OldPageProps
     del OldPageProps
@@ -31,8 +31,8 @@ LambdaWarning = False
 def here_was_a_lambda_expression_that_could_not_be_saved():
     global LambdaWarning
     if not LambdaWarning:
-        print >>sys.stderr, "WARNING: The info script for the current file contained lambda expressions that"
-        print >>sys.stderr, "         were removed during the a save operation."
+        print("WARNING: The info script for the current file contained lambda expressions that", file=sys.stderr)
+        print("         were removed during the a save operation.", file=sys.stderr)
         LambdaWarning = True
 
 # "clean" a PageProps entry so that only 'public' properties are left
@@ -53,22 +53,29 @@ def GetPublicProps(props):
 
 # Generate a string representation of a property value. Mainly this converts
 # classes or instances to the name of the class.
+class dummyClass:
+    pass
+
+typesClassType = type(dummyClass)
+typesInstanceType = type(dummyClass())
+typesFunctionType = type(GetPublicProps)
+
 def PropValueRepr(value):
     global ScriptTainted
-    if type(value) == types.FunctionType:
+    if type(value) == typesFunctionType:
         if value.__name__ != "<lambda>":
             return value.__name__
         if not ScriptTainted:
-            print >>sys.stderr, "WARNING: The info script contains lambda expressions, which cannot be saved"
-            print >>sys.stderr, "         back. The modifed script will be written into a separate file to"
-            print >>sys.stderr, "         minimize data loss."
+            print("WARNING: The info script contains lambda expressions, which cannot be saved", file=sys.stderr)
+            print("         back. The modifed script will be written into a separate file to", file=sys.stderr)
+            print("         minimize data loss.", file=sys.stderr)
             ScriptTainted = True
         return "here_was_a_lambda_expression_that_could_not_be_saved"
-    elif type(value) == types.ClassType:
+    elif isinstance(value, typesClassType):
         return value.__name__
-    elif type(value) == types.InstanceType:
+    elif isinstance(value, typesInstanceType):
         return value.__class__.__name__
-    elif type(value) == types.DictType:
+    elif type(value) == dict:
         return "{ " + ", ".join([PropValueRepr(k) + ": " + PropValueRepr(value[k]) for k in value]) + " }"
     else:
         return repr(value)
@@ -82,7 +89,7 @@ def SinglePagePropRepr(page):
 
 # generate a nicely formatted string representation of all page properties
 def PagePropRepr():
-    pages = PageProps.keys()
+    pages = list(PageProps.keys())
     pages.sort()
     return "PageProps = {%s\n}" % (",".join(filter(None, map(SinglePagePropRepr, pages))))
 
@@ -91,7 +98,7 @@ def PagePropRepr():
 def CountDictChars(s, start=0):
     context = None
     level = 0
-    for i in xrange(start, len(s)):
+    for i in range(start, len(s)):
         c = s[i]
         if context is None:
             if c == '{': level += 1
@@ -110,13 +117,13 @@ def CountDictChars(s, start=0):
             if c == "\\": context = "\\'"
             if c == "'": context = None
         if level < 0: return i
-    raise ValueError, "the dictionary never ends"
+    raise ValueError("the dictionary never ends")
 
 # modify and save a file's info script
 def SaveInfoScript(filename):
     # read the old info script
     try:
-        f = file(filename, "r")
+        f = open(filename, "r")
         script = f.read()
         f.close()
     except IOError:
@@ -140,8 +147,8 @@ def SaveInfoScript(filename):
 
     # write the script back
     try:
-        f = file(filename, "w")
+        f = open(filename, "w")
         f.write(script)
         f.close()
     except:
-        print >>sys.stderr, "Oops! Could not write info script!"
+        print("Oops! Could not write info script!", file=sys.stderr)

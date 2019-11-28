@@ -1,22 +1,13 @@
 # import basic modules
-import random, getopt, os, types, re, codecs, tempfile, glob, cStringIO, re
+import random, getopt, os, re, codecs, tempfile, glob, io, re, hashlib
 import traceback, subprocess, time, itertools, ctypes.util, zlib, urllib
 from math import *
 from ctypes import *
 
-# import hashlib for MD5 generation, but fall back to old md5 lib if unavailable
-# (this is the case for Python versions older than 2.5)
-try:
-    import hashlib
-    md5obj = hashlib.md5
-except ImportError:
-    import md5
-    md5obj = md5.new
-
 # initialize some platform-specific settings
 if os.name == "nt":
     root = os.path.split(sys.argv[0])[0] or "."
-    _find_paths = [root, os.path.join(root, "win32"), os.path.join(root, "gs")] + filter(None, os.getenv("PATH").split(';'))
+    _find_paths = [root, os.path.join(root, "win32"), os.path.join(root, "gs")] + list(filter(None, os.getenv("PATH").split(';')))
     def FindBinary(binary):
         if not binary.lower().endswith(".exe"):
             binary += ".exe"
@@ -38,7 +29,7 @@ if os.name == "nt":
     except ImportError:
         HaveWin32API = False
         MPlayerPath = ""
-        def RunURL(url): print "Error: cannot run URL `%s'" % url
+        def RunURL(url): print("Error: cannot run URL `%s'" % url)
     if getattr(sys, "frozen", False):
         sys.path.append(root)
     FontPath = []
@@ -56,9 +47,9 @@ else:
     Nice = ["nice", "-n", "7"]
     def RunURL(url):
         try:
-            subprocess.Popen(["xdg-open", url])
+            Popen(["xdg-open", url])
         except OSError:
-            print >>sys.stderr, "Error: cannot open URL `%s'" % url
+            print("Error: cannot open URL `%s'" % url, file=sys.stderr)
 
 # import special modules
 try:
@@ -66,19 +57,35 @@ try:
     from pygame.locals import *
     from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageChops, ImageOps
     from PIL import TiffImagePlugin, BmpImagePlugin, JpegImagePlugin, PngImagePlugin, PpmImagePlugin
-except (ValueError, ImportError), err:
-    print >>sys.stderr, "Oops! Cannot load necessary modules:", err
-    print >>sys.stderr, """To use Impressive, you need to install the following Python modules:
+except (ValueError, ImportError) as err:
+    print("Oops! Cannot load necessary modules:", err, file=sys.stderr)
+    print("""To use Impressive, you need to install the following Python modules:
  - PyGame   [python-pygame]   http://www.pygame.org/
  - PIL      [python-imaging]  http://www.pythonware.com/products/pil/
    or Pillow                  http://pypi.python.org/pypi/Pillow/
  - PyWin32  (OPTIONAL, Win32) http://sourceforge.net/projects/pywin32/
-Additionally, please be sure to have pdftoppm or GhostScript installed if you
-intend to use PDF input."""
+Additionally, please be sure to have mupdf-tools and pdftk installed if you
+intend to use PDF input.""", file=sys.stderr)
     sys.exit(1)
 
+# Python 2/3 compatibility fixes
+try:  # Python 2 path
+    basestring  # only exists in Python 2
+    def Popen(cmdline, *args, **kwargs):
+        # Python 2's subprocess.Popen needs manual unicode->str conversion
+        enc = sys.getfilesystemencoding()
+        cmdline = [arg.encode(enc, 'replace') for arg in cmdline]
+        return subprocess.Popen(cmdline, *args, **kwargs)
+except:  # Python 3 path
+    basestring = str
+    Popen = subprocess.Popen
+    raw_input = input
+
 try:
-    import thread
+    try:
+        import thread
+    except ImportError:
+        import _thread as thread
     HaveThreads = True
     def create_lock(): return thread.allocate_lock()
     def get_thread_id(): return thread.get_ident()

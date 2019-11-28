@@ -15,7 +15,7 @@ class HighlightIndexBuffer(object):
         else:
             self.buf = reuse_buf
         data = []
-        for i in xrange(npoints):
+        for i in range(npoints):
             if i:
                 b0 = 2 * i - 1
             else:
@@ -49,7 +49,7 @@ def GenerateSpotMesh():
     SpotIndices = HighlightIndexBuffer(slices, reuse_buf=SpotIndices, dynamic=True)
 
     vertices = [0.0, 0.0, 1.0]
-    for i in xrange(slices):
+    for i in range(slices):
         a = i * 2.0 * pi / slices
         vertices.extend([
             rx0 * sin(a), ry0 * cos(a), 1.0,

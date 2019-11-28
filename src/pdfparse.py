@@ -1,5 +1,8 @@
 ##### PDF PARSER ###############################################################
 
+typesUnicodeType = type(u'unicode')
+typesStringType = type(b'bytestring')
+
 class PDFError(Exception):
     pass
 
@@ -19,25 +22,29 @@ def pdf_maskstring(s):
 def pdf_mask_all_strings(s):
     return re_pdfstring.sub(lambda x: pdf_maskstring(x.group(0)), s)
 def pdf_unmaskstring(s):
-    return "".join([chr(int(s[i:i+2], 16)) for i in xrange(1, len(s)-1, 2)])
+    s = bytes(bytearray(int(s[i:i+2], 16) for i in range(1, len(s)-1, 2)))
+    try:
+        return s.decode('utf-8')
+    except UnicodeDecodeError:
+        return s.decode('windows-1252', 'replace')
 
 class PDFParser:
     def __init__(self, filename):
-        self.f = file(filename, "rb")
+        self.f = open(filename, "rb")
         self.errors = 0
 
         # find the first cross-reference table
         self.f.seek(0, 2)
         filesize = self.f.tell()
         self.f.seek(filesize - 128)
-        trailer = self.f.read()
+        trailer = self.f.read().decode()
         i = trailer.rfind("startxref")
         if i < 0:
-            raise PDFError, "cross-reference table offset missing"
+            raise PDFError("cross-reference table offset missing")
         try:
             offset = int(trailer[i:].split("\n")[1].strip())
         except (IndexError, ValueError):
-            raise PDFError, "malformed cross-reference table offset"
+            raise PDFError("malformed cross-reference table offset")
 
         # follow the trailer chain
         self.xref = {}
@@ -58,7 +65,7 @@ class PDFParser:
         try:
             self.scan_page_tree(root['Pages'].ref)
         except KeyError:
-            raise PDFError, "root page tree node missing"
+            raise PDFError("root page tree node missing")
         try:
             self.scan_names_tree(root['Names'].ref)
         except KeyError:
@@ -71,7 +78,7 @@ class PDFParser:
 
     def find_length(self, tokens, begin, end):
         level = 1
-        for i in xrange(1, len(tokens)):
+        for i in range(1, len(tokens)):
             if tokens[i] == begin:  level += 1
             if tokens[i] == end:    level -= 1
             if not level: break
@@ -122,26 +129,26 @@ class PDFParser:
         data = data.replace("<<", " << ").replace("[", " [ ").replace("(", " (")
         data = data.replace(">>", " >> ").replace("]", " ] ").replace(")", ") ")
         data = data.replace("/", " /").replace("><", "> <")
-        return self.parse_tokens(filter(None, data.split()))
+        return self.parse_tokens(list(filter(None, data.split())))
 
     def getobj(self, obj, force_type=None):
         if isinstance(obj, PDFref):
             obj = obj.ref
-        if type(obj) != types.IntType:
-            raise PDFError, "object is not a valid reference"
+        if type(obj) != int:
+            raise PDFError("object is not a valid reference")
         offset = self.xref.get(obj, 0)
         if not offset:
-            raise PDFError, "referenced non-existing PDF object"
+            raise PDFError("referenced non-existing PDF object")
         self.f.seek(offset)
-        header = self.getline().split(None, 3)
+        header = self.getline().decode().split(None, 3)
         if (len(header) < 3) or (header[2] != "obj") or (header[0] != str(obj)):
-            raise PDFError, "object does not start where it's supposed to"
+            raise PDFError("object does not start where it's supposed to")
         if len(header) == 4:
             data = [header[3]]
         else:
             data = []
         while True:
-            line = self.getline()
+            line = self.getline().decode()
             if line in ("endobj", "stream"): break
             data.append(line)
         data = self.parse(" ".join(data))
@@ -151,7 +158,7 @@ class PDFParser:
             except (KeyError, IndexError, ValueError):
                 t = None
             if t != force_type:
-                raise PDFError, "object does not match the intended type"
+                raise PDFError("object does not match the intended type")
         return data
 
     def resolve(self, obj):
@@ -162,7 +169,7 @@ class PDFParser:
 
     def parse_xref_section(self, start, count):
         xref = {}
-        for obj in xrange(start, start + count):
+        for obj in range(start, start + count):
             line = self.getline()
             if line[-1] == 'f':
                 xref[obj] = 0
@@ -175,28 +182,28 @@ class PDFParser:
         xref = {}
         rootref = 0
         offset = 0
-        if self.getline() != "xref":
-            raise PDFError, "cross-reference table does not start where it's supposed to"
+        if self.getline() != b"xref":
+            raise PDFError("cross-reference table does not start where it's supposed to")
             return (xref, rootref, offset)   # no xref table found, abort
         # parse xref sections
         while True:
             line = self.getline()
-            if line == "trailer": break
+            if line == b"trailer": break
             start, count = map(int, line.split())
             xref.update(self.parse_xref_section(start, count))
         # parse trailer
         trailer = ""
         while True:
-            line = self.getline()
-            if line in ("startxref", "%%EOF"): break
+            line = self.getline().decode()
+            if line in ("startxref", "b%%EOF"): break
             trailer += line
         trailer = self.parse(trailer)
         try:
             rootref = trailer['Root'].ref
         except KeyError:
-            raise PDFError, "root catalog entry missing"
+            raise PDFError("root catalog entry missing")
         except AttributeError:
-            raise PDFError, "root catalog entry is not a reference"
+            raise PDFError("root catalog entry is not a reference")
         return (xref, rootref, trailer.get('Prev', 0))
 
     def scan_page_tree(self, obj, mbox=None, cbox=None, rotate=0):
@@ -237,7 +244,7 @@ class PDFParser:
                 elif 'Names' in node:
                     nlist = node['Names']
                     while (len(nlist) >= 2) \
-                    and (type(nlist[0]) == types.StringType) \
+                    and (type(nlist[0]) == str) \
                     and (nlist[1].__class__ == PDFref):
                         self.scan_names_tree(nlist[1], come_from, nlist[0])
                         del nlist[:2]
@@ -250,9 +257,9 @@ class PDFParser:
             self.errors += 1
 
     def dest2page(self, dest):
-        if type(dest) in (types.StringType, types.UnicodeType):
+        if type(dest) in (typesStringType, typesUnicodeType):
             return self.names.get(dest, None)
-        if type(dest) != types.ListType:
+        if not isinstance(dest, list):
             return dest
         elif dest[0].__class__ == PDFref:
             return self.obj2page.get(dest[0].ref, None)
@@ -296,7 +303,7 @@ class PDFParser:
         res = {}
         for page in self.annots:
             try:
-                a = filter(None, map(self.get_href, self.annots[page]))
+                a = list(filter(None, map(self.get_href, self.annots[page])))
             except (PDFError, TypeError, ValueError):
                 self.errors += 1
                 a = None
@@ -313,7 +320,7 @@ def rotate_coord(x, y, rot):
 
 def AddHyperlink(page_offset, page, target, linkbox, pagebox, rotate):
     page += page_offset
-    if type(target) == types.IntType:
+    if isinstance(target, int):
         target += page_offset
 
     # compute relative position of the link on the page
@@ -325,7 +332,7 @@ def AddHyperlink(page_offset, page, target, linkbox, pagebox, rotate):
     y1 = (pagebox[3] - linkbox[1]) * h
 
     # get effective rotation
-    rotate /= 90
+    rotate //= 90
     page_rot = GetPageProp(page, 'rotate')
     if page_rot is None:
         page_rot = Rotation
@@ -382,7 +389,7 @@ def ParsePDF(filename):
         if not args[0]:
             continue  # program not found
         try:
-            assert 0 == subprocess.Popen(args).wait()
+            assert 0 == Popen(args).wait()
             err = not(os.path.isfile(uncompressed))
         except (OSError, AssertionError):
             err = True
@@ -393,31 +400,31 @@ def ParsePDF(filename):
     if ok:
         pass
     elif err:
-        print >>sys.stderr, "Note: error while unpacking the PDF file, hyperlinks disabled."
+        print("Note: error while unpacking the PDF file, hyperlinks disabled.", file=sys.stderr)
         return
     else:
-        print >>sys.stderr, "Note: neither mutool nor pdftk found, hyperlinks disabled."
+        print("Note: neither mutool nor pdftk found, hyperlinks disabled.", file=sys.stderr)
         return
 
     count = 0
     try:
         try:
             pdf = PDFParser(analyze)
-            for page, annots in pdf.GetHyperlinks().iteritems():
+            for page, annots in pdf.GetHyperlinks().items():
                 for page_offset in FileProps[filename]['offsets']:
                     for a in annots:
                         AddHyperlink(page_offset, page, a[4], a[:4], pdf.box[page], pdf.rotate[page])
                     FixHyperlinks(page + page_offset)
                 count += len(annots)
             if pdf.errors:
-                print >>sys.stderr, "Note: failed to parse the PDF file, hyperlinks might not work properly"
+                print("Note: failed to parse the PDF file, hyperlinks might not work properly", file=sys.stderr)
             del pdf
             return count
         except IOError:
-            print >>sys.stderr, "Note: intermediate PDF file not readable, hyperlinks disabled."
-        except PDFError, e:
-            print >>sys.stderr, "Note: error in PDF file, hyperlinks disabled."
-            print >>sys.stderr, "      PDF parser error message:", e
+            print("Note: intermediate PDF file not readable, hyperlinks disabled.", file=sys.stderr)
+        except PDFError as e:
+            print("Note: error in PDF file, hyperlinks disabled.", file=sys.stderr)
+            print("      PDF parser error message:", e, file=sys.stderr)
     finally:
         try:
             os.remove(uncompressed)

@@ -1,3 +1,21 @@
+0.13.0-beta1a [2019-11-21]
+- hotfix for a segfault when using Impressive on Linux with PyGame installed
+  from pip (instead of the distribution's package manager)
+
+
+0.13.0-beta1 [2019-11-20]
+- Python 3 compatibility: should work with Python 2.7 and >= 3.6 now
+- Win32 build uses 64-bit Python 3
+- improved support for non-ASCII characters in page titles (as extracted
+  with pdftk)
+- fixed box-zoom mode display error in half-page mode
+- added option to set last page of page progress bar (--progress-last)
+- added separate overview animation time option (--overtime)
+- can now have multiple progress bars at once
+  - page progress is moved to top of screen if any other bar is visible
+  - "auto progress" is stacked over duration bar if both are visible
+
+
 0.12.1 [2019-08-28]
 - fixed crash in crash reporter with recent Pillow versions
 - fixed crash with recent PyGame versions when non-latin characters appeared
@@ -9,6 +27,7 @@
 - more robust PDF hyperlink parser (page boxes can now be PDF references)
 - added option to temporarily inhibit automatic slideshows
   - default keybinding: [A] key, actions: auto-start, auto-stop, auto-toggle
+
 
 0.12.0 [2018-02-04]
 - many zoom mode related changes
