@@ -341,14 +341,19 @@ def main():
         border = max(OverviewLogoBorder, 2 * OverviewBorder)
         maxsize = (OverviewCellX - border, OverviewCellY - border)
         if (dummy.size[0] > maxsize[0]) or (dummy.size[1] > maxsize[1]):
-            dummy.thumbnail(ZoomToFit(dummy.size, maxsize, force_int=True), Image.ANTIALIAS)
-        margX = (OverviewCellX - dummy.size[0]) // 2
-        margY = (OverviewCellY - dummy.size[1]) // 2
-        dummy = dummy.convert(mode='RGB')
-        for page in range(OverviewPageCount):
-            pos = OverviewPos(page)
-            OverviewImage.paste(dummy, (pos[0] + margX, pos[1] + margY))
-        del dummy
+            size = ZoomToFit(dummy.size, maxsize, force_int=True)
+            if min(size) > 0:
+                dummy.thumbnail(size, Image.ANTIALIAS)
+            else:
+                dummy = None
+        if dummy:
+            margX = (OverviewCellX - dummy.size[0]) // 2
+            margY = (OverviewCellY - dummy.size[1]) // 2
+            dummy = dummy.convert(mode='RGB')
+            for page in range(OverviewPageCount):
+                pos = OverviewPos(page)
+                OverviewImage.paste(dummy, (pos[0] + margX, pos[1] + margY))
+            del dummy
 
     # compute auto-advance timeout, if applicable
     if EstimatedDuration and AutoAutoAdvance:
