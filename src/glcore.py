@@ -213,7 +213,7 @@ class OpenGL(object):
         if not length: return ""
         buf = create_string_buffer(length + 1)
         self._GetShaderInfoLog(shader, length + 1, None, buf)
-        return buf.raw.split('\0', 1)[0]
+        return buf.raw.split(b'\0', 1)[0].decode()
 
     def GetProgrami(self, program, pname):
         res = (c_uint * 1)()
@@ -225,7 +225,7 @@ class OpenGL(object):
         if not length: return ""
         buf = create_string_buffer(length + 1)
         self._GetProgramInfoLog(program, length + 1, None, buf)
-        return buf.raw.split('\0', 1)[0]
+        return buf.raw.split(b'\0', 1)[0].decode()
 
     def Uniform(self, location, *values):
         if not values:
@@ -335,7 +335,9 @@ class GLShader(object):
                 for line in log.split('\n'):
                     print('>', line.rstrip(), file=sys.stderr)
             if not status:
-                raise GLShaderCompileError("failure during %s %s" % (self.__class__.__name__, action))
+                if log:
+                    log = ":\n" + log
+                raise GLShaderCompileError("failure during %s %s" % (self.__class__.__name__, action) + log)
         def handle_shader(type_enum, type_name, src):
             if gl._is_desktop_gl:
                 src = src.replace("highp ", "")
