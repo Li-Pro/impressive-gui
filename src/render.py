@@ -229,7 +229,7 @@ class XpdfRenderer(PDFRendererBase):
             TempFileName
         ])
         digits = GetFileProp(filename, 'digits', 6)
-        try_digits = range(6, 0, -1)
+        try_digits = list(range(6, 0, -1))
         try_digits.sort(key=lambda n: abs(n - digits))
         try_digits = [(n, TempFileName + ("-%%0%dd.ppm" % n) % page) for n in try_digits]
         for digits, imgfile in try_digits:
