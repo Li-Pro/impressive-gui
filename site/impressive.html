@@ -800,6 +800,12 @@ In any case, the default file name can be overridden by the <code>-I</code> comm
 <dt><code>skip</code></dt>
 <dd>This boolean property can be set to 1/<code>True</code> if the page shall be skipped during the presentation.<br />Pages with <code>overview:True, skip:False</code> will be accessible both by cycling through the pages and using the overview page,<br />pages with <code>overview:True, skip:True</code> will be silently skipped in the normal page cycle, but remain accessible from the overview page,<br />pages with <code>overview:False, skip:False</code> will appear in the normal cycle, but not on the overview page<br />and pages with <code>overview:False, skip:True</code> will not be accessible at all.</dd>
 
+<dt><code>next</code></dt>
+<dd>This property can be set to the number of the page that shall be shown after this page. This can be used to skip a lot of pages without setting the <code>skip</code> property on each of those, or to create a loop that can only be escaped by using the overview page or bookmarks.</dd>
+
+<dt><code>prev</code></dt>
+<dd>This property can be set to the number of the page that shall be shown when navigating from this page to the previous page (e.g. using the right mouse button or the <strong>Page-Up</strong> key in the default mappings).</dd>
+
 <dt><code>boxes</code></dt>
 <dd>This property stores a list of highlight box coordinates. Normally, there is no need to edit this by hand, as Impressive handles this automatically if the <strong>S</strong> key is pressed.</dd>
 

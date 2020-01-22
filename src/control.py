@@ -36,19 +36,22 @@ def UpdateCaption(page=0, force=False):
 
 # get next/previous page
 def GetNextPage(page, direction):
-    try_page = page
+    checked_pages = set()
     while True:
-        try_page += direction
-        if try_page == page:
-            return 0  # tried all pages, but none found
+        checked_pages.add(page)
+        page = GetPageProp(page,
+            ('prev' if (direction < 0) else 'next'),
+            page + direction)
+        if page in checked_pages:
+            return 0  # we looped around completely and found nothing
         if Wrap:
-            if try_page < 1: try_page = PageCount
-            if try_page > PageCount: try_page = 1
+            if page < 1: page = PageCount
+            if page > PageCount: page = 1
         else:
-            if try_page < 1 or try_page > PageCount:
+            if page < 1 or page > PageCount:
                 return 0  # start or end of presentation
-        if not GetPageProp(try_page, 'skip', False):
-            return try_page
+        if not GetPageProp(page, 'skip', False):
+            return page
 
 # pre-load the following page into Pnext/Tnext
 def PreloadNextPage(page):
