@@ -34,6 +34,7 @@ ViewZoomFactor = 1
 ResZoomFactor = 1
 HighResZoomFailed = False
 TransitionRunning = False
+TransitionDone = False
 TransitionPhase = 0.0
 CurrentCaption = 0
 OverviewNeedUpdate = False

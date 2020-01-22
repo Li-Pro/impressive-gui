@@ -217,10 +217,12 @@ def InstantiateTransition(trans_class):
         return None
 
 # perform a transition to a specified page
-def TransitionTo(page, allow_transition=True):
+def TransitionTo(page, allow_transition=True, notify_page_left=True):
     global Pcurrent, Pnext, Tcurrent, Tnext
     global PageCount, Marking, Tracing, Panning
     global TransitionRunning, TransitionPhase
+    global TransitionDone
+    TransitionDone = False
 
     # first, stop video and kill the auto-timer
     if VideoPlaying:
@@ -241,7 +243,10 @@ def TransitionTo(page, allow_transition=True):
     LeaveZoomMode(allow_transition)
 
     # notify that the page has been left
-    PageLeft()
+    if notify_page_left:
+        PageLeft()
+    if TransitionDone:
+        return 1  # nested call to TransitionTo() detected -> abort here
 
     # box fade-out
     if GetPageProp(Pcurrent, 'boxes') or Tracing:
@@ -314,8 +319,11 @@ def TransitionTo(page, allow_transition=True):
     # finally update the screen and preload the next page
     DrawCurrentPage()
     PageEntered()
+    if TransitionDone:
+        return 1
     if not PreloadNextPage(GetNextPage(Pcurrent, 1)):
         PreloadNextPage(GetNextPage(Pcurrent, -1))
+    TransitionDone = True
     return 1
 
 # zoom mode animation
