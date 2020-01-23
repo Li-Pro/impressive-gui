@@ -50,11 +50,14 @@ class Platform_PyGame(object):
         # in which case we must not use the default system-wide SDL;
         # so we need to find out the local library's path
         try:
-            libdir = os.path.join(pygame.__path__[0], ".libs")
-            pattern = re.compile(r'(lib)?SDL(?!_[a-zA-Z]+).*?\.(dll|so(\..*)?)$', re.I)
-            libs = [os.path.join(libdir, lib) for lib in sorted(os.listdir(libdir)) if pattern.match(lib)]
-            if libs: sdl = libs[0]
-        except (AttributeError, EnvironmentError):
+            pattern = re.compile(r'(lib)?SDL(?!_[a-zA-Z]+).*?\.(dll|so(\..*)?|dylib)$', re.I)
+            libs = []
+            for suffix in (".libs", ".dylibs"):
+                libdir = os.path.join(pygame.__path__[0], suffix)
+                if os.path.isdir(libdir):
+                    libs += [os.path.join(libdir, lib) for lib in sorted(os.listdir(libdir)) if pattern.match(lib)]
+            sdl = libs.pop(0)
+        except (IndexError, AttributeError, EnvironmentError):
             pass
 
         # generic case: load the system-wide SDL
