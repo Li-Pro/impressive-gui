@@ -241,7 +241,7 @@ class PageDisplayActions(BaseDisplayActions):
         if z <= 1:
             return DrawCurrentPage()
         if HalfScreen:
-            tx = MarkLR[0]
+            tx = max(MarkLR[0], MarkUL[0])
         else:
             tx = (MarkUL[0] + MarkLR[0]) * 0.5
         ty = (MarkUL[1] + MarkLR[1]) * 0.5
