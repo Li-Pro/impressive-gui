@@ -21,7 +21,7 @@
 from __future__ import print_function, division, unicode_literals
 
 __title__   = "Impressive"
-__version__ = "0.13.0-beta2"
+__version__ = "0.13.0-WIP"
 __rev__     = None
 __author__  = "Martin J. Fiedler"
 __email__   = "martin.fiedler@gmx.net"

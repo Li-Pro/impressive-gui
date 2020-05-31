@@ -38,5 +38,6 @@ copy /b site\Impressive.html %target%\Impressive_Documentation.html
 del Impressive.zip
 cd %target%
 zip -r9 ..\..\Impressive.zip .
+cd ..\..
 
 :end
