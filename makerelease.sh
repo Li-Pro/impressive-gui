@@ -12,13 +12,14 @@ elif [ "$1" != "--noversion" ] ; then
     dir=$dir-$1
 fi
 
+rm -rf $base/$dir
 mkdir -p $base/$dir
 chmod -x demo.pdf
 cp demo.pdf $base/$dir
-for file in $exe $hlp impressive license.txt changelog.txt impressive.1 ; do
+cp impressive $base/$dir/
+for file in $exe $hlp license.txt changelog.txt impressive.1 ; do
   tr -d '\r' <$file >$base/$dir/$(basename $file)
 done
-chmod +x $base/$dir/$exe
 
 cd $base
 rm -f $dir.tar.gz
