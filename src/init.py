@@ -35,6 +35,15 @@ if os.name == "nt":
     FontPath = []
     FontList = ["verdana.ttf", "arial.ttf"]
     Nice = []
+    try:
+        dpiOK = (WinDLL("shcore").SetProcessDpiAwareness(2) == 0)  # PROCESS_PER_MONITOR_DPI_AWARE
+    except:
+        dpiOK = False
+    if not dpiOK:
+        try:
+            WinDLL("user32").SetProcessDPIAware()
+        except:
+            pass
 else:
     def FindBinary(x): return x
     GhostScriptPlatformOptions = []
