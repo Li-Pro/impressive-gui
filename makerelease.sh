@@ -15,7 +15,7 @@ fi
 mkdir -p $base/$dir
 chmod -x demo.pdf
 cp demo.pdf $base/$dir
-for file in $exe $hlp license.txt changelog.txt impressive.1 ; do
+for file in $exe $hlp impressive license.txt changelog.txt impressive.1 ; do
   tr -d '\r' <$file >$base/$dir/$(basename $file)
 done
 chmod +x $base/$dir/$exe

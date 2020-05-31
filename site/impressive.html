@@ -15,10 +15,10 @@ code.pre { white-space:pre; }
 <a href="http://impressive.sourceforge.net/">http://impressive.sourceforge.net/</a><br />
 <b>Version:</b> 0.13.0<br />
 <b>Author:</b> <a href="mailto:martin.fiedler@gmx.net">Martin J. Fiedler</a><br />
-<b>Last updated:</b> 2019-11-20</p>
+<b>Last updated:</b> 2020-05-31</p>
 <!--END-->
 <!--man
-.TH IMPRESSIVE 1 2019-11-20 "Martin J. Fiedler" "Impressive Documentation">
+.TH IMPRESSIVE 1 2020-05-31 "Martin J. Fiedler" "Impressive Documentation">
 .SH "NAME"
 Impressive \- presentation tool with eye candy
 .SH "SYNOPSIS"
@@ -68,13 +68,13 @@ A more comfortable method is installing Impressive in the &raquo;Send To&laquo; 
 
 <h3>Using the source code release</h3>
 
-<p>Another way to get Impressive is downloading the platform-independent source code version. The most important file in this archive is <code>impressive.py</code>, which contains all the code of Impressive and can be run like any executable on Unix-like systems. However, the following external libraries and utilities have to be installed as well for Impressive to work:</p>
+<p>Another way to get Impressive is downloading the platform-independent source code version. The most important file in this archive is <code>impressive.py</code>, which contains all the code of Impressive, and <code>impressive</code> (without extension), which is the same in a compressed manner. The latter can be run like any executable on Unix-like systems, or installed system-wide using <code>sudo install -m 755 impressive /usr/local/bin/</code>. However, the following external libraries and utilities have to be installed as well for Impressive to work:</p>
 <ul>
-<li><strong>Python</strong> 2.7, 3.6 or newer &mdash; <a href="http://www.python.org/">www.python.org</a> <em>(required)</em></li>
+<li><strong>Python</strong> 2.7, 3.6 or newer &mdash; <a href="http://www.python.org/">www.python.org</a> <em>(required)</em>; in particular, for the &raquo;pseudo-binary&laquo; version (<code>impressive</code> without <code>.py</code>), Python 3.x is required</li>
 <li><strong>PyGame</strong> (the SDL binding for Python) &mdash; <a href="http://www.pygame.org/">www.pygame.org</a> <em>(required)</em></li>
 <li><strong>PIL</strong>, the Python Imaging Library, or <strong>Pillow</strong>, a compatible fork of it &mdash; <a href="http://www.pythonware.com/products/pil/">www.pythonware.com/products/pil</a> <em>(required)</em></li>
-<li><strong>pdftk</strong> 1.44 or higher for retrieving PDF metadata (page titles) &mdash; <a href="http://www.accesspdf.com/pdftk/">www.accesspdf.com/pdftk</a> <em>(recommended; required if MuPDF is not available)</em></li>
-<li>the <strong>MuPDF utilities</strong> for PDF rendering and metadata retrieval (hyperlinks) &mdash; <a href="http://www.mupdf.com/">www.mupdf.com</a> <em>(required)</em></li>
+<li><strong>pdftk</strong> 1.44 or higher (a.k.a. &raquo;PDFtk Server&laquo;) for retrieving PDF metadata (page titles) &mdash; <a href="http://www.accesspdf.com/pdftk/">www.accesspdf.com/pdftk</a> <em>(recommended; required if MuPDF is not available)</em></li>
+<li>the <strong>MuPDF utilities</strong> for PDF rendering and metadata retrieval (hyperlinks) &mdash; <a href="http://www.mupdf.com/">www.mupdf.com</a> <em>(<strong>highly</strong> recommended)</em></li>
 <li><strong>Xpdf</strong> or the <strong>Poppler utilities</strong> for alternate PDF rendering &mdash; <a href="http://www.foolabs.com/xpdf/">www.foolabs.com/xpdf/</a> or <a href="http://poppler.freedesktop.org/">http://poppler.freedesktop.org/</a> <em>(required if MuPDF is not available; not required otherwise)</em></li>
 <li><strong>GhostScript</strong> for alternate PDF rendering &mdash; <a href="http://www.cs.wisc.edu/~ghost/">www.cs.wisc.edu/~ghost</a> <em>(required if neither MuPDF nor Xpdf/Poppler utilities are available; not required otherwise)</em></li>
 <li><strong>xdg-utils</strong> for starting web or e-mail hyperlinks from PDF documents &mdash; <a href="http://portland.freedesktop.org/">portland.freedesktop.org</a> <em>(recommended; does not apply to Win32)</em></li>
@@ -86,16 +86,16 @@ A more comfortable method is installing Impressive in the &raquo;Send To&laquo; 
 
 <p>On Unix-like systems, these dependencies are typically available in the major distributions' package repositories and can be installed easily with the package managers, e.g.:</p>
 <ul>
-<li><strong>Debian</strong>/<strong>Ubuntu</strong>: <code>aptitude install python-pygame python-imaging pdftk mupdf-tools xdg-utils mplayer ffmpeg</code></li>
-<li><strong>Fedora</strong>: <code>yum -i pygame python-pillow pdftk mupdf xdg-utils mplayer ffmpeg</code></li>
-<li><strong>Arch Linux</strong> with AUR: <code>pacman -S python2-pygame python2-pillow pdftk mupdf xdg-utils mplayer ffmpeg</code></li>
+<li><strong>Debian</strong>/<strong>Ubuntu</strong>: <code>aptitude install python3-pygame python3-pil pdftk mupdf-tools xdg-utils mplayer ffmpeg</code></li>
+<li><strong>Fedora</strong>: <code>yum -i python3-pygame python3-pillow pdftk mupdf xdg-utils mplayer ffmpeg</code></li>
+<li><strong>Arch Linux</strong> with AUR: <code>pacman -S python3-pygame python3-pillow pdftk mupdf xdg-utils mplayer ffmpeg</code></li>
 <li>Mac OS X with <strong>MacPorts</strong>: <code>port install py27-game py27-pil pdftk mupdf xdg-utils mplayer ffmpeg</code></li>
 </ul>
 
 <h3>Using the latest version from SVN</h3>
 
 <p>The source code of Impressive is maintained in a Subversion (SVN) repository. For users that want the newest version or want to help with debugging or developing Impressive, it is recommended to check out this repository:<br />
-<code class="pre">    svn co http://svn.emphy.de/impressive/trunk/impressive</code><br />
+<code class="pre">    svn co https://svn.emphy.de/impressive/trunk/impressive</code><br />
 Regarding external dependencies, the section above applies as well; in addition, Subversion (whose package is usually called <code>svn</code> or <code>subversion</code>) is obviously required too.</p>
 
 <p>After checking out the sources, the <code>impressive.py</code> program will still be missing. Instead, the main program is called <code>impressive_dev.py</code> and is functionally equivalent; it pulls the actual source files from the <code>src</code> subdirectory and runs them. To get a real stand-alone <code>impressive.py</code> file for installation or redistribution, it needs to be generated using either <code>make</code> (if GNU Make is installed) or <code>python compile.py</code>. On Linux systems, <code>sudo make install</code> can then be used to install Impressive at <code>/usr/local/bin/impressive</code> and its manpage at <code>/usr/local/man/man1/impressive.1</code>. These two installed files can be removed again with <code>sudo make uninstall</code>.</p>

@@ -1,4 +1,4 @@
-all: impressive.py man demo
+all: impressive.py impressive man demo
 
 man: impressive.1
 
@@ -25,7 +25,10 @@ release:
 
 impressive.py: compile.py impressive_dev.py src/*.py
 	python $<
-	chmod +x $@
+	chmod -x $@
+
+impressive: make_binary.py impressive.py
+	python3 $^ $@
 
 PREFIX ?= /usr/local
 install: impressive.py impressive.1
@@ -36,11 +39,12 @@ uninstall:
 
 clean:
 	rm -f *.nav *.out *.snm *.toc *.vrb *.aux *.log *.pyc *.pyo
+	rm -f impressive.py impressive impressive.1
 	rm -f *.tmp.py
 	rm -rf win32/mplayer
 
 distclean: clean
-	rm -f demo.pdf impressive.1 impressive.py
+	rm -f demo.pdf
 	rm -rf dist
 
 .PHONY: all man test-man demo test-demo test release clean distclean install uninstall
