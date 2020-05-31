@@ -1,3 +1,14 @@
+0.13.0-beta2 [2020-05-31]
+- added 'prev' and 'next' PageProps to change order of pages
+- fixed many remaining Python 3 compatibility issues
+- added "pseudo-binary" version (actually compressed bytecode) in the source
+  release archive (requires Python 3)
+- circumvent blurry fonts on Windows due to high-DPI scaling
+- fixed crash in overview page handling when presentations have very many pages
+- fixed box-zoom mode display error in half-page mode
+- Win32 build back to 32 bits due to broader compatibility
+
+
 0.13.0-beta1a [2019-11-21]
 - hotfix for a segfault when using Impressive on Linux with PyGame installed
   from pip (instead of the distribution's package manager)
@@ -8,7 +19,6 @@
 - Win32 build uses 64-bit Python 3
 - improved support for non-ASCII characters in page titles (as extracted
   with pdftk)
-- fixed box-zoom mode display error in half-page mode
 - added option to set last page of page progress bar (--progress-last)
 - added separate overview animation time option (--overtime)
 - can now have multiple progress bars at once

@@ -1,5 +1,8 @@
 <?php include("menu.php"); ?>
 
+<h1><span class="date">2020-05-31</span>Some maintenance 0.13.0-beta2</h1>
+<p>The second beta version brings the expected bugfixes (mainly crashes on Python 3 due to oversights during porting), but also a few minor new features: High-DPI scaling is now disabled on Windows, so that the display isn't as blurry as it used to be on affected systems. New <code>prev</code> and <code>next</code> PageProps have been introduced to change the playback order of pages. Finally, there's now a &raquo;pseudo-binary&laquo; file called <code>impressive</code> in the <code>.tar.gz</code> release archive that's more compact and with slightly quicker startup time than the standard source code file.</p>
+
 <h1><span class="date">2019-11-21</span>A Linux-specific hotfix in 0.13.0-beta1a</h1>
 <p>While testing on various machines, a rather nasty bug has been found on Linux: If the PyGame library has been installed using pip (Python's own package manager) instead of a distribution package, it would simply crash hard. 0.13.0-beta1a explicitly fixes this. Windows is not affected at all, so there's no new Win32 package.</p>
 
