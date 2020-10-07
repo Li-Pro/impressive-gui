@@ -149,6 +149,12 @@ class OverviewActions(BaseActions):
         SetCursor(False)
         DrawOverview()
 
+    def _X_leave(self):
+        global CursorOnScreen
+        CursorOnScreen = False
+        if CursorImage and (MouseHideDelay != 1):
+            DrawOverview()
+
     def _X_timer_update(self):
         force_update = OverviewNeedUpdate
         if OverviewNeedUpdate:

@@ -50,7 +50,7 @@ Display options:
   -F,  --font <file>      use a specific TrueType font file for the OSD
   -S,  --fontsize <px>    specify the OSD font size in pixels
   -C,  --cursor <F[:X,Y]> use a .png image as the mouse cursor
-  -N,  --nocursor         don't show a mouse cursor at all
+  -N,  --nocursor         don't show a mouse cursor at all (equivalent to -D 1)
   -L,  --layout <spec>    set the OSD layout (please read the documentation)
   -z,  --zoom <factor>    set zoom factor (default: 2.0)
        --maxzoom <factor> maximum factor to render high-resolution zoom
@@ -245,7 +245,7 @@ def ParseOptions(argv):
     global BackgroundRendering, UseAutoScreenSize, PollInterval, CacheFileName
     global PageRangeStart, PageRangeEnd, FontList, FontSize, Gamma, BlackLevel
     global EstimatedDuration, CursorImage, CursorHotspot, MinutesOnly, Overscan
-    global PDFRendererPath, InfoScriptPath, EventTestMode, EnableCursor
+    global PDFRendererPath, InfoScriptPath, EventTestMode
     global AutoOverview, DefaultZoomFactor, FadeInOut, ShowLogo, Shuffle
     global QuitAtEnd, ShowClock, HalfScreen, SpotRadius, InvertPages
     global MinBoxSize, AutoAdvanceProgress, BoxFadeDarkness
@@ -571,7 +571,7 @@ def ParseOptions(argv):
         if opt in ("--no-overview", "--nooverview"):
             EnableOverview = not(EnableOverview)
         if opt in ("-N", "--no-cursor", "--nocursor"):
-            EnableCursor = not(EnableCursor)
+            MouseHideDelay = 1
         if opt.startswith("--vht"):  # DEBUG OPTION ONLY
             Win32FullscreenVideoHackTiming[int(opt[5:])] = float(arg)
 

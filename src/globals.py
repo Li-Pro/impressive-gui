@@ -59,6 +59,7 @@ TimeDisplay = False
 FirstPage = True
 ProgressBarPos = 0
 CursorVisible = True
+CursorOnScreen = True
 OverviewMode = False
 LastPage = 0
 WantStatus = False

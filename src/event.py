@@ -10,11 +10,8 @@ def SetFullscreen(fs, do_init=True):
         if not Platform.ToggleFullscreen(): return
     Fullscreen = fs
     DrawCurrentPage()
-    if fs:
+    if MouseHideDelay > 1:
         Platform.ScheduleEvent("$hide-mouse", MouseHideDelay)
-    else:
-        Platform.ScheduleEvent("$hide-mouse", 0)
-        SetCursor(True)
 
 # PageProp toggle
 def TogglePageProp(prop, default):
@@ -34,6 +31,12 @@ class BaseDisplayActions(BaseActions):
 
     def _X_expose(self):
         DrawCurrentPage()
+
+    def _X_leave(self):
+        global CursorOnScreen
+        CursorOnScreen = False
+        if CursorImage and (MouseHideDelay != 1):
+            DrawCurrentPage()
 
     def _X_hide_mouse(self):
         # mouse timer event -> hide fullscreen cursor

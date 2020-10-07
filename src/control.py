@@ -483,7 +483,7 @@ def EnableTimeTracking(force=False):
 def SetCursor(visible):
     global CursorVisible
     CursorVisible = visible
-    if EnableCursor and not(CursorImage) and (MouseHideDelay != 1):
+    if not(CursorImage) and (MouseHideDelay != 1):
         Platform.SetMouseVisible(visible)
 
 # handle a shortcut key event: store it (if shifted) or return the

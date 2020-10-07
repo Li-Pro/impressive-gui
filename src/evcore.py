@@ -343,10 +343,17 @@ class BaseActions(ActionRelayBase):
         Platform.PostQuitEvent()
 
     def _X_move(self):
-        # mouse move in fullscreen mode -> show mouse cursor and reset mouse timer
-        if Fullscreen:
+        # mouse move -> show mouse cursor and reset mouse timer
+        if Fullscreen or (MouseHideDelay > 1):
             Platform.ScheduleEvent("$hide-mouse", MouseHideDelay)
             SetCursor(True)
+
+    def _X_enter(self):
+        global CursorOnScreen
+        CursorOnScreen = True
+    def _X_leave(self):
+        global CursorOnScreen
+        CursorOnScreen = False
 
     def _X_call(self):
         while CallQueue:

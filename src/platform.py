@@ -152,6 +152,8 @@ class Platform_PyGame(object):
             if not(self.schedule_map_ev2flag.get(ev.type)):
                 pygame.time.set_timer(ev.type, 0)
             return [self.schedule_map_ev2name.get(ev.type)]
+        elif (ev.type == ACTIVEEVENT) and (ev.state == 1):  # APPMOUSEFOCUS=1
+            return ["$enter" if ev.gain else "$leave"]
         else:
             return []
 

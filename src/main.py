@@ -16,7 +16,7 @@ def main():
     global CursorImage, CursorVisible, InfoScriptPath
     global HalfScreen, AutoAdvanceTime, AutoAdvanceEnabled, WindowPos
     global BoxFadeDarknessBase, BoxZoomDarknessBase, SpotRadiusBase
-    global BoxIndexBuffer, UseBlurShader
+    global BoxIndexBuffer, UseBlurShader, MouseHideDelay
 
     # allocate temporary file
     TempFileName = None
@@ -159,6 +159,8 @@ def main():
     BoxFadeDarknessBase = BoxFadeDarkness
     BoxZoomDarknessBase = BoxZoomDarkness
     SpotRadiusBase = SpotRadius
+    if MouseHideDelay is None:
+        MouseHideDelay = DefaultMouseHideDelay if Fullscreen else 0
 
     # get the initial page number
     if not InitialPage:
@@ -280,7 +282,7 @@ def main():
         DoEventTestMode()
 
     # initialize mouse cursor
-    if EnableCursor and (CursorImage or not(Platform.has_hardware_cursor)):
+    if (MouseHideDelay != 1) and (CursorImage or not(Platform.has_hardware_cursor)):
         img = None
         if CursorImage and not(CursorImage.lower() in ("-", "default")):
             try:
@@ -445,7 +447,7 @@ def main():
     if TimeTracking or TimeDisplay:
         EnableTimeTracking(True)
     Platform.ScheduleEvent("$timer-update", 100, periodic=True)
-    if not(Fullscreen) and (not(EnableCursor) or CursorImage):
+    if (MouseHideDelay == 1) or CursorImage:
         Platform.SetMouseVisible(False)
     if FadeInOut:
         LeaveFadeMode()

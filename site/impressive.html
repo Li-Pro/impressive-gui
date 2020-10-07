@@ -175,7 +175,7 @@ If the name of an external file is specified, the position of the hotspot (the p
 If an expected duration is specified, Impressive will show a semi-transparent green progress bar at the bottom edge of the screen, indicating how much time has already passed. If the time is up, the bar will occupy the whole edge and fade to yellow (at 125% of the expected time) to red (at 150% or more).</dd>
 
 <dt><code>-D <em>&lt;ms&gt;</em></code> or <code>--mousedelay <em>&lt;ms&gt;</em></code></dt>
-<dd>Sets the time (in milliseconds) the mouse cursor is shown in fullscreen mode if it is not moved. There are two special values: 0 (zero) shows the mouse cursor permanently, 1 (one) hides it completely. The default value is 3000&nbsp;ms.</dd>
+<dd>Sets the time (in milliseconds) the mouse cursor is shown if it is not moved. There are two special values: 0 (zero) shows the mouse cursor permanently, 1 (one) hides it completely. The default value is 3000&nbsp;ms if Impressive is started in fullscreen mode, and 0 (i.e. don't hide) if started in windowed mode.</dd>
 
 <dt><code>--darkness <em>&lt;percentage&gt;</em></code></dt>
 <dd>Specifies how much the screen shall become darker when using highlight boxes or spotlight mode. The value is specified in percent, with 25 being the default. A value of zero would mean no darkening at all (the screen would just be blurred slightly, and desaturated if the graphics hardware supports it), and a value of 100 would make everything but the highlighted parts of the screen black.</dd>
@@ -258,7 +258,7 @@ Note that regardless of this setting, Impressive always checks the graphics hard
 There might be situations where this mechanism fails and Impressive tries to use the non-functional shader anyway. In these cases, the <code>--noblur</code> option can be used to enforce the fallback implementation.</dd>
 
 <dt><code>-N</code> or <code>--nocursor</code></dt>
-<dd>This option disables any display of a mouse cursor, i.e. neither the system (&raquo;hardware&laquo;) not bitmap (&raquo;software&laquo;) cursor is shown at any time. This is mainly useful for automated presentations, where no mouse interaction is needed.</dd>
+<dd>This option disables any display of a mouse cursor, i.e. neither the system (&raquo;hardware&laquo;) not bitmap (&raquo;software&laquo;) cursor is shown at any time. It it equivalent to setting <code>--mousedelay</code> to 1. This is mainly useful for automated presentations, where no mouse interaction is needed.</dd>
 
 <dt><code>--noclicks</code></dt>
 <dd>If this option is enabled, switching to the previous or next page with the left and right mouse buttons is deactivated. The keyboard shortcuts are unaffected from this.<br />
