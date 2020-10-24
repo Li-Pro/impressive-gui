@@ -211,6 +211,16 @@ def PageLeft(overview=False):
 
 # create an instance of a transition class
 def InstantiateTransition(trans_class):
+    if isinstance(trans_class, basestring):
+        index = dict((c.__name__.lower(), c) for c in AllTransitions)
+        try:
+            trans_class = index[trans_class.lower()]
+        except KeyError:
+            print("Error: invalid transition '{}', ignoring".format(trans_class), file=sys.stderr)
+            return None
+    elif not(isinstance(trans_class, type) and issubclass(trans_class, Transition)):
+        print("Error: invalid transition '{!r}', ignoring".format(trans_class), file=sys.stderr)
+        return None
     try:
         return trans_class()
     except GLInvalidShaderError:
