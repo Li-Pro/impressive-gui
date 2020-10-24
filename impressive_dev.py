@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # Impressive, a fancy presentation tool
-# Copyright (C) 2005-2019 Martin J. Fiedler <martin.fiedler@gmx.net>
+# Copyright (C) 2005-2020 Martin J. Fiedler <martin.fiedler@gmx.net>
 #                         and contributors
 #
 # This program is free software; you can redistribute it and/or modify
