@@ -516,8 +516,10 @@ def run_main():
             print("please also send the input files you used.", file=sys.stderr)
             print(file=sys.stderr)
             print("Impressive version:", __version__, file=sys.stderr)
-            print("Python version:", sys.version, file=sys.stderr)
-            print("PyGame version:", pygame.__version__, file=sys.stderr)
+            print("Python version:", sys.version.replace('\r', '').replace('\n', ' ').replace('  ', ' '), file=sys.stderr)
+            print("Impressive platform:", Platform.name)
+            print("PyGame version:", pygame.version.ver, file=sys.stderr)
+            print("SDL version:", '.'.join(map(str, pygame.get_sdl_version())), file=sys.stderr)
             if hasattr(Image, "__version__"):  # Pillow >= 5.2
                 print("PIL version: Pillow", Image.__version__, file=sys.stderr)
             elif hasattr(Image, "PILLOW_VERSION"):  # Pillow < 7.0

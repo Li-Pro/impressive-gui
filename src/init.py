@@ -62,8 +62,12 @@ else:
 
 # import special modules
 try:
-    import pygame
-    from pygame.locals import *
+    if 0:  # set this to 1 to get experimental SDL2 support
+        import pygame_sdl2 as pygame
+        from pygame_sdl2.locals import *
+    else:
+        import pygame
+        from pygame.locals import *
     from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageChops, ImageOps
     from PIL import TiffImagePlugin, BmpImagePlugin, JpegImagePlugin, PngImagePlugin, PpmImagePlugin
 except (ValueError, ImportError) as err:
