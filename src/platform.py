@@ -18,7 +18,7 @@ class Platform_PyGame(object):
 
     def Init(self):
         os.environ["SDL_MOUSE_RELATIVE"] = "0"
-        print("Platform library: [{}]".format(self.name), "PyGame", pygame.version.ver, "/ SDL", '.'.join(map(str, pygame.get_sdl_version())))
+        print("Platform library: [{}]".format(self.name), "Python", sys.version.split()[0], "/ PyGame", pygame.version.ver, "/ SDL", '.'.join(map(str, pygame.get_sdl_version())))
         pygame.display.init()
 
     def GetTicks(self):
@@ -363,7 +363,7 @@ class Platform_BCM2835(Platform_EGL):
         self.libbcm_host_path = libbcm_host
 
     def Init(self):
-        print("Platform library: [{}]".format(self.name), "libbcm_host + EGL + PyGame", pygame.version.ver)
+        print("Platform library: [{}]".format(self.name), "Python", sys.version.split()[0], "/ libbcm_host / EGL / PyGame", pygame.version.ver)
         try:
             self.bcm_host = CDLL(self.libbcm_host_path)
             def loadfunc(func, ret, *args):
