@@ -53,8 +53,8 @@ class Platform_PyGame(object):
         try:
             pattern = re.compile(r'(lib)?SDL(?!_[a-zA-Z]+).*?\.(dll|so(\..*)?|dylib)$', re.I)
             libs = []
-            for suffix in (".libs", ".dylibs"):
-                libdir = os.path.join(pygame.__path__[0], suffix)
+            for suffix in ("/.libs", "/.dylibs", ".libs", ".dylibs"):
+                libdir = pygame.__path__[0].rstrip('/\\') + suffix
                 if os.path.isdir(libdir):
                     libs += [os.path.join(libdir, lib) for lib in sorted(os.listdir(libdir)) if pattern.match(lib)]
             sdl = libs.pop(0)
