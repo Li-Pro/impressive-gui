@@ -51,15 +51,12 @@ def GetPublicProps(props):
         del props['boxes']
     return props
 
-# Generate a string representation of a property value. Mainly this converts
-# classes or instances to the name of the class.
-class dummyClass:
-    pass
-
-typesClassType = type(dummyClass)
-typesInstanceType = type(dummyClass())
+# helper definitions for PropValueRepr
+class dummyClass(object): pass
 typesFunctionType = type(GetPublicProps)
 
+# Generate a string representation of a property value.
+# Mainly this converts classes or instances to the name of the class.
 def PropValueRepr(value):
     global ScriptTainted
     if type(value) == typesFunctionType:
@@ -71,14 +68,17 @@ def PropValueRepr(value):
             print("         minimize data loss.", file=sys.stderr)
             ScriptTainted = True
         return "here_was_a_lambda_expression_that_could_not_be_saved"
-    elif isinstance(value, typesClassType):
+    elif isinstance(value, type):  # transition class
         return value.__name__
-    elif isinstance(value, typesInstanceType):
+    elif isinstance(value, Transition):  # transition instance
         return value.__class__.__name__
-    elif type(value) == dict:
+    elif isinstance(value, dict):
         return "{ " + ", ".join([PropValueRepr(k) + ": " + PropValueRepr(value[k]) for k in value]) + " }"
     else:
-        return repr(value)
+        value = repr(value)
+        if value.startswith(('u"', "u'")):  # strip unicode prefixes on Python 2
+            value = value[1:]
+        return value
 
 # generate a nicely formatted string representation of a page's properties
 def SinglePagePropRepr(page):
@@ -129,7 +129,7 @@ def SaveInfoScript(filename):
     except IOError:
         script = ""
     if not script:
-        script = "# -*- coding: iso-8859-1 -*-\n"
+        script = "# -*- coding: utf-8 -*-\n"
 
     # replace the PageProps of the old info script with the current ones
     try:
