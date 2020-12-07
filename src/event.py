@@ -16,10 +16,14 @@ def SetFullscreen(fs, do_init=True):
 # PageProp toggle
 def TogglePageProp(prop, default):
     global WantStatus
-    SetPageProp(Pcurrent, prop, not(GetPageProp(Pcurrent, prop, default)))
-    UpdateCaption(Pcurrent, force=True)
+    page = OverviewSelection if OverviewMode else Pcurrent
+    SetPageProp(page, prop, not(GetPageProp(page, prop, default)))
+    UpdateCaption(page, force=True)
     WantStatus = True
-    DrawCurrentPage()
+    if OverviewMode:
+        DrawOverview()
+    else:
+        DrawCurrentPage()
 
 # basic action implementations (i.e. stuff that is required to work, except in overview mode)
 class BaseDisplayActions(BaseActions):
@@ -426,7 +430,7 @@ class PageDisplayActions(BaseDisplayActions):
         TogglePageProp('skip', False)
     def _toggle_overview(self):
         "toggle 'visible on overview' flag of current page"
-        TogglePageProp('overview', GetPageProp(Pcurrent, '_overview', True))
+        TogglePageProp('overview', True)
 
     def _fade_less(self):
         "decrease the spotlight/box background darkness"

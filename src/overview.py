@@ -194,7 +194,7 @@ class OverviewActions(BaseActions):
     def _toggle_skip(self):
         TogglePageProp('skip', False)
     def _toggle_overview(self):
-        TogglePageProp('overview', GetPageProp(Pcurrent, '_overview', True))
+        TogglePageProp('overview', True)
 
     def _overview_up(self):
         "move the overview selection upwards"
