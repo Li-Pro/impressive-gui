@@ -108,6 +108,8 @@ def OverviewKeyboardNav(delta):
     OverviewSelection = dest
     x, y = OverviewPos(OverviewSelection)
     Platform.SetMousePos((x + (OverviewCellX // 2), y + (OverviewCellY // 2)))
+    UpdateCaption(OverviewPageMap[OverviewSelection])
+    DrawOverview()
 
 # overview mode PageProp toggle
 def OverviewTogglePageProp(prop, default):
@@ -192,9 +194,9 @@ class OverviewActions(BaseActions):
             DrawOverview()
 
     def _toggle_skip(self):
-        TogglePageProp('skip', False)
+        OverviewTogglePageProp('skip', False)
     def _toggle_overview(self):
-        TogglePageProp('overview', True)
+        OverviewTogglePageProp('overview', True)
 
     def _overview_up(self):
         "move the overview selection upwards"

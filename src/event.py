@@ -16,14 +16,10 @@ def SetFullscreen(fs, do_init=True):
 # PageProp toggle
 def TogglePageProp(prop, default):
     global WantStatus
-    page = OverviewSelection if OverviewMode else Pcurrent
-    SetPageProp(page, prop, not(GetPageProp(page, prop, default)))
+    SetPageProp(Pcurrent, prop, not(GetPageProp(Pcurrent, prop, default)))
     UpdateCaption(page, force=True)
     WantStatus = True
-    if OverviewMode:
-        DrawOverview()
-    else:
-        DrawCurrentPage()
+    DrawCurrentPage()
 
 # basic action implementations (i.e. stuff that is required to work, except in overview mode)
 class BaseDisplayActions(BaseActions):
