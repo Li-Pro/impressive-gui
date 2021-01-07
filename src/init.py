@@ -63,7 +63,7 @@ else:
 # import special modules
 try:
     os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
-    if 0:  # set this to 1 to get experimental SDL2 support
+    if 0:  # set this to 1 to get experimental pre-PyGame 2.0 SDL2 support
         import pygame_sdl2 as pygame
         from pygame_sdl2.locals import *
     else:

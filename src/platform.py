@@ -19,7 +19,14 @@ class Platform_PyGame(object):
     def Init(self):
         os.environ["SDL_MOUSE_RELATIVE"] = "0"
         print("Platform library: [{}]".format(self.name), "Python", sys.version.split()[0], "/ PyGame", pygame.version.ver, "/ SDL", '.'.join(map(str, pygame.get_sdl_version())))
-        pygame.display.init()
+        if tuple(pygame.version.vernum) > (2,0,0):
+            # on PyGame 2.0.1, pygame.display.init doesn't automatically
+            # initialize the timer module, but there's no way to initialize
+            # the timer module "by hand" -- we need to do a full initialization,
+            # including all the stuff we don't need (like sound)
+            pygame.init()
+        else:
+            pygame.display.init()
 
     def GetTicks(self):
         return pygame.time.get_ticks()
