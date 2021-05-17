@@ -1,9 +1,9 @@
 @echo off
 
-py -3 compile.py
+python compile.py
 if errorlevel 1 goto end
 
-py -3 win32\get_version_info.py impressive.py >win32_version.txt
+python win32\get_version_info.py impressive.py >win32_version.txt
 if errorlevel 1 goto end
 
 @rem clean up; in particular the PyInstaller cache may incur hard-to-debug issues
@@ -11,7 +11,7 @@ rmdir /s /q %AppData%\pyinstaller
 rmdir /s /q build
 rmdir /s /q dist
 
-py -3 -m PyInstaller ^
+python -m PyInstaller ^
     --noconfirm --onedir --console --name=Impressive ^
     --icon=Artwork\icon.ico --version-file=win32_version.txt ^
     --exclude-module Tkinter ^
@@ -37,7 +37,10 @@ copy /b site\Impressive.html %target%\Impressive_Documentation.html
 
 del Impressive.zip
 cd %target%
-zip -r9 ..\..\Impressive.zip .
+
+:: zip -r9 ..\..\Impressive.zip .
+python ..\..\makedist_zipdir.py ..\..\Impressive.zip .
+
 cd ..\..
 
 :end
