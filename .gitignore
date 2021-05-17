@@ -1,0 +1,71 @@
+## svn:ignore
+# /
+/*.exe
+/*.dll
+/*.pdf
+/*_release_flow.txt
+/demo*old*
+/demo.pdf.info
+/*.aux
+/*.nav
+/*.log
+/*.out
+/*.snm
+/*.toc
+/*.vrb
+/*.1
+/impressive.py
+/impressive
+/impressive2
+/impressive3
+/pdfparse.py
+/evtest.py
+/test*.py
+/deploy.py
+/generate_transition_previews.py
+/_releases
+/gs
+/testcases
+/Impressive.zip
+/dist
+/.bak.*
+/*.tmp.py
+/*.cache
+/import_commit_*
+/_git
+
+# /Artwork/
+/Artwork/*.png
+/Artwork/*.xcf
+/Artwork/*.psd
+/Artwork/*.raw
+/Artwork/*.eps
+/Artwork/*.wmf
+/Artwork/*.cdr
+/Artwork/keyj*
+/Artwork/logo*
+/Artwork/compresstex.py
+/Artwork/gradient.py
+
+# /site/
+/site/transitions
+/site/.bak.*
+
+# /src/
+/src/.bak.*
+
+# /win32/
+/win32/*.exe
+/win32/*.dll
+/win32/mplayer
+/win32/.bak.*
+/win32/crossbuild
+
+
+## impressive-gui
+# Python venv & build files
+/.venv/
+**/__pycache__
+
+# Local files
+/.local/
