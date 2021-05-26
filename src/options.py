@@ -579,3 +579,5 @@ def ParseOptions(argv):
         AddFile(arg)
     if not(FileList) and not(EventTestMode):
         opterr("no playable files specified")
+    
+    _hook.setOptions(opts, args)

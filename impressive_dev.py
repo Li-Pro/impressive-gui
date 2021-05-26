@@ -63,6 +63,8 @@ execfile('src/filelist.py', globals())
 execfile('src/main.py', globals())
 execfile("src/options.py", globals())
 
+# _hook
+import ui_main
 
 # use this function if you intend to use Impressive as a library
 def run():
@@ -80,8 +82,13 @@ def synchronize(func, *args, **kwargs):
 
 if __name__ == "__main__":
     try:
+        ui_main.prepareHook(globals())  # _hook
         ParseOptions(sys.argv[1:])
         run_main()
+        
+        ### hook positions:
+		### impressive_dev module
+        ### post ParseOptions()
     finally:
         if not(CleanExit) and (os.name == 'nt') and getattr(sys, "frozen", False):
             print()

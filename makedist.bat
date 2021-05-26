@@ -19,6 +19,7 @@ python -m PyInstaller ^
     --exclude-module numpy ^
     --exclude-module lib2to3 ^
     --upx-exclude vcruntime140.dll ^
+	--paths .\src ^
     impressive.py
 if errorlevel 1 goto end
 rmdir /s /q build
