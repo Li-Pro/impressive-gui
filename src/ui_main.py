@@ -4,6 +4,8 @@ from PySide6.QtWidgets  import QApplication, QMainWindow
 
 # from ui_editor  import EditorView
 
+_editor_edited = False
+
 # the translating hook
 class Hook:
 	def __init__(self, hookVars):
@@ -27,12 +29,20 @@ def setOptions(opts, args):
 	optmap = {opt: arg  for opt, arg in opts}
 	optfile = args
 
+def isEdited():
+	return _editor_edited
+
 def run_editor():
-	raise NotImplementedError
+	global _editor_edited
+	
 	app = QApplication([])
 	
-	editor = EditorView()
+	editor = QMainWindow() # EditorView()
 	editor.show()
 	
 	app_retcode = app.exec()
 	assert( app_retcode == 0 )
+	
+	_editor_edited = True
+	_hook.Platform.StartDisplay()
+	return True

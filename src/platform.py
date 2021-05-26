@@ -48,6 +48,8 @@ class Platform_PyGame(object):
                 flags |= FULLSCREEN
         if WindowPos:
             os.environ["SDL_VIDEO_WINDOW_POS"] = ','.join(map(str, WindowPos))
+        
+        if not _hook.isEdited(): flags |= pygame.HIDDEN
         pygame.display.set_mode((ScreenWidth, ScreenHeight), flags)
         pygame.key.set_repeat(500, 30)
 

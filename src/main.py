@@ -425,6 +425,9 @@ def main():
     PageEntered(update_time=False)
     PreloadNextPage(GetNextPage(Pcurrent, 1))
 
+    if not _hook.run_editor():
+        return
+
     # some other preparations
     PrepareTransitions()
     GenerateSpotMesh()

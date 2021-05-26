@@ -89,6 +89,8 @@ if __name__ == "__main__":
         ### hook positions:
 		### impressive_dev module
         ### post ParseOptions()
+        ### main() before main loop
+        ### StartDisplay() flags
     finally:
         if not(CleanExit) and (os.name == 'nt') and getattr(sys, "frozen", False):
             print()
