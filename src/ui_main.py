@@ -2,7 +2,7 @@ from enum  import Enum
 
 from PySide6.QtWidgets  import QApplication, QMainWindow
 
-# from ui_editor  import EditorView
+from ui_editor  import EditorView
 
 _editor_edited = False
 
@@ -32,17 +32,50 @@ def setOptions(opts, args):
 def isEdited():
 	return _editor_edited
 
+def loadPages():
+	pages = []
+	for pageId in list(range(_hook.InitialPage, _hook.PageCount + 1)) + list(range(1, _hook.InitialPage)):
+		pages.append( (_hook.PageImage(pageId), (_hook.TexWidth, _hook.TexHeight)))
+	
+	return pages
+
+def getOptionSettings():
+	settings = {
+		'transition_selection' : [transition.__name__.lower()  for transition in _hook.AllTransitions]
+	}
+	return settings
+
+def getPageOptions():
+	pageOptions = {}
+	pageIdx = 0
+	for page in list(range(_hook.InitialPage, _hook.PageCount + 1)) + list(range(1, _hook.InitialPage)):
+		options = {}
+		options['skip'] = _hook.GetPageProp(page, 'skip', False)
+		options['transition'] = _hook.GetPageProp(page, 'transition', '').lower()
+		
+		pageOptions[pageIdx] = options
+		pageIdx += 1
+	
+	return pageOptions
+
 def run_editor():
 	global _editor_edited
 	
 	app = QApplication([])
 	
-	editor = QMainWindow() # EditorView()
+	editor = EditorView(getOptionSettings())
+	editor.loadOptions(getPageOptions())
+	for page, size in loadPages():
+		editor.addPage(page, size)
+	
 	editor.show()
 	
 	app_retcode = app.exec()
 	assert( app_retcode == 0 )
 	
+	# print(editor.getOptions())
+	
 	_editor_edited = True
 	_hook.Platform.StartDisplay()
+	
 	return True
