@@ -60,7 +60,7 @@ class _PageOptionField(QListView):
 		
 		self.formLayout = QFormLayout()
 		self.optSkip = self.addCheckbox('skip this slide')
-		self.optTransition = self.addCombobox('transition', optionSetting['transition_selection'])
+		self.optTransition = self.addCombobox('transition in', optionSetting['transition_selection'])
 		
 		self.listLayout.addWidget(self.listTitle, 1, Qt.AlignTop)
 		self.listLayout.addLayout(self.formLayout, 9)
@@ -190,6 +190,7 @@ class _EditorFormView(QWidget):
 		
 		item = self.newTimgItem(pixmap)
 		self.timgList.addItem(item)
+		self.timgList.setCurrentRow(0)
 	
 	def translateUi(self, lang='en'):
 		return
@@ -240,6 +241,7 @@ class EditorView(QMainWindow):
 		self.ui.editFormView.setPageOptions(options)
 	
 	def getOptions(self):
+		self.ui.editFormView.saveCurrentPage()
 		return self.ui.editFormView.pageOptions
 	
 	def addPage(self, img, size):
@@ -251,5 +253,7 @@ class EditorView(QMainWindow):
 		self.ui.editFormView.addPage(pixmap, size)
 	
 	def closeEvent(self, event):
-		self.ui.editFormView.saveCurrentPage()
 		super().closeEvent(event)
+	
+	def popupMessage(self, msg, title='info'):
+		QMessageBox.information(self, title, msg)

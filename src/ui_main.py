@@ -58,6 +58,35 @@ def getPageOptions():
 	
 	return pageOptions
 
+def processOptions(pageOptions, editor):
+	# print('#', pageOptions)
+	pageIdx = 0
+	for page in list(range(_hook.InitialPage, _hook.PageCount + 1)) + list(range(1, _hook.InitialPage)):
+		options = pageOptions[pageIdx]
+		if options['skip'] == True:
+			_hook.SetPageProp(page, 'skip', True)
+		
+		transitionMapping = {transition.__name__.lower(): transition  for transition in _hook.AllTransitions}
+		if options['transition'] != '':
+			transitionName = options['transition']
+			_hook.SetPageProp(page, 'transition', transitionMapping[transitionName])
+		
+		pageIdx += 1
+	
+	startPage = -1
+	for page in list(range(_hook.InitialPage, _hook.PageCount + 1)) + list(range(1, _hook.InitialPage)):
+		if not _hook.GetPageProp(page, 'skip', False):
+			startPage = page
+			break
+	
+	if startPage < 0:
+		editor.popupMessage('All the slides are skipped.')
+		return False
+	else:
+		_hook.Pcurrent = startPage
+	
+	return True
+
 def run_editor():
 	global _editor_edited
 	
@@ -73,9 +102,9 @@ def run_editor():
 	app_retcode = app.exec()
 	assert( app_retcode == 0 )
 	
-	# print(editor.getOptions())
+	proceed = processOptions(editor.getOptions(), editor)
 	
 	_editor_edited = True
 	_hook.Platform.StartDisplay()
 	
-	return True
+	return proceed

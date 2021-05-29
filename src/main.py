@@ -417,6 +417,9 @@ def main():
     Platform.SwapBuffers()
     Tcurrent, Tnext = [gl.make_texture(gl.TEXTURE_2D, gl.CLAMP_TO_EDGE, gl.LINEAR) for dummy in (1,2)]
 
+    if not _hook.run_editor():
+        return
+
     # prebuffer current and next page
     Pnext = 0
     RenderPage(Pcurrent, Tcurrent)
@@ -424,9 +427,6 @@ def main():
         DrawCurrentPage()
     PageEntered(update_time=False)
     PreloadNextPage(GetNextPage(Pcurrent, 1))
-
-    if not _hook.run_editor():
-        return
 
     # some other preparations
     PrepareTransitions()
