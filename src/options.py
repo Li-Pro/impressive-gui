@@ -5,6 +5,9 @@ def if_op(cond, res_then, res_else):
     else:    return res_else
 
 def HelpExit(code=0):
+    _hook.printHelp()
+    print("impressive\n---")
+    
     print("""A nice presentation tool.
 
 Usage: """+os.path.basename(sys.argv[0])+""" [OPTION...] <INPUT(S)...>

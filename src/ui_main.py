@@ -4,6 +4,8 @@ from PySide6.QtWidgets  import QApplication, QMainWindow
 
 from ui_editor  import EditorView
 
+__version__ = 'pre-alpha'
+
 _editor_edited = False
 
 # the translating hook
@@ -86,6 +88,16 @@ def processOptions(pageOptions, editor):
 		_hook.Pcurrent = startPage
 	
 	return True
+
+def printHelp():
+	print("""
+Impressive GUI [{}]
+---
+An editor of a nice presentation tool.
+
+Usage: edit the presentation in a user-friendly GUI.
+The specified options (see below) would directly be read into impressive.
+""".format(__version__))
 
 def run_editor():
 	global _editor_edited

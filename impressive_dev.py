@@ -91,6 +91,7 @@ if __name__ == "__main__":
         ### post ParseOptions()
         ### main() before prebuffer
         ### StartDisplay() flags
+        ### before HelpExit()
     finally:
         if not(CleanExit) and (os.name == 'nt') and getattr(sys, "frozen", False):
             print()
