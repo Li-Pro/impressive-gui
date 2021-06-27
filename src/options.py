@@ -578,6 +578,7 @@ def ParseOptions(argv):
         if opt.startswith("--vht"):  # DEBUG OPTION ONLY
             Win32FullscreenVideoHackTiming[int(opt[5:])] = float(arg)
 
+    args = _hook.run_openfile(args)
     for arg in args:
         AddFile(arg)
     if not(FileList) and not(EventTestMode):

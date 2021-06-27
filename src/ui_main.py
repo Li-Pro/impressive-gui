@@ -2,7 +2,7 @@ from enum  import Enum
 
 from PySide6.QtWidgets  import QApplication, QMainWindow
 
-from ui_editor  import EditorView
+from ui_editor  import EditorView, FileDialogView
 
 __version__ = 'pre-alpha'
 
@@ -25,6 +25,9 @@ def prepareHook(hookVars):
 	
 	_hook._hook = rhook
 	rhook._hook = _hook
+	
+	global app
+	app = QApplication([])
 
 def setOptions(opts, args):
 	global optmap, optfile
@@ -102,8 +105,6 @@ The specified options (see below) would directly be read into impressive.
 def run_editor():
 	global _editor_edited
 	
-	app = QApplication([])
-	
 	editor = EditorView(getOptionSettings())
 	editor.loadOptions(getPageOptions())
 	for page, size in loadPages():
@@ -120,3 +121,29 @@ def run_editor():
 	_hook.Platform.StartDisplay()
 	
 	return proceed
+
+def getSupportedFiletypes():
+	return {
+		'PDF': ['pdf'],  # pdf
+		
+		'PNG': ['png'],  # png
+		'JPEG': ['jpg', 'jpeg', 'jpe', 'jif', 'jfif', 'jfi'],  # jpg, jpeg
+		'TIFF': ['tiff', 'tif'],  # tiff, tif
+		'BMP': ['bmp', 'dib'],  # bmp
+		'PGM/PPM': ['pbm', 'pgm', 'ppm', 'pnm'],  # [Netpbm] pgm, ppm
+		
+		'AVI': ['avi'],  # avi
+		'MOV/MP4': ['mov', 'qt', 'mp4', 'm4a', 'm4p', 'm4b', 'm4r', 'm4v'],  # [MOV] mov, qt / [MP4] mp4, m4v
+		# ''
+	}
+
+def run_openfile(cli_files):
+	view = FileDialogView()
+	view.setFiletypes(getSupportedFiletypes())
+	view.addFiles(cli_files)
+	
+	view.show()
+	app_retcode = app.exec()
+	assert( app_retcode == 0 )
+	
+	return view.getFilelist()

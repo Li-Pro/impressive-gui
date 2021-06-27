@@ -6,6 +6,7 @@ from PIL  import Image, ImageChops
 from PIL.ImageQt  import ImageQt
 
 from io  import BytesIO
+from pathlib  import Path
 # import threading
 
 class _PageThumbnail(QListWidget):
@@ -257,3 +258,191 @@ class EditorView(QMainWindow):
 	
 	def popupMessage(self, msg, title='info'):
 		QMessageBox.information(self, title, msg)
+
+class FileListModel(QAbstractTableModel):
+	def __init__(self):
+		super().__init__()
+		
+		self.fileList = []
+	
+	def rowCount(self, parent=QModelIndex()):
+		return len(self.fileList)
+	
+	def columnCount(self, parent=QModelIndex()):
+		return 3
+	
+	def headerData(self, section, orientation, role=Qt.DisplayRole):
+		if role == Qt.DisplayRole and orientation == Qt.Horizontal:
+			return ["Name", "Type", "Path"][section]
+		
+		return None
+	
+	def data(self, index, role=Qt.DisplayRole):
+		if role == Qt.DisplayRole:
+			return self.fileList[index.row()][index.column()]
+		
+		return None
+	
+	def addFileItem(self, filename, filepath, filetype, realpath):
+		self.fileList.append( [filename, filetype, filepath, realpath] )
+		
+		row = len(self.fileList) - 1
+		self.headerDataChanged.emit(Qt.Vertical, row, row)
+	
+	def removeItems(self, mask):
+		rowlen = len(self.fileList)
+		
+		newFileList = []
+		for i in range(rowlen):
+			if not i in mask:
+				newFileList.append(self.fileList[i])
+		
+		self.fileList = newFileList
+		self.headerDataChanged.emit(Qt.Vertical, 0, rowlen - 1)
+
+class FileListView(QTableView):
+	@classmethod
+	def shrinkPath(cls, path):
+		maxPathLen = 30
+		return path
+	
+	def __init__(self):
+		super().__init__()
+		
+		self.tableModel = FileListModel()
+		self.setModel(self.tableModel)
+		
+		self.setSelectionBehavior(self.SelectRows)
+		self.horizontalHeader().setStretchLastSection(True)
+		
+		self.extFilter = {}
+	
+	def addFile(self, file):
+		targetpath = Path(file).resolve()
+		
+		if targetpath.is_file():
+			filename = str(targetpath.name)
+			fileext = filename.split('.')[-1]  if ('.' in filename) else ''
+			
+			filepath = self.shrinkPath(str(targetpath.parent))
+			filetype = self.extFilter.get(fileext, 'Unknown')
+			
+			self.tableModel.addFileItem(filename, filepath, filetype, targetpath)
+		elif targetpath.is_dir():
+			filename = str(targetpath.name)
+			filepath = self.shrinkPath(str(targetpath.parent))
+			filetype = 'Folder'
+			
+			self.tableModel.addFileItem(filename, filepath, filetype, targetpath)
+	
+	def getFiles(self):
+		filelist = []
+		for fname, fpath, ftype, target in self.tableModel.fileList:
+			filelist.append(str(target))
+		
+		return filelist
+	
+	def setFilters(self, filters):
+		newfilter = {}
+		for ftype, fexts in filters.items():
+			for fext in fexts:
+				newfilter[fext] = ftype
+		
+		self.extFilter = newfilter
+	
+	@Slot()
+	def onOpenFile(self):
+		files, fileFilter = QFileDialog.getOpenFileNames(self, "Add Files")
+		
+		for file in files:
+			self.addFile(file)
+	
+	@Slot()
+	def onOpenDir(self):
+		path = QFileDialog.getExistingDirectory(self, "Add Directory")
+		
+		if path:
+			self.addFile(path)
+	
+	@Slot()
+	def onRemove(self):
+		idxs = set()
+		for idx in self.selectedIndexes():
+			idxs.add(idx.row())
+		
+		self.tableModel.removeItems(idxs)
+
+class Ui_openfile(object):
+	def setupUi(self, view):
+		self.view = view
+		self.view.resize(560, 420)
+		
+		# self.tableCaption = QLabel()
+		self.table = FileListView()
+		
+		self.btnOpenFile = QPushButton()
+		self.btnOpenFile.clicked.connect(self.table.onOpenFile)
+		
+		self.btnOpenDir = QPushButton()
+		self.btnOpenDir.clicked.connect(self.table.onOpenDir)
+		
+		self.btnRemove = QPushButton()
+		self.btnRemove.clicked.connect(self.table.onRemove)
+		
+		self.layout = QGridLayout()
+		self.tableLayout = QVBoxLayout()
+		# self.tableLayout.addWidget(self.tableCaption)
+		self.tableLayout.addWidget(self.table)
+		self.layout.addItem(self.tableLayout, 0, 0)
+		
+		self.btnLayout = QVBoxLayout()
+		self.btnLayout.addWidget(self.btnOpenFile)
+		self.btnLayout.addWidget(self.btnOpenDir)
+		self.btnLayout.addWidget(self.btnRemove)
+		# self.btnLayout.addStretch(1)
+		self.layout.addItem(self.btnLayout, 0, 1)
+		
+		self.view.setLayout(self.layout)
+		
+		self.translateUi()
+	
+	def translateUi(self, lang='en'):
+		self.view.setWindowTitle('Open')
+		# self.tableCaption.setText('Add files to presentation')
+		self.btnOpenFile.setText('Add File...')
+		self.btnOpenDir.setText('Add Folder...')
+		self.btnRemove.setText('Remove')
+
+class FileDialogView(QWidget):
+	def __init__(self):
+		super().__init__()
+		
+		self.ui = Ui_openfile()
+		self.ui.setupUi(self)
+		
+		self.setAcceptDrops(True)
+	
+	def setFiletypes(self, filters):
+		self.ui.table.setFilters(filters)
+	
+	def addFiles(self, fileList):
+		for file in fileList:
+			self.ui.table.addFile(file)
+	
+	def getFilelist(self):
+		return self.ui.table.getFiles()
+	
+	def dragMoveEvent(self, event):
+		event.setDropAction(Qt.CopyAction)
+	
+	def dragEnterEvent(self, event):
+		mimeData = event.mimeData()
+		
+		if all(url.isLocalFile()  for url in mimeData.urls()):
+			event.acceptProposedAction()
+	
+	def dropEvent(self, event):
+		mimeData = event.mimeData()
+		localFiles = [url.toLocalFile()  for url in mimeData.urls()]
+		
+		self.addFiles(localFiles)
