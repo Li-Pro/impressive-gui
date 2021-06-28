@@ -2,7 +2,7 @@ from enum  import Enum
 
 from PySide6.QtWidgets  import QApplication, QMainWindow
 
-from ui_editor  import EditorView, FileDialogView
+from src.ui_editor  import EditorView, FileDialogView
 
 __version__ = 'pre-alpha'
 

@@ -64,7 +64,7 @@ execfile('src/main.py', globals())
 execfile("src/options.py", globals())
 
 # _hook
-import ui_main
+from src  import ui_main
 
 # use this function if you intend to use Impressive as a library
 def run():
