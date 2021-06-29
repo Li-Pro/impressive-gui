@@ -1,4 +1,5 @@
 from enum  import Enum
+import subprocess
 
 from PySide6.QtWidgets  import QApplication, QMainWindow
 
@@ -19,6 +20,10 @@ class Hook:
 	def __getattr__(self, name):
 		return self._hook_hookVars[name]
 
+def windowedPopen(*args, **kwargs):
+	stInfo = subprocess.STARTUPINFO(dwFlags=subprocess.STARTF_USESHOWWINDOW)
+	return subprocess.Popen(*args, startupinfo=stInfo, **kwargs)
+
 def prepareHook(hookVars):
 	_hook = Hook(hookVars)
 	rhook = Hook(globals())
@@ -28,6 +33,8 @@ def prepareHook(hookVars):
 	
 	global app
 	app = QApplication([])
+	
+	_hook.Popen = windowedPopen
 
 def setOptions(opts, args):
 	global optmap, optfile
