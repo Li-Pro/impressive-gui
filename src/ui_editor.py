@@ -14,11 +14,22 @@ class _PageThumbnail(QListWidget):
 		super().__init__()
 		self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-class _ImageView(QLabel):
+class _ImageView(QWidget):
 	def __init__(self):
 		super().__init__()
+		
+		self._image = QLabel()
+		
+		self._imageLayout = QGridLayout()
+		self._imageLayout.setContentsMargins(0, 0, 0, 0)
+		self._imageLayout.setSpacing(0)
+		self._imageLayout.addWidget(self._image, 1, 1)
+		self._imageLayout.setRowStretch(1, 1)
+		self._imageLayout.setColumnStretch(1, 1)
+		self.setLayout(self._imageLayout)
+		
 		self.pixmap = None
-		self.currentSize = QSize(600, 450)
+		self.currentSize = QSize(100, 100)
 	
 	def __resetSize(self, viewRect):
 		self.currentSize = viewRect
@@ -29,12 +40,12 @@ class _ImageView(QLabel):
 		viewH = int(imgSize.height() * ratio)
 		
 		scaledImg = self.pixmap.scaled(viewW, viewH, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-		## gridlayout + spacer
-		# centerTrans = QTransform.fromTranslate((viewRect.width() - imgSize.width()) / 2,
-												# (viewRect.height() - imgSize.height()) / 2)
-		# centerImg = scaledImg.transformed(centerTrans)
-		# self.setPixmap(centerImg)
-		self.setPixmap(scaledImg)
+		
+		offsetW, offsetH = (viewRect.width() - viewW) / 2, (viewRect.height() - viewH) / 2
+		self._imageLayout.setColumnMinimumWidth(0, offsetW)
+		self._imageLayout.setRowMinimumHeight(0, offsetH)
+		
+		self._image.setPixmap(scaledImg)
 	
 	def setImage(self, pixmap):
 		self.pixmap = pixmap
@@ -201,7 +212,6 @@ class Ui_editor(object):
 		if not editor.objectName():
 			editor.setObjectName(u"editor")
 		
-		editor.resize(800, 600)
 		self.mainWindow = editor
 		
 		self.mainView = QWidget(editor)
@@ -237,6 +247,7 @@ class EditorView(QMainWindow):
 		super().__init__()
 		self.ui = Ui_editor()
 		self.ui.setupUi(self, optionSetting)
+		self.setWindowState(self.windowState() | Qt.WindowMaximized)
 	
 	def loadOptions(self, options):
 		self.ui.editFormView.setPageOptions(options)
@@ -375,7 +386,7 @@ class FileListView(QTableView):
 class Ui_openfile(object):
 	def setupUi(self, view):
 		self.view = view
-		self.view.resize(560, 420)
+		self.view.resize(800, 600)
 		
 		# self.tableCaption = QLabel()
 		self.table = FileListView()
