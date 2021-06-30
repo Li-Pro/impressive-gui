@@ -44,12 +44,15 @@ def setOptions(opts, args):
 def isEdited():
 	return _editor_edited
 
-def loadPages():
+def loadPages(editor):
 	pages = []
 	for pageId in list(range(_hook.InitialPage, _hook.PageCount + 1)) + list(range(1, _hook.InitialPage)):
-		pages.append( (_hook.PageImage(pageId), (_hook.TexWidth, _hook.TexHeight)))
+		def getPageRenderer(idx):
+			return (lambda: _hook.PageImage(idx))
+		
+		pages.append(getPageRenderer(pageId))
 	
-	return pages
+	editor.addPages(pages, (_hook.TexWidth, _hook.TexHeight))
 
 def getOptionSettings():
 	settings = {
@@ -114,8 +117,7 @@ def run_editor():
 	
 	editor = EditorView(getOptionSettings())
 	editor.loadOptions(getPageOptions())
-	for page, size in loadPages():
-		editor.addPage(page, size)
+	loadPages(editor)
 	
 	editor.show()
 	

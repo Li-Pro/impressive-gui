@@ -1,13 +1,21 @@
-from PySide6.QtCore import *
-from PySide6.QtGui import *
-from PySide6.QtWidgets import *
+from io  import BytesIO
+from pathlib  import Path
+from threading  import Thread
 
 from PIL  import Image, ImageChops
 from PIL.ImageQt  import ImageQt
 
-from io  import BytesIO
-from pathlib  import Path
-# import threading
+from PySide6.QtCore import *
+from PySide6.QtGui import *
+from PySide6.QtWidgets import *
+
+def _extractPixmap(img, size):
+	buf = BytesIO()
+	Image.frombytes('RGB', size, img).save(buf, format='png')
+	image = QImage.fromData(buf.getvalue(), format='png')
+	pixmap = QPixmap.fromImage(image)
+	
+	return pixmap
 
 class _PageThumbnail(QListWidget):
 	def __init__(self):
@@ -193,16 +201,11 @@ class _EditorFormView(QWidget):
 	def viewPage(self, row):
 		self.slideView.setImage(self.pageImages[row])
 	
-	def addPage(self, pixmap, size):
+	def addPage(self, pixmap):
 		self.pageImages.append(pixmap)
-		
-		# broke for different page sizes
-		width, height = pixmap.size().width(), pixmap.size().height()
-		self.timgList.setIconSize(QSize(130, height*130//width))
 		
 		item = self.newTimgItem(pixmap)
 		self.timgList.addItem(item)
-		self.timgList.setCurrentRow(0)
 	
 	def translateUi(self, lang='en'):
 		return
@@ -256,13 +259,25 @@ class EditorView(QMainWindow):
 		self.ui.editFormView.saveCurrentPage()
 		return self.ui.editFormView.pageOptions
 	
-	def addPage(self, img, size):
-		buf = BytesIO()
-		Image.frombytes('RGB', size, img).save(buf, format='png')
-		image = QImage.fromData(buf.getvalue(), format='png')
-		pixmap = QPixmap.fromImage(image)
+	def addPages(self, pages, size):
+		width, height = size
+		formView = self.ui.editFormView
+		formView.timgList.setIconSize(QSize(130, height*130//width))
 		
-		self.ui.editFormView.addPage(pixmap, size)
+		def renderPageImage(page):
+			img = page()  if callable(page) else page
+			return _extractPixmap(img, size)
+		
+		pixmap = renderPageImage(pages[0])
+		formView.addPage(pixmap)
+		formView.timgList.setCurrentRow(0)
+		
+		def loadPages():
+			for page in pages[1:]:
+				pixmap = renderPageImage(page)
+				formView.addPage(pixmap)
+		
+		Thread(target=loadPages).start()
 	
 	def closeEvent(self, event):
 		super().closeEvent(event)
